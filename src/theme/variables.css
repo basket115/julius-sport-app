@@ -1,0 +1,232 @@
+/* ======================================================
+   Ionic CSS Variables – SG Gierath
+   ====================================================== */
+
+   :root {
+    /* ===== Primary (Scorpions Gelb) ===== */
+    --ion-color-primary: #f4c400;
+    --ion-color-primary-rgb: 244, 196, 0;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+    --ion-color-primary-shade: #d7ac00;
+    --ion-color-primary-tint: #f6ce33;
+  
+    /* ===== Secondary (Dunkel) ===== */
+    --ion-color-secondary: #1c1c1c;
+    --ion-color-secondary-rgb: 28, 28, 28;
+    --ion-color-secondary-contrast: #ffffff;
+    --ion-color-secondary-contrast-rgb: 255, 255, 255;
+    --ion-color-secondary-shade: #191919;
+    --ion-color-secondary-tint: #333333;
+  
+    /* ===== Success ===== */
+    --ion-color-success: #2dd36f;
+    --ion-color-success-rgb: 45, 211, 111;
+    --ion-color-success-contrast: #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade: #28ba62;
+    --ion-color-success-tint: #42d77d;
+  
+    /* ===== Warning ===== */
+    --ion-color-warning: #ffc409;
+    --ion-color-warning-rgb: 255, 196, 9;
+    --ion-color-warning-contrast: #000000;
+    --ion-color-warning-contrast-rgb: 0, 0, 0;
+    --ion-color-warning-shade: #e0ac08;
+    --ion-color-warning-tint: #ffca22;
+  
+    /* ===== Danger ===== */
+    --ion-color-danger: #eb445a;
+    --ion-color-danger-rgb: 235, 68, 90;
+    --ion-color-danger-contrast: #ffffff;
+    --ion-color-danger-contrast-rgb: 255, 255, 255;
+    --ion-color-danger-shade: #cf3c4f;
+    --ion-color-danger-tint: #ed576b;
+  
+    /* ===== Base ===== */
+    --ion-background-color: #ffffff;
+    --ion-text-color: #111111;
+  
+    --ion-card-background: #ffffff;
+    --ion-item-background: #ffffff;
+  
+    /* ===== Typography ===== */
+    --ion-font-family: -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+    /* ===== Radius ===== */
+    --ion-border-radius: 12px;
+  }
+  
+  /* ======================================================
+     Dark Mode
+     ====================================================== */
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ion-background-color: #121212;
+      --ion-text-color: #ffffff;
+  
+      --ion-card-background: #1e1e1e;
+      --ion-item-background: #1e1e1e;
+  
+      --ion-color-primary-contrast: #000000;
+    }
+  }
+  
+  /* ======================================================
+     App Header (SG Gierath)
+     ====================================================== */
+  
+  .sf-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+  
+  .sf-toolbar {
+    --min-height: 72px;
+    --background: var(--ion-background-color);
+    --color: var(--ion-text-color);
+  }
+  
+  .sf-header__inner {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+  }
+  
+  .sf-header__badge {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+  }
+  
+  .sf-header__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sf-header__title {
+    padding: 0;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .sf-header__subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* ======================================================
+     Feed Cards
+     ====================================================== */
+  
+  ion-card {
+    border-radius: 14px;
+  }
+  
+  .feed-chip {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  
+  .feed-chip.news {
+    background: rgba(244, 196, 0, 0.15);
+    color: #b48c00;
+  }
+  
+  .feed-chip.result {
+    background: rgba(45, 211, 111, 0.15);
+    color: #1c7c4a;
+  }
+  
+  .feed-chip.training {
+    background: rgba(66, 133, 244, 0.15);
+    color: #2a56c6;
+  }
+  /* ======================================================
+   Result Layout
+   ====================================================== */
+
+.result-box {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.result-team {
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-team--home {
+  text-align: left;
+}
+
+.result-team--away {
+  text-align: right;
+}
+
+.result-score {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(244, 196, 0, 0.25);
+  font-weight: 900;
+}
+
+.result-score__num {
+  font-size: 18px;
+}
+
+.result-score__sep {
+  opacity: 0.6;
+}
+
+.result-highlights {
+  margin-top: 10px;
+  font-weight: 800;
+  opacity: 0.9;
+  white-space: pre-wrap;
+}
+
+.result-text {
+  margin-top: 8px;
+  opacity: 0.85;
+  white-space: pre-wrap;
+}

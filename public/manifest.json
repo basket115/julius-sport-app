@@ -1,0 +1,17 @@
+{
+  "short_name": "Julius App",
+  "name": "Julius App",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/k7YobUF.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.imgur.com/k7YobUF.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
