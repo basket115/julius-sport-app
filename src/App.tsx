@@ -1,161 +1,116 @@
-import React, { useState } from 'react';
-import { IonApp, IonAlert, IonLoading } from '@ionic/react';
-import Tab1 from './pages/Tab1';
+// src/App.tsx
 
+import React, { useEffect, useState } from 'react';
+import { IonApp } from '@ionic/react';
+import Tab1 from './pages/Tab1';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 import './theme/variables.css';
+import { fetchBranding, Branding } from './utils/remoteConfig';
 
-const ADMIN_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbzXELr3JQkbS7FUzau5zktFLsJjKRonTQu6d_n4YgA4vDe4qQR7hCWLctbuAGskvP3z3g/exec';
-
-interface KundenConfig {
-  kundenId: string;
-  vereinName: string;
-  sheetId: string;
-  logoVerein: string;
-  logoSponsor: string;
-  headlineText: string;
-  sponsorBannerText: string;
-  sponsorBannerBild: string;
-  themaFarbe: string;
-  status: string;
-  demoEnde: string;
-
-  // ✅ NEU: aus Kunden_Master.ReadOnly
-  readOnly: boolean;
-}
-
-interface Sponsor {
-  Logo_URL: string;
-  Banner_Text: string;
-  Banner_Bild_URL: string;
-  Slot: string;
-}
+export const BrandingContext = React.createContext<{
+  branding: Branding | null;
+  loading: boolean;
+  reload: () => Promise<void>;
+}>({
+  branding: null,
+  loading: false,
+  reload: async () => {},
+});
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [branding, setBranding] = useState<Branding | null>(null);
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<KundenConfig | null>(null);
-  const [sponsoren, setSponsoren] = useState<Sponsor[]>([]);
-  const [showLogin, setShowLogin] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = async (password: string) => {
-    if (!password) return;
+  const getKundenId = () => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('kunde');
+    if (fromUrl) {
+      localStorage.setItem('Kunden_ID', fromUrl);
+      return fromUrl;
+    }
+    return localStorage.getItem('Kunden_ID') || 'V004';
+  };
+
+  const reload = async () => {
     setLoading(true);
-
     try {
-      const url = `${ADMIN_SCRIPT_URL}?password=${encodeURIComponent(password)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      
-     
-
-      if (data.success && data.kunde) {
-        const k = data.kunde;
-
-       // ✅ ReadOnly direkt vom Backend verwenden
-const readOnly = data.readOnly === true;
-
-        setConfig({
-          kundenId: k.Kunden_ID,
-          vereinName: k.Verein_Name,
-          sheetId: k.Sheet_ID,
-          logoVerein: k.Logo_Verein,
-          logoSponsor: k.Logo_Sponsor,
-          headlineText: k.Headline_Text,
-          sponsorBannerText: k.Sponsor_Banner_Text,
-          sponsorBannerBild: k.Sponsorn_Banner_Bild,
-          themaFarbe: k.Thema_Farbe || '#1a3a6b',
-          status: k.Status,
-          demoEnde: k.Demo_Ende,
-
-          // ✅ NEU
-          readOnly,
-        });
-
-        setSponsoren(data.sponsoren || []);
-        setIsLoggedIn(true);
-        setShowLogin(false);
-      } else {
-        if (data.error === 'Demo abgelaufen') {
-          setErrorMsg('⏰ Deine Demo-Lizenz ist abgelaufen. Bitte kontaktiere uns.');
-        } else if (data.error === 'Demo deaktiviert') {
-          setErrorMsg('🚫 Dieser Zugang wurde deaktiviert.');
-        } else {
-          setErrorMsg('❌ Passwort ungültig. Bitte versuche es erneut.');
-        }
-      }
-    } catch (err) {
-      setErrorMsg('🌐 Verbindungsfehler. Bitte prüfe deine Internetverbindung.');
+      const kundenId = getKundenId();
+      const data = await fetchBranding(kundenId);
+      setBranding(data);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Admin-Flag zentral (Demo = readOnly = true)
-  const isAdmin = !!config && config.readOnly === false;
+  useEffect(() => {
+    reload();
+  }, []);
+
+  const handleLogin = () => {
+    if (password === (branding as any)?.Passwort) {
+      setIsAuthenticated(true);
+      setError('');
+    } else {
+      setError('❌ Falsches Passwort!');
+    }
+  };
+
+  const isAdmin = !!(branding as any)?.Passwort;
+
+  if (branding && isAdmin && !isAuthenticated) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', height: '100vh',
+        backgroundColor: branding.Thema_Farbe || '#111111'
+      }}>
+        {(branding as any).Logo_verein && (
+          <img
+            src={(branding as any).Logo_verein}
+            alt="Logo"
+            style={{ width: 80, height: 80, borderRadius: 16, marginBottom: 16, objectFit: 'contain', background: 'white', padding: 8 }}
+          />
+        )}
+        <h2 style={{ color: 'white', marginBottom: 4 }}>{branding.Verein_Name}</h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>Admin Login</p>
+        <input
+          type="password"
+          placeholder="Passwort eingeben"
+          value={password}
+          onChange={(e: any) => setPassword(e.target.value)}
+          onKeyDown={(e: any) => e.key === 'Enter' && handleLogin()}
+          style={{
+            padding: 12, borderRadius: 10, border: 'none',
+            marginBottom: 10, width: 260, fontSize: 16
+          }}
+        />
+        {error && <p style={{ color: '#ff6b6b', marginBottom: 8 }}>{error}</p>}
+        <button
+          onClick={handleLogin}
+          style={{
+            padding: '12px 40px', borderRadius: 10, border: 'none',
+            backgroundColor: 'white', color: branding.Thema_Farbe || '#111111',
+            fontWeight: 'bold', fontSize: 16, cursor: 'pointer', width: 260
+          }}
+        >
+          Einloggen
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <IonApp>
-      <IonAlert
-        isOpen={showLogin && !isLoggedIn}
-        header="Vereins-Login"
-        subHeader="Bitte gib dein Vereinspasswort ein"
-        inputs={[{ name: 'password', type: 'password', placeholder: 'Passwort' }]}
-        buttons={[
-          {
-            text: 'Anmelden',
-            handler: (d) => {
-              handleLogin(d.password);
-              return false;
-            },
-          },
-        ]}
-        backdropDismiss={false}
-      />
-
-      <IonAlert
-        isOpen={!!errorMsg}
-        header="Hinweis"
-        message={errorMsg}
-        buttons={[
-          {
-            text: 'OK',
-            handler: () => {
-              setErrorMsg('');
-              setShowLogin(true);
-            },
-          },
-        ]}
-      />
-
-      <IonLoading isOpen={loading} message="Lade Vereinsdaten..." />
-
-      {isLoggedIn && config && (
-        <Tab1
-          vereinName={config.vereinName}
-          logoVerein={config.logoVerein}
-          sponsorLogo={config.logoSponsor}
-          sponsorText={config.sponsorBannerText}
-          sponsorBannerBild={config.sponsorBannerBild}
-          headlineText={config.headlineText}
-          themaFarbe={config.themaFarbe}
-          sheetId={config.sheetId}
-          demoEnde={config.demoEnde}
-          sponsoren={sponsoren}
-          kundenId={config.kundenId}
-          scriptUrl={ADMIN_SCRIPT_URL}
-
-          // ✅ NEU: Rechte nach unten durchreichen
-          readOnly={config.readOnly}
-          isAdmin={isAdmin}
-        />
-      )}
-    </IonApp>
+    <BrandingContext.Provider value={{ branding, loading, reload }}>
+      <IonApp>
+        <Tab1 />
+      </IonApp>
+    </BrandingContext.Provider>
   );
 };
 
