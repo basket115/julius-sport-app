@@ -12,8 +12,6 @@ const CategoriesComponent: React.FC = () => {
           `https://script.google.com/macros/s/AKfycbwY655J19xdqsAg904r4DdRdqL3Zl58hgIURHi9lnpYga8NeWZno0iBrY27ftoqiDywRg/exec?action=get_branding&kundenId=V004`
         );
         const data = await response.json();
-        console.log("API Antwort:", data);  // Protokolliere die Antwort
-
         if (data.success) {
           setCategories(data.branding.Kategorien);  // Kategorien setzen
         } else {
@@ -27,7 +25,7 @@ const CategoriesComponent: React.FC = () => {
     };
 
     fetchCategories();
-  }, []);
+  }, []);  // Läuft nur einmal beim ersten Laden der Komponente
 
   return (
     <div>
