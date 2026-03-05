@@ -29,7 +29,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "eslint-plugin-react-hooks": "^4.0.8",  // Ergänzung des ESLint-Plugins
+    "eslint-plugin-react-hooks": "^4.0.8",  // Entferne den Kommentar
     "react-scripts": "latest"
   }
 }
