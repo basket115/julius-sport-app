@@ -5,7 +5,7 @@ import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbzyZN60q75nNVhqHWZBV6gbX6IEa7Zu1KmZkhttxPIzJmXjb3v03xLcOW5T3PxicqT8EA/exec";
+  "https://script.google.com/macros/s/AKfycbxWR_Bb-sLLQNVpzg4PT7HNDiMI6BjMfZkbl_pU05gf5wamqBGNmNOrJ4ftf-TcXaKVwA/exec";
 
 const Tab1: React.FC = () => {
   const { branding, loading, reload } = useContext(BrandingContext);
