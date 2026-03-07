@@ -1,8 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
-
-
 
 export const BrandingContext = createContext<any>(null);
 
@@ -33,9 +30,10 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
-useEffect(() => {
+  useEffect(() => {
     loadBranding();
   }, []); // eslint-disable-line
+
   const reload = () => loadBranding();
 
   const handleLogin = async () => {
@@ -58,31 +56,19 @@ useEffect(() => {
 
   const isAdmin = !!(branding as any)?.Passwort;
 
-  // Loading screen
   if (loading) {
     return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', backgroundColor: '#111'
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
         <div style={{ color: 'white', fontSize: 18 }}>Laden...</div>
       </div>
     );
   }
 
-  // Login screen for admins
   if (branding && isAdmin && !isAuthenticated) {
     return (
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100vh',
-        backgroundColor: branding.Thema_Farbe || '#111111'
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: branding.Thema_Farbe || '#111111' }}>
         {branding.Logo_verein && (
-          <img src={branding.Logo_verein} alt="Logo" style={{
-            width: 80, height: 80, borderRadius: 16,
-            marginBottom: 16, objectFit: 'contain'
-          }} />
+          <img src={branding.Logo_verein} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, marginBottom: 16, objectFit: 'contain' }} />
         )}
         <h2 style={{ color: 'white', marginBottom: 4 }}>{branding.Verein_Name}</h2>
         <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>Admin Login</p>
@@ -92,19 +78,12 @@ useEffect(() => {
           value={password}
           onChange={(e: any) => setPassword(e.target.value)}
           onKeyDown={(e: any) => e.key === 'Enter' && handleLogin()}
-          style={{
-            padding: 12, borderRadius: 10, border: 'none',
-            marginBottom: 10, width: 260, fontSize: 16
-          }}
+          style={{ padding: 12, borderRadius: 10, border: 'none', marginBottom: 10, width: 260, fontSize: 16 }}
         />
         {error && <p style={{ color: '#ff6b6b', marginBottom: 8 }}>{error}</p>}
         <button
           onClick={handleLogin}
-          style={{
-            padding: '12px 40px', borderRadius: 10, border: 'none',
-            backgroundColor: 'white', color: branding.Thema_Farbe || '#111111',
-            fontWeight: 'bold', fontSize: 16, cursor: 'pointer', width: 260
-          }}
+          style={{ padding: '12px 40px', borderRadius: 10, border: 'none', backgroundColor: 'white', color: branding.Thema_Farbe || '#111111', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', width: 260 }}
         >
           Einloggen
         </button>
@@ -112,12 +91,9 @@ useEffect(() => {
     );
   }
 
-  // Main app
   return (
     <BrandingContext.Provider value={{ branding, loading, reload }}>
-      <IonApp>
-        <Tab1 />
-      </IonApp>
+      <Tab1 />
     </BrandingContext.Provider>
   );
 };
