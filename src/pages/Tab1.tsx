@@ -1,7 +1,6 @@
 // src/pages/Tab1.tsx
 
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { IonContent, IonPage } from '@ionic/react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
 
@@ -25,7 +24,6 @@ const Tab1: React.FC = () => {
   const logoUrl = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
 
-  // ✅ Kategorien als Array ODER String unterstützen
   const kategorienFinal: string[] = useMemo(() => {
     const kat = b?.Kategorien;
     if (Array.isArray(kat) && kat.length) return kat;
@@ -51,7 +49,6 @@ const Tab1: React.FC = () => {
     if (branding?.Kunden_ID) ladeBeitraege();
   }, [branding?.Kunden_ID, ladeBeitraege]);
 
-  // ✅ Standard-Kategorie setzen
   useEffect(() => {
     if (kategorienFinal.length === 0) return;
     setKategorie((prev) => {
@@ -103,7 +100,7 @@ const Tab1: React.FC = () => {
   const demoTage = getDemoTage();
 
   return (
-    <IonPage>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <AppHeader
         title={b?.Verein_Name || 'Sport App'}
         logoUrl={logoUrl}
@@ -112,194 +109,108 @@ const Tab1: React.FC = () => {
         onRefresh={reload}
         loading={loading}
       />
-      <IonContent fullscreen>
-        <div style={{ padding: 16 }}>
-          {demoTage && (
-            <div
-              style={{
-                backgroundColor: '#f0a500',
-                borderRadius: 10,
-                padding: '12px 16px',
-                marginBottom: 12,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: 15,
-              }}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
+        {demoTage && (
+          <div style={{
+            backgroundColor: '#f0a500', borderRadius: 10,
+            padding: '12px 16px', marginBottom: 12,
+            textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15,
+          }}>
+            ⏱ Demo läuft noch {demoTage} Tage
+          </div>
+        )}
+
+        {isAdmin && !showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            style={{
+              width: '100%', padding: 14, borderRadius: 10,
+              backgroundColor: themaFarbe, border: 'none',
+              color: 'white', fontWeight: 'bold', fontSize: 16,
+              cursor: 'pointer', marginBottom: 16,
+            }}
+          >
+            ⊕ NEUEN BEITRAG ERSTELLEN
+          </button>
+        )}
+
+        {isAdmin && showForm && (
+          <div style={{
+            background: '#f9f9f9', borderRadius: 12,
+            padding: 16, marginBottom: 20, border: '1px solid #ddd',
+          }}>
+            <h3 style={{ marginTop: 0 }}>📝 Neuer Beitrag</h3>
+
+            <input
+              placeholder="Titel"
+              value={titel}
+              onChange={(e: any) => setTitel(e.target.value)}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
+            <textarea
+              placeholder="Text"
+              value={text}
+              onChange={(e: any) => setText(e.target.value)}
+              rows={4}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
+            <input
+              placeholder="Bild URL (optional)"
+              value={bildUrl}
+              onChange={(e: any) => setBildUrl(e.target.value)}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
+
+            <select
+              value={kategorie || kategorienFinal[0]}
+              onChange={(e: any) => setKategorie(e.target.value)}
+              style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: '1px solid #ccc' }}
             >
-              ⏱ Demo läuft noch {demoTage} Tage
-            </div>
-          )}
+              {kategorienFinal.map((k) => (
+                <option key={k} value={k}>{k}</option>
+              ))}
+            </select>
 
-          {isAdmin && !showForm && (
-            <button
-              onClick={() => setShowForm(true)}
-              style={{
-                width: '100%',
-                padding: 14,
-                borderRadius: 10,
-                backgroundColor: themaFarbe,
-                border: 'none',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: 16,
-                cursor: 'pointer',
-                marginBottom: 16,
-              }}
-            >
-              ⊕ NEUEN BEITRAG ERSTELLEN
-            </button>
-          )}
+            {success && <p style={{ color: 'green' }}>{success}</p>}
 
-          {isAdmin && showForm && (
-            <div
-              style={{
-                background: '#f9f9f9',
-                borderRadius: 12,
-                padding: 16,
-                marginBottom: 20,
-                border: '1px solid #ddd',
-              }}
-            >
-              <h3 style={{ marginTop: 0 }}>📝 Neuer Beitrag</h3>
-
-              <input
-                placeholder="Titel"
-                value={titel}
-                onChange={(e: any) => setTitel(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  marginBottom: 8,
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  boxSizing: 'border-box',
-                }}
-              />
-
-              <textarea
-                placeholder="Text"
-                value={text}
-                onChange={(e: any) => setText(e.target.value)}
-                rows={4}
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  marginBottom: 8,
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  boxSizing: 'border-box',
-                }}
-              />
-
-              <input
-                placeholder="Bild URL (optional)"
-                value={bildUrl}
-                onChange={(e: any) => setBildUrl(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  marginBottom: 8,
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  boxSizing: 'border-box',
-                }}
-              />
-
-              {/* ✅ Dropdown pro Verein – aus Sheet */}
-              <select
-                value={kategorie || kategorienFinal[0]}
-                onChange={(e: any) => setKategorie(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  marginBottom: 12,
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                }}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setShowForm(false)}
+                style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #ccc', backgroundColor: 'white', cursor: 'pointer' }}
               >
-                {kategorienFinal.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-
-              {success && <p style={{ color: 'green' }}>{success}</p>}
-
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => setShowForm(false)}
-                  style={{
-                    flex: 1,
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '1px solid #ccc',
-                    backgroundColor: 'white',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Abbrechen
-                </button>
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={saving}
-                  style={{
-                    flex: 2,
-                    padding: 12,
-                    borderRadius: 8,
-                    border: 'none',
-                    backgroundColor: themaFarbe,
-                    color: 'white',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {saving ? 'Speichern...' : 'Veröffentlichen'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {beitraege.length === 0 ? (
-            <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
-              Noch keine Beiträge. Erstelle deinen ersten!
-            </p>
-          ) : (
-            beitraege.map((b, i) => (
-              <div
-                key={i}
-                style={{
-                  background: 'white',
-                  borderRadius: 12,
-                  padding: 16,
-                  marginBottom: 12,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                }}
+                Abbrechen
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', backgroundColor: themaFarbe, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
               >
-                {b.Bild_URL && (
-                  <img
-                    src={b.Bild_URL}
-                    alt=""
-                    style={{
-                      width: '100%',
-                      borderRadius: 8,
-                      marginBottom: 8,
-                    }}
-                  />
-                )}
-                <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
-                  {b.Kategorie} • {b.Datum}
-                </div>
-                <h3 style={{ margin: '0 0 8px 0' }}>{b.Titel}</h3>
-                <p style={{ margin: 0, color: '#555' }}>{b.Text}</p>
+                {saving ? 'Speichern...' : 'Veröffentlichen'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {beitraege.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
+            Noch keine Beiträge. Erstelle deinen ersten!
+          </p>
+        ) : (
+          beitraege.map((b, i) => (
+            <div key={i} style={{ background: 'white', borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              {b.Bild_URL && (
+                <img src={b.Bild_URL} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8 }} />
+              )}
+              <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
+                {b.Kategorie} • {b.Datum}
               </div>
-            ))
-          )}
-        </div>
-      </IonContent>
-    </IonPage>
+              <h3 style={{ margin: '0 0 8px 0' }}>{b.Titel}</h3>
+              <p style={{ margin: 0, color: '#555' }}>{b.Text}</p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   );
 };
 
