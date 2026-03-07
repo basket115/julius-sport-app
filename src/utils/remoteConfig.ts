@@ -11,7 +11,7 @@ export type Branding = {
 };
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbwUNDpYCF3Jp3168PiUIlElCdwD-ZW7FdAmN_dljZ2BcQ1JKFnzgaTUTD3FxuJTfXeJrA/exec";
+  "https://script.google.com/macros/s/AKfycbzyZN60q75nNVhqHWZBV6gbX6IEa7Zu1KmZkhttxPIzJmXjb3v03xLcOW5T3PxicqT8EA/exec";
 
 export async function fetchBranding(kundenId: string): Promise<Branding | null> {
   try {
