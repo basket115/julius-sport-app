@@ -33,11 +33,9 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
+useEffect(() => {
     loadBranding();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kundenId]);
-
+  }, []); // eslint-disable-line
   const reload = () => loadBranding();
 
   const handleLogin = async () => {
