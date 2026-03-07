@@ -1,6 +1,6 @@
 // src/pages/Tab1.tsx
 
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -25,40 +25,17 @@ const Tab1: React.FC = () => {
   const logoUrl = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
 
-  // ✅ FIX: Kategorien als Array ODER String unterstützen
+  // ✅ Kategorien als Array ODER String unterstützen
   const kategorienFinal: string[] = useMemo(() => {
     const kat = b?.Kategorien;
-
-    // Apps Script gibt Array zurück → direkt nutzen
     if (Array.isArray(kat) && kat.length) return kat;
-
-    // Fallback: kommagetrenner String
     if (typeof kat === 'string' && kat.trim()) {
       return kat.split(',').map((k: string) => k.trim()).filter(Boolean);
     }
-
-    // Letzter Fallback wenn Sheet leer
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
-  useEffect(() => {
-    if (branding?.Kunden_ID) ladeBeitraege();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branding]);
-
-  // ✅ Standard-Kategorie setzen (erste Kategorie aus kategorienFinal)
-  useEffect(() => {
-    if (!kategorie && kategorienFinal.length) {
-      setKategorie(kategorienFinal[0]);
-      return;
-    }
-    if (kategorie === 'News' && kategorienFinal[0] !== 'News') {
-      setKategorie(kategorienFinal[0]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kategorienFinal.join('|')]);
-
-  const ladeBeitraege = async () => {
+  const ladeBeitraege = useCallback(async () => {
     try {
       const res = await fetch(
         `${API_EXEC_URL}?action=get_beitraege&kundenId=${branding?.Kunden_ID}`
@@ -68,7 +45,21 @@ const Tab1: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [branding?.Kunden_ID]);
+
+  useEffect(() => {
+    if (branding?.Kunden_ID) ladeBeitraege();
+  }, [branding?.Kunden_ID, ladeBeitraege]);
+
+  // ✅ Standard-Kategorie setzen
+  useEffect(() => {
+    if (kategorienFinal.length === 0) return;
+    setKategorie((prev) => {
+      if (!prev) return kategorienFinal[0];
+      if (prev === 'News' && kategorienFinal[0] !== 'News') return kategorienFinal[0];
+      return prev;
+    });
+  }, [kategorienFinal]);
 
   const handleSubmit = async () => {
     if (!titel || !text) return;
