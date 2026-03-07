@@ -11,8 +11,9 @@ export async function logError(params: {
 }) {
   try {
     await fetch(API_EXEC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+mode: 'no-cors',
+headers: { 'Content-Type': 'text/plain' },  
       body: JSON.stringify({
         action: 'log_error',
         app: params.app,
