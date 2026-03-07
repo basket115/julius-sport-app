@@ -15,7 +15,7 @@ const Tab1: React.FC = () => {
   const [titel, setTitel] = useState('');
   const [text, setText] = useState('');
   const [bildUrl, setBildUrl] = useState('');
-  const [kategorie, setKategorie] = useState(''); // <-- leer starten
+  const [kategorie, setKategorie] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
 
@@ -25,17 +25,20 @@ const Tab1: React.FC = () => {
   const logoUrl = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
 
-  // ✅ Kategorien pro Verein aus Sheet (Spalte "Kategorien")
-  // Beispiel im Sheet: "News, U12, U14, Infos"
+  // ✅ FIX: Kategorien als Array ODER String unterstützen
   const kategorienFinal: string[] = useMemo(() => {
-    const raw = (b?.Kategorien || '').toString().trim();
-    const list = raw
-      .split(',')
-      .map((k: string) => k.trim())
-      .filter(Boolean);
+    const kat = b?.Kategorien;
 
-    // Fallback, wenn im Sheet leer ist
-    return list.length ? list : ['News', 'Spiel', 'Training', 'Sonstiges'];
+    // Apps Script gibt Array zurück → direkt nutzen
+    if (Array.isArray(kat) && kat.length) return kat;
+
+    // Fallback: kommagetrenner String
+    if (typeof kat === 'string' && kat.trim()) {
+      return kat.split(',').map((k: string) => k.trim()).filter(Boolean);
+    }
+
+    // Letzter Fallback wenn Sheet leer
+    return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
   useEffect(() => {
@@ -49,7 +52,6 @@ const Tab1: React.FC = () => {
       setKategorie(kategorienFinal[0]);
       return;
     }
-    // Falls bisher "News" gesetzt war, aber Verein hat andere Kategorien:
     if (kategorie === 'News' && kategorienFinal[0] !== 'News') {
       setKategorie(kategorienFinal[0]);
     }
@@ -74,7 +76,7 @@ const Tab1: React.FC = () => {
     try {
       const response = await fetch(API_EXEC_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // <- wichtig
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'add_beitrag',
           kundenId: branding?.Kunden_ID,
@@ -213,7 +215,7 @@ const Tab1: React.FC = () => {
                 }}
               />
 
-              {/* ✅ Dropdown pro Verein */}
+              {/* ✅ Dropdown pro Verein – aus Sheet */}
               <select
                 value={kategorie || kategorienFinal[0]}
                 onChange={(e: any) => setKategorie(e.target.value)}
