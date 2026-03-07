@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
 const CategoriesComponent: React.FC = () => {
-  const [categories, setCategories] = useState<string[]>([]);  // Kategorien speichern
-  const [loading, setLoading] = useState<boolean>(true);  // Ladezustand
-  const [error, setError] = useState<string | null>(null);  // Fehlerzustand
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          `https://script.google.com/macros/s/AKfycbwY655J19xdqsAg904r4DdRdqL3Zl58hgIURHi9lnpYga8NeWZno0iBrY27ftoqiDywRg/exec?action=get_branding&kundenId=V004`
+          `https://script.google.com/macros/s/AKfycbzyZN60q75nNVhqHWZBV6gbX6IEa7Zu1KmZkhttxPIzJmXjb3v03xLcOW5T3PxicqT8EA/exec?action=get_branding&kundenId=V004`
         );
         const data = await response.json();
         if (data.success) {
-          setCategories(data.branding.Kategorien);  // Kategorien setzen
+          setCategories(data.branding.Kategorien);
         } else {
           setError('Fehler beim Laden der Kategorien');
         }
@@ -23,15 +23,14 @@ const CategoriesComponent: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchCategories();
-  }, []);  // Läuft nur einmal beim ersten Laden der Komponente
+  }, []);
 
   return (
     <div>
       <h3>Kategorien</h3>
-      {loading && <p>Loading...</p>}  {/* Ladeanzeige */}
-      {error && <p>{error}</p>}  {/* Fehleranzeige */}
+      {loading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
       {categories.length > 0 ? (
         <ul>
           {categories.map((category, index) => (
@@ -39,7 +38,7 @@ const CategoriesComponent: React.FC = () => {
           ))}
         </ul>
       ) : (
-        <p>Keine Kategorien verfügbar.</p>  {/* Anzeige, falls keine Kategorien vorhanden sind */}
+        <p>Keine Kategorien verfügbar.</p>
       )}
     </div>
   );
