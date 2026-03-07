@@ -1,8 +1,8 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { IonApp, setupIonicReact } from '@ionic/react';
+import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
 
-setupIonicReact();
+
 
 export const BrandingContext = createContext<any>(null);
 
