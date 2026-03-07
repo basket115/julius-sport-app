@@ -41,21 +41,23 @@ const Tab1: React.FC = () => {
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
+  const ladeId = b?.Parent_ID || branding?.Kunden_ID;
+
   const ladeBeitraege = useCallback(async () => {
     try {
       const res = await fetch(
-        `${API_EXEC_URL}?action=get_beitraege&kundenId=${branding?.Kunden_ID}`
+        `${API_EXEC_URL}?action=get_beitraege&kundenId=${ladeId}`
       );
       const data = await res.json();
       if (data.success) setBeitraege(data.beitraege || []);
     } catch (err) {
       console.error(err);
     }
-  }, [branding?.Kunden_ID]);
+  }, [ladeId]);
 
   useEffect(() => {
-    if (branding?.Kunden_ID) ladeBeitraege();
-  }, [branding?.Kunden_ID, ladeBeitraege]);
+    if (ladeId) ladeBeitraege();
+  }, [ladeId, ladeBeitraege]);
 
   useEffect(() => {
     if (kategorienFinal.length === 0) return;
