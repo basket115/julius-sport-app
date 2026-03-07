@@ -7,7 +7,8 @@ export type Branding = {
   Logo_Sponsor?: string;
   Thema_Farbe?: string;
   Status?: string;
-  Demo_Ende?: string;
+ Demo_Ende?: string;
+  Kategorien?: string[];
 };
 
 const API_EXEC_URL =
