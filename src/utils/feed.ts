@@ -1,13 +1,10 @@
 // src/utils/feed.ts
-
 export type FeedKind = "news" | "result" | "training" | "unknown";
-
 export type ApiResponse = {
   ok: boolean;
   count: number;
   rows: any[];
 };
-
 export type FeedRow = {
   id: string;
   kind: FeedKind;
@@ -30,9 +27,14 @@ export type FeedRow = {
   trainingType?: string;
   durationMin?: number | null;
   intensity?: string;
+  // NEU: Social Media
+  webUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
 };
 
-// ✅ API-URL
 const FEED_URL = "https://script.google.com/macros/s/AKfycbxS0swicXVh5ZCS9A4AX48ZTkdgIWg7LjncuWT1-QM2p4Z8QW0xW6Rb4R5FFj33vNmyDw/exec";
 
 function cleanStr(v: any): string | undefined {
@@ -40,13 +42,11 @@ function cleanStr(v: any): string | undefined {
   const s = String(v).trim();
   return s.length ? s : undefined;
 }
-
 function cleanNum(v: any): number | null {
   if (v === null || v === undefined) return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
-
 export function parseDate(input: unknown): Date | null {
   if (input === null || input === undefined) return null;
   if (typeof input === "number") return new Date(input);
@@ -56,14 +56,12 @@ export function parseDate(input: unknown): Date | null {
   }
   return null;
 }
-
 function toKind(row: any): FeedKind {
   const raw = String(row?.kind || row?.type || "").toLowerCase();
   if (raw.includes("result") || raw.includes("ergebnis")) return "result";
   if (raw.includes("training")) return "training";
   return "news";
 }
-
 function normalizeRow(row: any): FeedRow {
   const date = parseDate(row?.date);
   return {
@@ -75,20 +73,24 @@ function normalizeRow(row: any): FeedRow {
     linkUrl: cleanStr(row?.linkUrl),
     linkLabel: cleanStr(row?.linkLabel),
     date,
-    dateLabel: date ? new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date) : undefined,
+    dateLabel: date
+      ? new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date)
+      : undefined,
     home: cleanStr(row?.home),
     away: cleanStr(row?.away),
     homeScore: cleanNum(row?.homeScore),
-    awayScore: cleanNum(row?.awayScore)
+    awayScore: cleanNum(row?.awayScore),
+    // NEU: Social Media
+    webUrl: cleanStr(row?.WEB_URL),
+    facebookUrl: cleanStr(row?.Facebook_URL),
+    instagramUrl: cleanStr(row?.Instragram_URL) || cleanStr(row?.Instagram_URL),
+    youtubeUrl: cleanStr(row?.Youtube_URL),
+    tiktokUrl: cleanStr(row?.TikTok_URL),
   };
 }
-
 export async function fetchFeed(): Promise<FeedRow[]> {
   try {
-    const res = await fetch(FEED_URL, {
-      method: "GET",
-      redirect: "follow",
-    });
+    const res = await fetch(FEED_URL, { method: "GET", redirect: "follow" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json() as ApiResponse;
     if (!data?.ok) throw new Error("API Fehler");
