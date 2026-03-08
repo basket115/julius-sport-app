@@ -5,7 +5,7 @@ import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbxWR_Bb-sLLQNVpzg4PT7HNDiMI6BjMfZkbl_pU05gf5wamqBGNmNOrJ4ftf-TcXaKVwA/exec";
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 const Tab1: React.FC = () => {
   const { branding, loading, reload } = useContext(BrandingContext);
@@ -72,20 +72,16 @@ const Tab1: React.FC = () => {
     if (!titel || !text) return;
     setSaving(true);
     try {
-      const response = await fetch(API_EXEC_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'add_beitrag',
-          kundenId: branding?.Kunden_ID,
-          titel,
-          text,
-          bildUrl,
-          datum: new Date().toLocaleDateString('de-DE'),
-          kategorie: kategorie || kategorienFinal[0] || 'News',
-        }),
+      const params = new URLSearchParams({
+        action: 'add_beitrag',
+        kundenId: branding?.Kunden_ID || '',
+        titel,
+        text,
+        bildUrl,
+        datum: new Date().toLocaleDateString('de-DE'),
+        kategorie: kategorie || kategorienFinal[0] || 'News',
       });
-      const data = await response.json();
+      const data = await fetch(`${API_EXEC_URL}?${params.toString()}`).then(r => r.json());
       if (data.success) {
         setSuccess('✅ Beitrag gespeichert!');
         setTitel('');
