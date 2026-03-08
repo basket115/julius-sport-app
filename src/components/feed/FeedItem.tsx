@@ -1,23 +1,17 @@
-// PFAD: src/components/feed/FeedItem.tsx
-// ÄNDERUNG: Bild komplett anzeigen (kein max-height Limit, keine Verzerrung)
-
+// src/components/feed/FeedItem.tsx
 import React, { useMemo, useState } from 'react';
 import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { logoYoutube, openOutline } from 'ionicons/icons';
 import ResultBox from './ResultBox';
 import type { FeedRow } from '../../utils/feed';
 
-type Props = {
-  item: FeedRow;
-};
+type Props = { item: FeedRow };
 
 const SCORPIONS_RED = '#C4161C';
 const RESULT_RED = '#D32F2F';
 const NEWS_BLUE = '#1976D2';
 const WHITE = '#FFFFFF';
-
-const DEFAULT_BALL_IMAGE =
-  'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png';
+const DEFAULT_BALL_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png';
 
 function looksLikeYouTube(url?: string): boolean {
   if (!url) return false;
@@ -29,39 +23,28 @@ function driveToImageUrl(url?: string): string | undefined {
   if (!url) return undefined;
   const s = String(url).trim();
   if (!s) return undefined;
-
   let id: string | null = null;
   const m1 = s.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
   if (m1?.[1]) id = m1[1];
-
   if (!id) {
     const m2 = s.match(/[?&]id=([^&]+)/i);
     if (m2?.[1] && s.includes('drive.google.com')) id = m2[1];
   }
-
   if (!id) return s;
   return `https://lh3.googleusercontent.com/d/${id}`;
 }
 
 function ImageBlock({ src, alt }: { src?: string; alt: string }) {
   const [broken, setBroken] = useState(false);
-
   const finalSrc = useMemo(() => {
     if (broken) return DEFAULT_BALL_IMAGE;
     return driveToImageUrl(src) || DEFAULT_BALL_IMAGE;
   }, [src, broken]);
-
   return (
     <img
       src={finalSrc}
       alt={alt}
-      style={{
-        width: '100%',
-        height: 'auto',
-        maxHeight: 'none',     // <-- WICHTIG: hebt max-height:200px auf
-        display: 'block',
-        objectFit: 'unset',    // <-- verhindert, dass irgendwo "cover/contain" reinfunkt
-      }}
+      style={{ width: '100%', height: 'auto', maxHeight: 'none', display: 'block', objectFit: 'unset' }}
       loading="lazy"
       referrerPolicy="no-referrer"
       onError={() => setBroken(true)}
@@ -71,27 +54,13 @@ function ImageBlock({ src, alt }: { src?: string; alt: string }) {
 
 function OverlayBadge({ label, color }: { label: string; color: string }) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 12,
-        left: 12,
-        height: 26,
-        padding: '0 12px',
-        borderRadius: 999,
-        display: 'inline-flex',
-        alignItems: 'center',
-        fontSize: 12,
-        fontWeight: 900,
-        letterSpacing: '0.6px',
-        textTransform: 'uppercase',
-        background: 'rgba(255,255,255,0.92)',
-        color: color,
-        border: '1px solid rgba(0,0,0,0.08)',
-        boxShadow: '0 6px 16px rgba(0,0,0,0.18)',
-        backdropFilter: 'blur(6px)',
-      }}
-    >
+    <div style={{
+      position: 'absolute', top: 12, left: 12, height: 26, padding: '0 12px',
+      borderRadius: 999, display: 'inline-flex', alignItems: 'center',
+      fontSize: 12, fontWeight: 900, letterSpacing: '0.6px', textTransform: 'uppercase',
+      background: 'rgba(255,255,255,0.92)', color, border: '1px solid rgba(0,0,0,0.08)',
+      boxShadow: '0 6px 16px rgba(0,0,0,0.18)', backdropFilter: 'blur(6px)',
+    }}>
       {label}
     </div>
   );
@@ -99,26 +68,71 @@ function OverlayBadge({ label, color }: { label: string; color: string }) {
 
 function OverlayId({ id }: { id: string }) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 12,
-        right: 12,
-        height: 26,
-        padding: '0 10px',
-        borderRadius: 999,
-        display: 'inline-flex',
-        alignItems: 'center',
-        fontSize: 12,
-        fontWeight: 800,
-        letterSpacing: '0.2px',
-        background: 'rgba(0,0,0,0.35)',
-        color: 'rgba(255,255,255,0.92)',
-        border: '1px solid rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(6px)',
-      }}
-    >
+    <div style={{
+      position: 'absolute', top: 12, right: 12, height: 26, padding: '0 10px',
+      borderRadius: 999, display: 'inline-flex', alignItems: 'center',
+      fontSize: 12, fontWeight: 800, letterSpacing: '0.2px',
+      background: 'rgba(0,0,0,0.35)', color: 'rgba(255,255,255,0.92)',
+      border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)',
+    }}>
       {id}
+    </div>
+  );
+}
+
+// ✅ SOCIAL BAR mit echten SVG Icons
+function SocialBar({ item, onWhite = false }: { item: FeedRow; onWhite?: boolean }) {
+  const { webUrl, facebookUrl, instagramUrl, youtubeUrl, tiktokUrl } = item;
+  if (!webUrl && !facebookUrl && !instagramUrl && !youtubeUrl && !tiktokUrl) return null;
+
+  const borderColor = onWhite ? '#f0f0f0' : 'rgba(255,255,255,0.25)';
+
+  return (
+    <div style={{
+      marginTop: 12, paddingTop: 10,
+      borderTop: `1px solid ${borderColor}`,
+      display: 'flex', gap: 16, alignItems: 'center',
+    }}>
+      {webUrl && (
+        <a href={webUrl} target="_blank" rel="noopener noreferrer" title="Website"
+          style={{ color: onWhite ? '#555' : WHITE, lineHeight: 0, opacity: 0.85 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+        </a>
+      )}
+      {facebookUrl && (
+        <a href={facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook"
+          style={{ color: '#1877f2', lineHeight: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+      )}
+      {instagramUrl && (
+        <a href={instagramUrl} target="_blank" rel="noopener noreferrer" title="Instagram"
+          style={{ color: '#e1306c', lineHeight: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </a>
+      )}
+      {youtubeUrl && (
+        <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" title="YouTube"
+          style={{ color: '#ff0000', lineHeight: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+          </svg>
+        </a>
+      )}
+      {tiktokUrl && (
+        <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" title="TikTok"
+          style={{ color: onWhite ? '#000' : WHITE, lineHeight: 0, opacity: 0.85 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+          </svg>
+        </a>
+      )}
     </div>
   );
 }
@@ -128,122 +142,41 @@ const FeedItem: React.FC<Props> = ({ item }) => {
 
   if (kind === 'result') {
     const showYoutube = looksLikeYouTube(item.linkUrl);
-    const linkLabel =
-      item.linkLabel || (showYoutube ? 'YouTube' : 'Link öffnen');
-
+    const linkLabel = item.linkLabel || (showYoutube ? 'YouTube' : 'Link öffnen');
     return (
-      <IonCard
-        style={{
-          borderRadius: 22,
-          overflow: 'hidden',
-          border: '1px solid rgba(0,0,0,0.08)',
-          boxShadow: '0 14px 34px rgba(0,0,0,0.25)',
-          background: `linear-gradient(180deg, ${RESULT_RED}, rgba(211,47,47,0.85))`,
-        }}
-      >
+      <IonCard style={{
+        borderRadius: 22, overflow: 'hidden',
+        border: '1px solid rgba(0,0,0,0.08)',
+        boxShadow: '0 14px 34px rgba(0,0,0,0.25)',
+        background: `linear-gradient(180deg, ${RESULT_RED}, rgba(211,47,47,0.85))`,
+      }}>
         <IonCardContent style={{ padding: 16 }}>
           <div style={{ position: 'relative' }}>
             <ImageBlock src={item.image} alt="Spielbild" />
             <OverlayBadge label="Ergebnis" color={RESULT_RED} />
             {item.id && <OverlayId id={item.id} />}
           </div>
-
           <div style={{ marginTop: 14 }}>
-            <ResultBox
-              home={item.home}
-              away={item.away}
-              homeScore={item.homeScore}
-              awayScore={item.awayScore}
-              teams={item.teams}
-              competition={item.competition}
-            />
+            <ResultBox home={item.home} away={item.away} homeScore={item.homeScore}
+              awayScore={item.awayScore} teams={item.teams} competition={item.competition} />
           </div>
-
           {(item.title || item.text || item.venue || item.dateLabel) && (
             <div style={{ marginTop: 14 }}>
-              {item.title && (
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 900,
-                    letterSpacing: '-0.2px',
-                    color: WHITE,
-                    textShadow: '0 2px 10px rgba(0,0,0,0.18)',
-                  }}
-                >
-                  {item.title}
-                </div>
-              )}
-
-              {item.text && (
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: 14,
-                    lineHeight: 1.45,
-                    opacity: 0.95,
-                    color: WHITE,
-                    whiteSpace: 'pre-wrap',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.14)',
-                  }}
-                >
-                  {item.text}
-                </div>
-              )}
-
-              {item.venue && (
-                <div
-                  style={{
-                    marginTop: 10,
-                    fontSize: 12,
-                    opacity: 0.92,
-                    color: WHITE,
-                  }}
-                >
-                  {item.venue}
-                </div>
-              )}
-
-              {item.dateLabel && (
-                <div
-                  style={{
-                    marginTop: 6,
-                    fontSize: 12,
-                    opacity: 0.92,
-                    color: WHITE,
-                  }}
-                >
-                  {item.dateLabel}
-                </div>
-              )}
+              {item.title && <div style={{ fontSize: 18, fontWeight: 900, color: WHITE }}>{item.title}</div>}
+              {item.text && <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.45, color: WHITE, whiteSpace: 'pre-wrap' }}>{item.text}</div>}
+              {item.venue && <div style={{ marginTop: 10, fontSize: 12, color: WHITE, opacity: 0.92 }}>{item.venue}</div>}
+              {item.dateLabel && <div style={{ marginTop: 6, fontSize: 12, color: WHITE, opacity: 0.92 }}>{item.dateLabel}</div>}
             </div>
           )}
-
           {item.linkUrl && (
-            <div
-              style={{
-                marginTop: 12,
-                display: 'flex',
-                gap: 10,
-                flexWrap: 'wrap',
-              }}
-            >
-              <IonButton
-                href={item.linkUrl}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  fontWeight: 900,
-                }}
-              >
-                <IonIcon
-                  icon={showYoutube ? logoYoutube : openOutline}
-                  slot="start"
-                />
+            <div style={{ marginTop: 12 }}>
+              <IonButton href={item.linkUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 900 }}>
+                <IonIcon icon={showYoutube ? logoYoutube : openOutline} slot="start" />
                 {linkLabel}
               </IonButton>
             </div>
           )}
+          <SocialBar item={item} />
         </IonCardContent>
       </IonCard>
     );
@@ -251,76 +184,23 @@ const FeedItem: React.FC<Props> = ({ item }) => {
 
   if (kind === 'training') {
     return (
-      <IonCard
-        style={{
-          borderRadius: 18,
-          boxShadow: '0 10px 26px rgba(0,0,0,0.14)',
-          border: '1px solid rgba(255,255,255,0.18)',
-          background: 'rgba(255,255,255,0.92)',
-        }}
-      >
+      <IonCard style={{
+        borderRadius: 18, boxShadow: '0 10px 26px rgba(0,0,0,0.14)',
+        border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.92)',
+      }}>
         <IonCardContent style={{ padding: 16 }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                height: 26,
-                padding: '0 12px',
-                borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 900,
-                letterSpacing: '0.6px',
-                textTransform: 'uppercase',
-                background: 'rgba(0,0,0,0.08)',
-                color: 'rgba(0,0,0,0.85)',
-              }}
-            >
-              Training
-            </span>
-            {item.id && (
-              <span style={{ fontSize: 12, opacity: 0.55 }}>{item.id}</span>
-            )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 12px',
+              borderRadius: 999, fontSize: 12, fontWeight: 900, letterSpacing: '0.6px',
+              textTransform: 'uppercase', background: 'rgba(0,0,0,0.08)', color: 'rgba(0,0,0,0.85)',
+            }}>Training</span>
+            {item.id && <span style={{ fontSize: 12, opacity: 0.55 }}>{item.id}</span>}
           </div>
-
-          {item.title && (
-            <div
-              style={{
-                marginTop: 12,
-                fontSize: 18,
-                fontWeight: 900,
-                letterSpacing: '-0.2px',
-              }}
-            >
-              {item.title}
-            </div>
-          )}
-
-          {item.text && (
-            <div
-              style={{
-                marginTop: 8,
-                fontSize: 14,
-                lineHeight: 1.45,
-                opacity: 0.85,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {item.text}
-            </div>
-          )}
-
-          {item.dateLabel && (
-            <div style={{ marginTop: 10, fontSize: 12, opacity: 0.6 }}>
-              {item.dateLabel}
-            </div>
-          )}
+          {item.title && <div style={{ marginTop: 12, fontSize: 18, fontWeight: 900 }}>{item.title}</div>}
+          {item.text && <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.45, opacity: 0.85, whiteSpace: 'pre-wrap' }}>{item.text}</div>}
+          {item.dateLabel && <div style={{ marginTop: 10, fontSize: 12, opacity: 0.6 }}>{item.dateLabel}</div>}
+          <SocialBar item={item} onWhite />
         </IonCardContent>
       </IonCard>
     );
@@ -330,15 +210,12 @@ const FeedItem: React.FC<Props> = ({ item }) => {
   const linkLabel = item.linkLabel || (showYoutube ? 'YouTube' : 'Link öffnen');
 
   return (
-    <IonCard
-      style={{
-        borderRadius: 22,
-        overflow: 'hidden',
-        border: '1px solid rgba(0,0,0,0.08)',
-        boxShadow: '0 14px 34px rgba(0,0,0,0.25)',
-        background: `linear-gradient(180deg, ${NEWS_BLUE}, rgba(25,118,210,0.85))`,
-      }}
-    >
+    <IonCard style={{
+      borderRadius: 22, overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.08)',
+      boxShadow: '0 14px 34px rgba(0,0,0,0.25)',
+      background: `linear-gradient(180deg, ${NEWS_BLUE}, rgba(25,118,210,0.85))`,
+    }}>
       <IonCardContent style={{ padding: 16 }}>
         <div style={{ position: 'relative' }}>
           {item.image ? (
@@ -348,103 +225,31 @@ const FeedItem: React.FC<Props> = ({ item }) => {
               {item.id && <OverlayId id={item.id} />}
             </>
           ) : (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  height: 26,
-                  padding: '0 12px',
-                  borderRadius: 999,
-                  fontSize: 12,
-                  fontWeight: 900,
-                  letterSpacing: '0.6px',
-                  textTransform: 'uppercase',
-                  background: 'rgba(255,255,255,0.92)',
-                  color: NEWS_BLUE,
-                  border: '1px solid rgba(0,0,0,0.08)',
-                }}
-              >
-                News
-              </span>
-              {item.id && (
-                <span style={{ fontSize: 12, opacity: 0.75, color: WHITE }}>
-                  {item.id}
-                </span>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 12px',
+                borderRadius: 999, fontSize: 12, fontWeight: 900, letterSpacing: '0.6px',
+                textTransform: 'uppercase', background: 'rgba(255,255,255,0.92)', color: NEWS_BLUE,
+                border: '1px solid rgba(0,0,0,0.08)',
+              }}>News</span>
+              {item.id && <span style={{ fontSize: 12, opacity: 0.75, color: WHITE }}>{item.id}</span>}
             </div>
           )}
         </div>
-
         <div style={{ marginTop: item.image ? 14 : 12 }}>
-          {item.title && (
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 900,
-                letterSpacing: '-0.2px',
-                color: WHITE,
-                textShadow: '0 2px 10px rgba(0,0,0,0.18)',
-              }}
-            >
-              {item.title}
-            </div>
-          )}
-
-          {item.text && (
-            <div
-              style={{
-                marginTop: 8,
-                fontSize: 14,
-                lineHeight: 1.45,
-                opacity: 0.95,
-                color: WHITE,
-                whiteSpace: 'pre-wrap',
-                textShadow: '0 2px 10px rgba(0,0,0,0.14)',
-              }}
-            >
-              {item.text}
-            </div>
-          )}
-
-          {item.dateLabel && (
-            <div
-              style={{
-                marginTop: 10,
-                fontSize: 12,
-                opacity: 0.92,
-                color: WHITE,
-              }}
-            >
-              {item.dateLabel}
-            </div>
-          )}
+          {item.title && <div style={{ fontSize: 18, fontWeight: 900, color: WHITE }}>{item.title}</div>}
+          {item.text && <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.45, color: WHITE, whiteSpace: 'pre-wrap' }}>{item.text}</div>}
+          {item.dateLabel && <div style={{ marginTop: 10, fontSize: 12, color: WHITE, opacity: 0.92 }}>{item.dateLabel}</div>}
         </div>
-
         {item.linkUrl && (
           <div style={{ marginTop: 12 }}>
-            <IonButton
-              href={item.linkUrl}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                fontWeight: 900,
-              }}
-            >
-              <IonIcon
-                icon={showYoutube ? logoYoutube : openOutline}
-                slot="start"
-              />
+            <IonButton href={item.linkUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 900 }}>
+              <IonIcon icon={showYoutube ? logoYoutube : openOutline} slot="start" />
               {linkLabel}
             </IonButton>
           </div>
         )}
+        <SocialBar item={item} />
       </IonCardContent>
     </IonCard>
   );
