@@ -4,7 +4,7 @@ import Tab1 from './pages/Tab1';
 export const BrandingContext = createContext<any>(null);
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbxWR_Bb-sLLQNVpzg4PT7HNDiMI6BjMfZkbl_pU05gf5wamqBGNmNOrJ4ftf-TcXaKVwA/exec";
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 const App: React.FC = () => {
   const [branding, setBranding] = useState<any>(null);
