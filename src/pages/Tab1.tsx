@@ -41,7 +41,7 @@ const Tab1: React.FC = () => {
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
-  const ladeId = b?.Parent_ID || branding?.Kunden_ID;
+  const ladeId = (b?.Parent_ID && String(b.Parent_ID).trim()) ? String(b.Parent_ID).trim() : branding?.Kunden_ID;
 
   const ladeBeitraege = useCallback(async () => {
     try {
