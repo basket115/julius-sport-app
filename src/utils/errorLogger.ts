@@ -1,7 +1,7 @@
 // src/utils/errorLogger.ts
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbxWR_Bb-sLLQNVpzg4PT7HNDiMI6BjMfZkbl_pU05gf5wamqBGNmNOrJ4ftf-TcXaKVwA/exec";
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 export async function logError(params: {
   app: string;
@@ -11,9 +11,9 @@ export async function logError(params: {
 }) {
   try {
     await fetch(API_EXEC_URL, {
-    method: 'POST',
-mode: 'no-cors',
-headers: { 'Content-Type': 'text/plain' },  
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: 'log_error',
         app: params.app,
