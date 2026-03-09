@@ -76,6 +76,7 @@ const Tab1: React.FC = () => {
       const params = new URLSearchParams({
         action: 'add_beitrag',
         kundenId: branding?.Kunden_ID || '',
+        vereinName: b?.Verein_Name || '',  //
         titel,
         text,
         bildUrl,
