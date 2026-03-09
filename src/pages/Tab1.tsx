@@ -6,6 +6,15 @@ import { BrandingContext } from '../App';
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
+// ✅ YouTube URL zu Embed-URL umwandeln
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regExp);
+  if (!match) return null;
+  return `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0`;
+}
+
 const Tab1: React.FC = () => {
   const { branding, loading, reload } = useContext(BrandingContext);
   const [beitraege, setBeitraege] = useState<any[]>([]);
@@ -13,6 +22,7 @@ const Tab1: React.FC = () => {
   const [titel, setTitel] = useState('');
   const [text, setText] = useState('');
   const [bildUrl, setBildUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [kategorie, setKategorie] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
@@ -69,6 +79,7 @@ const Tab1: React.FC = () => {
         titel,
         text,
         bildUrl,
+        videoUrl,
         datum: new Date().toLocaleDateString('de-DE'),
         kategorie: kategorie || kategorienFinal[0] || 'News',
       });
@@ -78,6 +89,7 @@ const Tab1: React.FC = () => {
         setTitel('');
         setText('');
         setBildUrl('');
+        setVideoUrl('');
         setShowForm(false);
         setTimeout(() => setSuccess(''), 3000);
         ladeBeitraege();
@@ -111,40 +123,35 @@ const Tab1: React.FC = () => {
         borderTop: '1px solid #f0f0f0', marginTop: 14, paddingTop: 12,
       }}>
         {web && (
-          <a href={web} target="_blank" rel="noopener noreferrer" title="Website"
-            style={{ lineHeight: 0 }}>
+          <a href={web} target="_blank" rel="noopener noreferrer" title="Website" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#1a73e8">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
             </svg>
           </a>
         )}
         {fb && (
-          <a href={fb} target="_blank" rel="noopener noreferrer" title="Facebook"
-            style={{ lineHeight: 0 }}>
+          <a href={fb} target="_blank" rel="noopener noreferrer" title="Facebook" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#1877f2">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
           </a>
         )}
         {ig && (
-          <a href={ig} target="_blank" rel="noopener noreferrer" title="Instagram"
-            style={{ lineHeight: 0 }}>
+          <a href={ig} target="_blank" rel="noopener noreferrer" title="Instagram" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#e1306c">
               <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
             </svg>
           </a>
         )}
         {yt && (
-          <a href={yt} target="_blank" rel="noopener noreferrer" title="YouTube"
-            style={{ lineHeight: 0 }}>
+          <a href={yt} target="_blank" rel="noopener noreferrer" title="YouTube" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#ff0000">
               <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
             </svg>
           </a>
         )}
         {tt && (
-          <a href={tt} target="_blank" rel="noopener noreferrer" title="TikTok"
-            style={{ lineHeight: 0 }}>
+          <a href={tt} target="_blank" rel="noopener noreferrer" title="TikTok" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#000000">
               <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
             </svg>
@@ -214,6 +221,12 @@ const Tab1: React.FC = () => {
               onChange={(e: any) => setBildUrl(e.target.value)}
               style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
             />
+            <input
+              placeholder="▶ YouTube URL (optional)"
+              value={videoUrl}
+              onChange={(e: any) => setVideoUrl(e.target.value)}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
             <select
               value={kategorie || kategorienFinal[0]}
               onChange={(e: any) => setKategorie(e.target.value)}
@@ -247,22 +260,36 @@ const Tab1: React.FC = () => {
             Noch keine Beiträge. Erstelle deinen ersten!
           </p>
         ) : (
-          beitraege.map((beitrag, i) => (
-            <div key={i} style={{
-              background: 'white', borderRadius: 12, padding: 16,
-              marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            }}>
-              {beitrag.Bild_URL && (
-                <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8 }} />
-              )}
-              <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
-                {beitrag.Kategorie} • {beitrag.Datum}
+          beitraege.map((beitrag, i) => {
+            const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || '');
+            return (
+              <div key={i} style={{
+                background: 'white', borderRadius: 12, padding: 16,
+                marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              }}>
+                {beitrag.Bild_URL && (
+                  <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8 }} />
+                )}
+                {embedUrl && (
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 10, borderRadius: 8, overflow: 'hidden' }}>
+                    <iframe
+                      src={embedUrl}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={beitrag.Titel}
+                    />
+                  </div>
+                )}
+                <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
+                  {beitrag.Kategorie} • {beitrag.Datum}
+                </div>
+                <h3 style={{ margin: '0 0 8px 0' }}>{beitrag.Titel}</h3>
+                <p style={{ margin: 0, color: '#555' }}>{beitrag.Text}</p>
+                <SocialBar />
               </div>
-              <h3 style={{ margin: '0 0 8px 0' }}>{beitrag.Titel}</h3>
-              <p style={{ margin: 0, color: '#555' }}>{beitrag.Text}</p>
-              <SocialBar />
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
