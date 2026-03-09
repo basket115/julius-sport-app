@@ -42,7 +42,9 @@ const Tab1: React.FC = () => {
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
-  const ladeId = (b?.Parent_ID && String(b.Parent_ID).trim()) ? String(b.Parent_ID).trim() : branding?.Kunden_ID;
+  const ladeId = (b?.Parent_ID && String(b.Parent_ID).trim())
+    ? String(b.Parent_ID).trim()
+    : branding?.Kunden_ID;
 
   const ladeBeitraege = useCallback(async () => {
     try {
@@ -76,7 +78,7 @@ const Tab1: React.FC = () => {
       const params = new URLSearchParams({
         action: 'add_beitrag',
         kundenId: branding?.Kunden_ID || '',
-        vereinName: b?.Verein_Name || '',  //
+        vereinName: b?.Verein_Name || '',
         titel,
         text,
         bildUrl,
@@ -84,7 +86,9 @@ const Tab1: React.FC = () => {
         datum: new Date().toLocaleDateString('de-DE'),
         kategorie: kategorie || kategorienFinal[0] || 'News',
       });
+
       const data = await fetch(`${API_EXEC_URL}?${params.toString()}`).then(r => r.json());
+
       if (data.success) {
         setSuccess('✅ Beitrag gespeichert!');
         setTitel('');
@@ -107,6 +111,7 @@ const Tab1: React.FC = () => {
     const tage = Math.ceil(diff / (1000 * 60 * 60 * 24));
     return tage > 0 ? tage : null;
   };
+
   const demoTage = getDemoTage();
 
   const SocialBar = () => {
@@ -119,10 +124,16 @@ const Tab1: React.FC = () => {
     if (!web && !fb && !ig && !yt && !tt) return null;
 
     return (
-      <div style={{
-        display: 'flex', gap: 16, alignItems: 'center',
-        borderTop: '1px solid #f0f0f0', marginTop: 14, paddingTop: 12,
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 16,
+          alignItems: 'center',
+          borderTop: '1px solid #f0f0f0',
+          marginTop: 14,
+          paddingTop: 12,
+        }}
+      >
         {web && (
           <a href={web} target="_blank" rel="noopener noreferrer" title="Website" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#1a73e8">
@@ -172,13 +183,21 @@ const Tab1: React.FC = () => {
         onRefresh={reload}
         loading={loading}
       />
+
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
         {demoTage && (
-          <div style={{
-            backgroundColor: '#f0a500', borderRadius: 10,
-            padding: '12px 16px', marginBottom: 12,
-            textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15,
-          }}>
+          <div
+            style={{
+              backgroundColor: '#f0a500',
+              borderRadius: 10,
+              padding: '12px 16px',
+              marginBottom: 12,
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: 'white',
+              fontSize: 15,
+            }}
+          >
             ⏱ Demo läuft noch {demoTage} Tage
           </div>
         )}
@@ -187,10 +206,16 @@ const Tab1: React.FC = () => {
           <button
             onClick={() => setShowForm(true)}
             style={{
-              width: '100%', padding: 14, borderRadius: 10,
-              backgroundColor: themaFarbe, border: 'none',
-              color: 'white', fontWeight: 'bold', fontSize: 16,
-              cursor: 'pointer', marginBottom: 16,
+              width: '100%',
+              padding: 14,
+              borderRadius: 10,
+              backgroundColor: themaFarbe,
+              border: 'none',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: 16,
+              cursor: 'pointer',
+              marginBottom: 16,
             }}
           >
             ⊕ NEUEN BEITRAG ERSTELLEN
@@ -198,57 +223,122 @@ const Tab1: React.FC = () => {
         )}
 
         {isAdmin && showForm && (
-          <div style={{
-            background: '#f9f9f9', borderRadius: 12,
-            padding: 16, marginBottom: 20, border: '1px solid #ddd',
-          }}>
+          <div
+            style={{
+              background: '#f9f9f9',
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 20,
+              border: '1px solid #ddd',
+            }}
+          >
             <h3 style={{ marginTop: 0 }}>📝 Neuer Beitrag</h3>
+
             <input
               placeholder="Titel"
               value={titel}
               onChange={(e: any) => setTitel(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 8,
+                borderRadius: 8,
+                border: '1px solid #ccc',
+                boxSizing: 'border-box',
+              }}
             />
+
             <textarea
               placeholder="Text"
               value={text}
               onChange={(e: any) => setText(e.target.value)}
               rows={4}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 8,
+                borderRadius: 8,
+                border: '1px solid #ccc',
+                boxSizing: 'border-box',
+              }}
             />
+
             <input
               placeholder="Bild URL (optional)"
               value={bildUrl}
               onChange={(e: any) => setBildUrl(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 8,
+                borderRadius: 8,
+                border: '1px solid #ccc',
+                boxSizing: 'border-box',
+              }}
             />
+
             <input
               placeholder="▶ YouTube URL (optional)"
               value={videoUrl}
               onChange={(e: any) => setVideoUrl(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 8,
+                borderRadius: 8,
+                border: '1px solid #ccc',
+                boxSizing: 'border-box',
+              }}
             />
+
             <select
               value={kategorie || kategorienFinal[0]}
               onChange={(e: any) => setKategorie(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: '1px solid #ccc' }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 12,
+                borderRadius: 8,
+                border: '1px solid #ccc',
+              }}
             >
               {kategorienFinal.map((k) => (
-                <option key={k} value={k}>{k}</option>
+                <option key={k} value={k}>
+                  {k}
+                </option>
               ))}
             </select>
+
             {success && <p style={{ color: 'green' }}>{success}</p>}
+
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => setShowForm(false)}
-                style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #ccc', backgroundColor: 'white', cursor: 'pointer' }}
+                style={{
+                  flex: 1,
+                  padding: 12,
+                  borderRadius: 8,
+                  border: '1px solid #ccc',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                }}
               >
                 Abbrechen
               </button>
+
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', backgroundColor: themaFarbe, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
+                style={{
+                  flex: 2,
+                  padding: 12,
+                  borderRadius: 8,
+                  border: 'none',
+                  backgroundColor: themaFarbe,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                }}
               >
                 {saving ? 'Speichern...' : 'Veröffentlichen'}
               </button>
@@ -263,30 +353,89 @@ const Tab1: React.FC = () => {
         ) : (
           beitraege.map((beitrag, i) => {
             const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || '');
+
             return (
-              <div key={i} style={{
-                background: 'white', borderRadius: 12, padding: 16,
-                marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              }}>
+              <div
+                key={i}
+                style={{
+                  background: 'white',
+                  borderRadius: 12,
+                  padding: 16,
+                  marginBottom: 12,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                }}
+              >
                 {beitrag.Bild_URL && (
-                  <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8 }} />
+                  <img
+                    src={beitrag.Bild_URL}
+                    alt=""
+                    style={{
+                      width: '100%',
+                      height: '280px',
+                      maxHeight: '280px',
+                      objectFit: 'cover',
+                      borderRadius: 8,
+                      marginBottom: 8,
+                      display: 'block',
+                    }}
+                  />
                 )}
+
                 {embedUrl && (
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 10, borderRadius: 8, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      position: 'relative',
+                      paddingBottom: '56.25%',
+                      height: 0,
+                      marginBottom: 10,
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                    }}
+                  >
                     <iframe
                       src={embedUrl}
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
+                      }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title={beitrag.Titel}
                     />
                   </div>
                 )}
-                <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
+
+                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>
                   {beitrag.Kategorie} • {beitrag.Datum}
                 </div>
-                <h3 style={{ margin: '0 0 8px 0' }}>{beitrag.Titel}</h3>
-                <p style={{ margin: 0, color: '#555' }}>{beitrag.Text}</p>
+
+                <h3
+                  style={{
+                    margin: '0 0 10px 0',
+                    fontSize: 24,
+                    lineHeight: 1.25,
+                    color: '#222',
+                  }}
+                >
+                  {beitrag.Titel}
+                </h3>
+
+                <p
+                  style={{
+                    margin: 0,
+                    color: '#555',
+                    fontSize: 16,
+                    lineHeight: 1.7,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {beitrag.Text}
+                </p>
+
                 <SocialBar />
               </div>
             );
