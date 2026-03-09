@@ -12,12 +12,11 @@ document.head.appendChild(script);
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 window.OneSignalDeferred.push(async function (OneSignal: any) {
   await OneSignal.init({
-    appId: '43c5eaec-7470-43d7-a59d-1775c8b21217',
+    appId: '5ecf64c2-2666-4009-ab7d-78474d673a83',  // ✅ TG Neuss Tigers
   });
 });
 
 const root = document.getElementById('root');
-
 if (root) {
   ReactDOM.render(<App />, root);
 }
