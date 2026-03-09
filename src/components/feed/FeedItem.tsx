@@ -44,7 +44,7 @@ function ImageBlock({ src, alt }: { src?: string; alt: string }) {
     <img
       src={finalSrc}
       alt={alt}
-      style={{ width: '100%', height: 'auto', maxHeight: 'none', display: 'block', objectFit: 'unset' }}
+      style={{ width: '100%', height: '280px', maxHeight: '280px', display: 'block', objectFit: 'cover', borderRadius: '14px' }}
       loading="lazy"
       referrerPolicy="no-referrer"
       onError={() => setBroken(true)}
@@ -256,3 +256,4 @@ const FeedItem: React.FC<Props> = ({ item }) => {
 };
 
 export default FeedItem;
+
