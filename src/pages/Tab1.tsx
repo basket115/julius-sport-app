@@ -261,7 +261,7 @@ const Tab1: React.FC = () => {
               </div>
               <h3 style={{ margin: '0 0 8px 0' }}>{beitrag.Titel}</h3>
               <p style={{ margin: 0, color: '#555' }}>{beitrag.Text}</p>
-<p style={{fontSize:10, color:'red'}}>{JSON.stringify({web: b?.WEB_URL})}</p>
+
 <SocialBar />
             </div>
           ))
