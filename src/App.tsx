@@ -6,6 +6,15 @@ export const BrandingContext = createContext<any>(null);
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
+// ✅ OneSignal dynamisch initialisieren
+function initOneSignal(appId: string) {
+  if (!appId) return;
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(async function (OneSignal: any) {
+    await OneSignal.init({ appId });
+  });
+}
+
 const App: React.FC = () => {
   const [branding, setBranding] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +32,12 @@ const App: React.FC = () => {
         `${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`
       );
       const data = await res.json();
-      if (data.success) setBranding(data.branding);
+      if (data.success) {
+        setBranding(data.branding);
+        // ✅ OneSignal mit der App ID aus Google Sheets initialisieren
+        const osAppId = data.branding?.OneSignal_App_ID || '';
+        if (osAppId) initOneSignal(osAppId);
+      }
     } catch (err) {
       console.error(err);
     }
