@@ -3,9 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { logoYoutube, openOutline } from 'ionicons/icons';
 import ResultBox from './ResultBox';
+import SponsorBanner from './SponsorBanner';
 import type { FeedRow } from '../../utils/feed';
 
-type Props = { item: FeedRow };
+type Props = { item: FeedRow; kundenId: string };
 
 const SCORPIONS_RED = '#C4161C';
 const RESULT_RED = '#D32F2F';
@@ -137,7 +138,7 @@ function SocialBar({ item, onWhite = false }: { item: FeedRow; onWhite?: boolean
   );
 }
 
-const FeedItem: React.FC<Props> = ({ item }) => {
+const FeedItem: React.FC<Props> = ({ item, kundenId }) => {
   const kind = item.kind;
 
   if (kind === 'result') {
@@ -177,6 +178,8 @@ const FeedItem: React.FC<Props> = ({ item }) => {
             </div>
           )}
           <SocialBar item={item} />
+          {/* ✅ SPONSOR BANNER */}
+          <SponsorBanner kundenId={kundenId} darkBackground={true} />
         </IonCardContent>
       </IonCard>
     );
@@ -201,6 +204,8 @@ const FeedItem: React.FC<Props> = ({ item }) => {
           {item.text && <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.45, opacity: 0.85, whiteSpace: 'pre-wrap' }}>{item.text}</div>}
           {item.dateLabel && <div style={{ marginTop: 10, fontSize: 12, opacity: 0.6 }}>{item.dateLabel}</div>}
           <SocialBar item={item} onWhite />
+          {/* ✅ SPONSOR BANNER */}
+          <SponsorBanner kundenId={kundenId} darkBackground={false} />
         </IonCardContent>
       </IonCard>
     );
@@ -250,10 +255,11 @@ const FeedItem: React.FC<Props> = ({ item }) => {
           </div>
         )}
         <SocialBar item={item} />
+        {/* ✅ SPONSOR BANNER */}
+        <SponsorBanner kundenId={kundenId} darkBackground={true} />
       </IonCardContent>
     </IonCard>
   );
 };
 
 export default FeedItem;
-
