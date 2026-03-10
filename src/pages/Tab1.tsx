@@ -6,6 +6,9 @@ import { BrandingContext } from '../App';
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
+const SPONSOR_API_URL =
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+
 // ✅ YouTube URL zu Embed-URL umwandeln
 function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
@@ -14,6 +17,129 @@ function getYouTubeEmbedUrl(url: string): string | null {
   if (!match) return null;
   return `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0`;
 }
+
+// ✅ Sponsor-Daten laden (mit Cache)
+type SponsorData = {
+  logoUrl?: string;
+  bannerText?: string;
+  bannerBildUrl?: string;
+};
+
+let sponsorCache: Record<string, SponsorData | null> = {};
+let sponsorFetchPromise: Promise<any> | null = null;
+
+async function loadSponsors(): Promise<any[]> {
+  if (sponsorFetchPromise) return sponsorFetchPromise;
+  sponsorFetchPromise = fetch(`${SPONSOR_API_URL}?action=get_sponsors`, { redirect: 'follow' })
+    .then(r => r.json())
+    .then(data => data?.sponsors || data?.rows || [])
+    .catch(() => []);
+  return sponsorFetchPromise;
+}
+
+async function getSponsorForKunde(kundenId: string): Promise<SponsorData | null> {
+  if (kundenId in sponsorCache) return sponsorCache[kundenId];
+  const rows = await loadSponsors();
+  const found = rows.find((r: any) =>
+    String(r?.Kunden_ID || '').trim() === kundenId &&
+    String(r?.Aktiv || '').toUpperCase() === 'TRUE'
+  );
+  const result = found ? {
+    logoUrl: found.Logo_URL || undefined,
+    bannerText: found.Banner_Text || undefined,
+    bannerBildUrl: found.Banner_Bild_URL || undefined,
+  } : null;
+  sponsorCache[kundenId] = result;
+  return result;
+}
+
+// ✅ SponsorBanner Komponente
+const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
+  const [sponsor, setSponsor] = useState<SponsorData | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!kundenId) return;
+    getSponsorForKunde(kundenId).then(s => {
+      setSponsor(s);
+      setLoaded(true);
+    });
+  }, [kundenId]);
+
+  if (!loaded || !sponsor) return null;
+
+  return (
+    <div style={{
+      marginTop: 14,
+      paddingTop: 12,
+      borderTop: '1px solid #f0f0f0',
+    }}>
+      <div style={{
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: '1.2px',
+        textTransform: 'uppercase' as const,
+        color: '#aaa',
+        marginBottom: 8,
+      }}>
+        Partner
+      </div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        background: '#f8f8f8',
+        borderRadius: 12,
+        padding: '10px 14px',
+        border: '1px solid #eee',
+      }}>
+        {sponsor.logoUrl && (
+          <div style={{
+            flexShrink: 0,
+            width: 56,
+            height: 56,
+            borderRadius: 10,
+            overflow: 'hidden',
+            background: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 4,
+            border: '1px solid #eee',
+          }}>
+            <img
+              src={sponsor.logoUrl}
+              alt="Partner Logo"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {sponsor.bannerBildUrl && !sponsor.bannerText && (
+            <img
+              src={sponsor.bannerBildUrl}
+              alt="Partner Banner"
+              style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }}
+              referrerPolicy="no-referrer"
+            />
+          )}
+          {sponsor.bannerText && (
+            <div style={{
+              fontSize: 13,
+              lineHeight: 1.45,
+              color: '#444',
+              whiteSpace: 'pre-wrap' as const,
+              fontWeight: 500,
+            }}>
+              {sponsor.bannerText}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Tab1: React.FC = () => {
   const { branding, loading, reload } = useContext(BrandingContext);
@@ -32,6 +158,9 @@ const Tab1: React.FC = () => {
   const themaFarbe = b?.Thema_Farbe || '#111111';
   const logoUrl = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
+
+  // ✅ Kunden_ID für Sponsor-Banner
+  const kundenId: string = String(branding?.Kunden_ID || '').trim();
 
   const kategorienFinal: string[] = useMemo(() => {
     const kat = b?.Kategorien;
@@ -124,16 +253,10 @@ const Tab1: React.FC = () => {
     if (!web && !fb && !ig && !yt && !tt) return null;
 
     return (
-      <div
-        style={{
-          display: 'flex',
-          gap: 16,
-          alignItems: 'center',
-          borderTop: '1px solid #f0f0f0',
-          marginTop: 14,
-          paddingTop: 12,
-        }}
-      >
+      <div style={{
+        display: 'flex', gap: 16, alignItems: 'center',
+        borderTop: '1px solid #f0f0f0', marginTop: 14, paddingTop: 12,
+      }}>
         {web && (
           <a href={web} target="_blank" rel="noopener noreferrer" title="Website" style={{ lineHeight: 0 }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="#1a73e8">
@@ -186,18 +309,10 @@ const Tab1: React.FC = () => {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
         {demoTage && (
-          <div
-            style={{
-              backgroundColor: '#f0a500',
-              borderRadius: 10,
-              padding: '12px 16px',
-              marginBottom: 12,
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: 'white',
-              fontSize: 15,
-            }}
-          >
+          <div style={{
+            backgroundColor: '#f0a500', borderRadius: 10, padding: '12px 16px',
+            marginBottom: 12, textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15,
+          }}>
             ⏱ Demo läuft noch {demoTage} Tage
           </div>
         )}
@@ -206,16 +321,9 @@ const Tab1: React.FC = () => {
           <button
             onClick={() => setShowForm(true)}
             style={{
-              width: '100%',
-              padding: 14,
-              borderRadius: 10,
-              backgroundColor: themaFarbe,
-              border: 'none',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: 16,
-              cursor: 'pointer',
-              marginBottom: 16,
+              width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe,
+              border: 'none', color: 'white', fontWeight: 'bold', fontSize: 16,
+              cursor: 'pointer', marginBottom: 16,
             }}
           >
             ⊕ NEUEN BEITRAG ERSTELLEN
@@ -223,89 +331,44 @@ const Tab1: React.FC = () => {
         )}
 
         {isAdmin && showForm && (
-          <div
-            style={{
-              background: '#f9f9f9',
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 20,
-              border: '1px solid #ddd',
-            }}
-          >
+          <div style={{
+            background: '#f9f9f9', borderRadius: 12, padding: 16,
+            marginBottom: 20, border: '1px solid #ddd',
+          }}>
             <h3 style={{ marginTop: 0 }}>📝 Neuer Beitrag</h3>
 
             <input
               placeholder="Titel"
               value={titel}
               onChange={(e: any) => setTitel(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 8,
-                borderRadius: 8,
-                border: '1px solid #ccc',
-                boxSizing: 'border-box',
-              }}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const }}
             />
-
             <textarea
               placeholder="Text"
               value={text}
               onChange={(e: any) => setText(e.target.value)}
               rows={4}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 8,
-                borderRadius: 8,
-                border: '1px solid #ccc',
-                boxSizing: 'border-box',
-              }}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const }}
             />
-
             <input
               placeholder="Bild URL (optional)"
               value={bildUrl}
               onChange={(e: any) => setBildUrl(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 8,
-                borderRadius: 8,
-                border: '1px solid #ccc',
-                boxSizing: 'border-box',
-              }}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const }}
             />
-
             <input
               placeholder="▶ YouTube URL (optional)"
               value={videoUrl}
               onChange={(e: any) => setVideoUrl(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 8,
-                borderRadius: 8,
-                border: '1px solid #ccc',
-                boxSizing: 'border-box',
-              }}
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const }}
             />
-
             <select
               value={kategorie || kategorienFinal[0]}
               onChange={(e: any) => setKategorie(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 12,
-                borderRadius: 8,
-                border: '1px solid #ccc',
-              }}
+              style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: '1px solid #ccc' }}
             >
               {kategorienFinal.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
+                <option key={k} value={k}>{k}</option>
               ))}
             </select>
 
@@ -314,31 +377,14 @@ const Tab1: React.FC = () => {
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => setShowForm(false)}
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  backgroundColor: 'white',
-                  cursor: 'pointer',
-                }}
+                style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #ccc', backgroundColor: 'white', cursor: 'pointer' }}
               >
                 Abbrechen
               </button>
-
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                style={{
-                  flex: 2,
-                  padding: 12,
-                  borderRadius: 8,
-                  border: 'none',
-                  backgroundColor: themaFarbe,
-                  color: 'white',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                }}
+                style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', backgroundColor: themaFarbe, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
               >
                 {saving ? 'Speichern...' : 'Veröffentlichen'}
               </button>
@@ -353,16 +399,12 @@ const Tab1: React.FC = () => {
         ) : (
           beitraege.map((beitrag, i) => {
             const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || '');
-
             return (
               <div
                 key={i}
                 style={{
-                  background: 'white',
-                  borderRadius: 12,
-                  padding: 16,
-                  marginBottom: 12,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  background: 'white', borderRadius: 12, padding: 16,
+                  marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 }}
               >
                 {beitrag.Bild_URL && (
@@ -370,38 +412,20 @@ const Tab1: React.FC = () => {
                     src={beitrag.Bild_URL}
                     alt=""
                     style={{
-                      width: '100%',
-                      height: '280px',
-                      maxHeight: '280px',
-                      objectFit: 'cover',
-                      borderRadius: 8,
-                      marginBottom: 8,
-                      display: 'block',
+                      width: '100%', height: '280px', maxHeight: '280px',
+                      objectFit: 'cover', borderRadius: 8, marginBottom: 8, display: 'block',
                     }}
                   />
                 )}
 
                 {embedUrl && (
-                  <div
-                    style={{
-                      position: 'relative',
-                      paddingBottom: '56.25%',
-                      height: 0,
-                      marginBottom: 10,
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                    }}
-                  >
+                  <div style={{
+                    position: 'relative', paddingBottom: '56.25%', height: 0,
+                    marginBottom: 10, borderRadius: 8, overflow: 'hidden',
+                  }}>
                     <iframe
                       src={embedUrl}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        border: 'none',
-                      }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title={beitrag.Titel}
@@ -413,30 +437,18 @@ const Tab1: React.FC = () => {
                   {beitrag.Kategorie} • {beitrag.Datum}
                 </div>
 
-                <h3
-                  style={{
-                    margin: '0 0 10px 0',
-                    fontSize: 24,
-                    lineHeight: 1.25,
-                    color: '#222',
-                  }}
-                >
+                <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222' }}>
                   {beitrag.Titel}
                 </h3>
 
-                <p
-                  style={{
-                    margin: 0,
-                    color: '#555',
-                    fontSize: 16,
-                    lineHeight: 1.7,
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
+                <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                   {beitrag.Text}
                 </p>
 
                 <SocialBar />
+
+                {/* ✅ SPONSOR BANNER — unter jedem Beitrag */}
+                {kundenId && <SponsorBanner kundenId={kundenId} />}
               </div>
             );
           })
