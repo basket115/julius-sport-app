@@ -41,7 +41,7 @@ export type FeedRow = {
 };
 
 const FEED_URL =
-  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec?action=get_beitraege&kundenId=V004";
+ "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 function cleanStr(v: any): string | undefined {
   if (v === null || v === undefined) return undefined;
@@ -200,3 +200,4 @@ export async function fetchFeed(): Promise<FeedRow[]> {
     throw new Error("Fehler beim Laden der Daten.");
   }
 }
+
