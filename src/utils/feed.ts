@@ -1,10 +1,14 @@
 // src/utils/feed.ts
+
 export type FeedKind = "news" | "result" | "training" | "unknown";
+
 export type ApiResponse = {
-  ok: boolean;
-  count: number;
-  rows: any[];
+  success?: boolean;
+  ok?: boolean;
+  count?: number;
+  rows?: any[];
 };
+
 export type FeedRow = {
   id: string;
   kind: FeedKind;
@@ -27,7 +31,8 @@ export type FeedRow = {
   trainingType?: string;
   durationMin?: number | null;
   intensity?: string;
-  // NEU: Social Media
+
+  // Social Media
   webUrl?: string;
   facebookUrl?: string;
   instagramUrl?: string;
@@ -35,66 +40,161 @@ export type FeedRow = {
   tiktokUrl?: string;
 };
 
-const FEED_URL = "https://script.google.com/macros/s/AKfycbxS0swicXVh5ZCS9A4AX48ZTkdgIWg7LjncuWT1-QM2p4Z8QW0xW6Rb4R5FFj33vNmyDw/exec";
+const FEED_URL =
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec?action=get_beitraege&kundenId=V004";
 
 function cleanStr(v: any): string | undefined {
   if (v === null || v === undefined) return undefined;
   const s = String(v).trim();
   return s.length ? s : undefined;
 }
+
 function cleanNum(v: any): number | null {
   if (v === null || v === undefined) return null;
+  if (typeof v === "string" && v.trim() === "") return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
+
 export function parseDate(input: unknown): Date | null {
   if (input === null || input === undefined) return null;
-  if (typeof input === "number") return new Date(input);
-  if (typeof input === "string") {
-    const d = new Date(input.trim());
-    return isNaN(d.getTime()) ? null : d;
+
+  if (typeof input === "number" && Number.isFinite(input)) {
+    const d = new Date(input);
+    return Number.isNaN(d.getTime()) ? null : d;
   }
+
+  if (typeof input === "string") {
+    const trimmed = input.trim();
+    if (!trimmed) return null;
+
+    const m = trimmed.match(
+      /^(\d{1,2})\.(\d{1,2})\.(\d{3,4})(?:\s+(\d{1,2}):(\d{2}))?$/
+    );
+
+    if (m) {
+      const dd = Number(m[1]);
+      const mm = Number(m[2]);
+      let yyyy = Number(m[3]);
+
+      if (m[3].length === 3 || yyyy < 1000) yyyy = 2000 + yyyy;
+
+      const hh = m[4] ? Number(m[4]) : 0;
+      const min = m[5] ? Number(m[5]) : 0;
+
+      const d = new Date(yyyy, mm - 1, dd, hh, min, 0, 0);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    const d = new Date(trimmed);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
   return null;
 }
+
 function toKind(row: any): FeedKind {
-  const raw = String(row?.kind || row?.type || "").toLowerCase();
+  const raw = String(
+    row?.type ?? row?.kind ?? row?.Kategorie ?? row?.category ?? ""
+  ).toLowerCase();
+
   if (raw.includes("result") || raw.includes("ergebnis")) return "result";
   if (raw.includes("training")) return "training";
-  return "news";
+  if (raw.includes("news") || raw.includes("nachricht") || raw.includes("info")) return "news";
+
+  return "unknown";
 }
+
+function parseTeams(raw: any): string[] {
+  const s = cleanStr(raw);
+  if (!s) return [];
+
+  return s
+    .split(/[,\n;|]+/g)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
 function normalizeRow(row: any): FeedRow {
-  const date = parseDate(row?.date);
+  const dateRaw =
+    row?.date ??
+    row?.Datum ??
+    row?.datum ??
+    row?.created ??
+    row?.timestamp ??
+    row?.time;
+
+  const date = parseDate(dateRaw);
+
   return {
-    id: cleanStr(row?.id) ?? "ohne-id",
+    id: cleanStr(row?.id ?? row?.ID) ?? "ohne-id",
     kind: toKind(row),
-    title: cleanStr(row?.title),
-    text: cleanStr(row?.text),
-    image: cleanStr(row?.heroImageUrl) || cleanStr(row?.image),
+    title: cleanStr(row?.Titel ?? row?.title ?? row?.headline),
+    text: cleanStr(row?.Text ?? row?.text ?? row?.body),
+    image: cleanStr(
+      row?.Bild_URL ??
+        row?.image ??
+        row?.heroImageUrl ??
+        row?.img ??
+        row?.imageUrl
+    ),
     linkUrl: cleanStr(row?.linkUrl),
     linkLabel: cleanStr(row?.linkLabel),
+    dateRaw,
     date,
     dateLabel: date
-      ? new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date)
-      : undefined,
+      ? new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }).format(date)
+      : cleanStr(row?.Datum ?? row?.date ?? row?.datum),
     home: cleanStr(row?.home),
     away: cleanStr(row?.away),
     homeScore: cleanNum(row?.homeScore),
     awayScore: cleanNum(row?.awayScore),
-    // NEU: Social Media
+    teams: parseTeams(row?.teamIds ?? row?.teams ?? row?.Kategorie),
+    competition: cleanStr(row?.competition ?? row?.liga),
+    venue: cleanStr(row?.venue ?? row?.halle),
+    highlights: cleanStr(row?.highlights ?? row?.notes),
+    trainingType: cleanStr(row?.trainingType ?? row?.training),
+    durationMin: cleanNum(row?.durationMin ?? row?.minutes ?? row?.dauer),
+    intensity: cleanStr(row?.intensity ?? row?.level),
+
     webUrl: cleanStr(row?.WEB_URL),
     facebookUrl: cleanStr(row?.Facebook_URL),
-    instagramUrl: cleanStr(row?.Instragram_URL) || cleanStr(row?.Instagram_URL),
+    instagramUrl: cleanStr(row?.Instagram_URL ?? row?.Instragram_URL),
     youtubeUrl: cleanStr(row?.Youtube_URL),
     tiktokUrl: cleanStr(row?.TikTok_URL),
   };
 }
+
 export async function fetchFeed(): Promise<FeedRow[]> {
   try {
-    const res = await fetch(FEED_URL, { method: "GET", redirect: "follow" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json() as ApiResponse;
-    if (!data?.ok) throw new Error("API Fehler");
-    return data.rows.map(normalizeRow);
+    const res = await fetch(FEED_URL, {
+      method: "GET",
+      redirect: "follow",
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = (await res.json()) as ApiResponse;
+    const rows = Array.isArray(data?.rows) ? data.rows : [];
+
+    if (!data?.success && !data?.ok) {
+      throw new Error("API Fehler");
+    }
+
+    return rows
+      .map(normalizeRow)
+      .filter((row) => row.id && row.title)
+      .sort((a, b) => {
+        const at = a.date ? a.date.getTime() : 0;
+        const bt = b.date ? b.date.getTime() : 0;
+        return bt - at;
+      });
   } catch (e) {
     console.error("Fetch error:", e);
     throw new Error("Fehler beim Laden der Daten.");
