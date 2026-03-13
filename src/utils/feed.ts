@@ -180,8 +180,12 @@ export async function fetchFeed(): Promise<FeedRow[]> {
       throw new Error(`HTTP ${res.status}`);
     }
 
-    const data = (await res.json()) as ApiResponse;
-    const rows = Array.isArray(data?.rows) ? data.rows : [];
+const data = (await res.json()) as ApiResponse;
+const rows = Array.isArray(data?.rows)
+  ? data.rows
+  : Array.isArray((data as any)?.qh?.rows)
+  ? (data as any).qh.rows
+  : [];
 
     if (!data?.success && !data?.ok) {
       throw new Error("API Fehler");
@@ -200,3 +204,4 @@ export async function fetchFeed(): Promise<FeedRow[]> {
     throw new Error("Fehler beim Laden der Daten.");
   }
 }
+
