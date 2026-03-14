@@ -4,7 +4,7 @@ import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec"
 
 // ─── YouTube Embed ────────────────────────────────────────────
 function getYouTubeEmbedUrl(url: string): string | null {
