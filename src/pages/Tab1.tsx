@@ -33,7 +33,7 @@ async function getSponsor(kundenId: string): Promise<SponsorData | null> {
   const rows = await loadSponsors();
   const found = rows.find((r: any) =>
     String(r?.Kunden_ID || '').trim() === kundenId &&
-    String(r?.Aktiv || '').toUpperCase() === 'TRUE'
+    r?.Aktiv === true || String(r?.Aktiv || '').toUpperCase() === 'TRUE'
   );
   sponsorCache[kundenId] = found
     ? { logoUrl: found.Logo_URL || undefined, bannerText: found.Banner_Text || undefined, bannerBildUrl: found.Banner_Bild_URL || undefined }
