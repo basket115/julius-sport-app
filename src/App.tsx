@@ -4,7 +4,7 @@ import Tab1 from './pages/Tab1';
 export const BrandingContext = createContext<any>(null);
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec"
 
 // ✅ OneSignal dynamisch initialisieren
 function initOneSignal(appId: string) {
