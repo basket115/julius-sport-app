@@ -32,7 +32,6 @@ export type FeedRow = {
   durationMin?: number | null;
   intensity?: string;
 
-  // Social Media
   webUrl?: string;
   facebookUrl?: string;
   instagramUrl?: string;
@@ -78,7 +77,6 @@ export function parseDate(input: unknown): Date | null {
     const trimmed = input.trim();
     if (!trimmed) return null;
 
-    // DD.MM.YYYY oder DD.MM.YY mit optionaler Uhrzeit
     const m = trimmed.match(
       /^(\d{1,2})\.(\d{1,2})\.(\d{3,4})(?:\s+(\d{1,2}):(\d{2}))?$/
     );
@@ -93,7 +91,6 @@ export function parseDate(input: unknown): Date | null {
       return Number.isNaN(d.getTime()) ? null : d;
     }
 
-    // ISO-String und alle anderen Formate (z.B. "2026-03-13T23:00:00.000Z")
     const d = new Date(trimmed);
     return Number.isNaN(d.getTime()) ? null : d;
   }
@@ -108,11 +105,7 @@ function toKind(row: any): FeedKind {
 
   if (raw.includes("result") || raw.includes("ergebnis")) return "result";
   if (raw.includes("training")) return "training";
-  if (
-    raw.includes("news") ||
-    raw.includes("nachricht") ||
-    raw.includes("info")
-  )
+  if (raw.includes("news") || raw.includes("nachricht") || raw.includes("info"))
     return "news";
 
   return "unknown";
@@ -137,16 +130,15 @@ function normalizeRow(row: any): FeedRow {
     row?.time;
 
   const date = parseDate(dateRaw);
+  console.log('DEBUG dateRaw:', JSON.stringify(dateRaw), '| date:', date);
 
-  // Datum-Label: erst geparste Date nutzen, dann Fallback auf rohen String
   const dateLabel = (() => {
     if (date) return formatDate(date);
     const raw = cleanStr(row?.Datum ?? row?.date ?? row?.datum);
     if (!raw) return undefined;
-    // Nochmal versuchen direkt zu parsen (z.B. ISO-String der parseDate nicht erwischt hat)
     const fallback = new Date(raw);
     if (!isNaN(fallback.getTime())) return formatDate(fallback);
-    return raw; // letzter Fallback: rohen String anzeigen
+    return raw;
   })();
 
   return {
