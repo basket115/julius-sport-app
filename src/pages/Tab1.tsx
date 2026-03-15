@@ -1,10 +1,10 @@
-// src/pages/Tab1.tsx
+// src/pages/Tab1.tsx v3
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec"
+  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
 // ─── YouTube Embed ────────────────────────────────────────────
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -28,15 +28,22 @@ async function loadSponsors(): Promise<any[]> {
   return sponsorPromise;
 }
 
+function isAktiv(val: any): boolean {
+  return val === true || val === 'true' || String(val || '').toUpperCase() === 'TRUE';
+}
+
 async function getSponsor(kundenId: string): Promise<SponsorData | null> {
   if (kundenId in sponsorCache) return sponsorCache[kundenId];
   const rows = await loadSponsors();
   const found = rows.find((r: any) =>
-    String(r?.Kunden_ID || '').trim() === kundenId &&
-    r?.Aktiv === true || String(r?.Aktiv || '').toUpperCase() === 'TRUE'
+    String(r?.Kunden_ID || '').trim() === kundenId && isAktiv(r?.Aktiv)
   );
   sponsorCache[kundenId] = found
-    ? { logoUrl: found.Logo_URL || undefined, bannerText: found.Banner_Text || undefined, bannerBildUrl: found.Banner_Bild_URL || undefined }
+    ? {
+        logoUrl: found.Logo_URL || undefined,
+        bannerText: found.Banner_Text || undefined,
+        bannerBildUrl: found.Banner_Bild_URL || undefined,
+      }
     : null;
   return sponsorCache[kundenId];
 }
@@ -136,7 +143,6 @@ const Tab1: React.FC = () => {
     try {
       const res = await fetch(`${API_EXEC_URL}?action=get_beitraege&kundenId=${ladeId}`);
       const data = await res.json();
-      // getBeitraege in Code.gs gibt { success, ok, count, rows } zurück
       if (data.success) setBeitraege(data.rows || data.beitraege || []);
     } catch (err) {
       console.error(err);
@@ -150,7 +156,6 @@ const Tab1: React.FC = () => {
     setKategorie(prev => (!prev || prev === 'News') ? kategorienFinal[0] : prev);
   }, [kategorienFinal]);
 
-  // ─── Beitrag speichern ────────────────────────────────────
   const handleSubmit = async () => {
     if (!titel || !text) return;
     setSaving(true);
@@ -176,7 +181,6 @@ const Tab1: React.FC = () => {
     }
   };
 
-  // ─── Beitrag löschen (Papierkorb) ─────────────────────────
   const handleDelete = async (beitrag: any) => {
     const beitragId = String(beitrag.id || beitrag.Id || '').trim();
     if (!beitragId) {
@@ -271,14 +275,13 @@ const Tab1: React.FC = () => {
           <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>Noch keine Beiträge.</p>
         ) : (
           beitraege.map((beitrag, i) => {
-            const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || '');
+            const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
             const bId = String(beitrag.id || beitrag.Id || '');
             const isDeleting = deletingId === bId;
 
             return (
               <div key={bId || i} style={{ background: 'white', borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', position: 'relative' }}>
 
-                {/* 🗑️ Löschen-Button — nur für Admin sichtbar */}
                 {isAdmin && (
                   <button
                     onClick={() => handleDelete(beitrag)}
