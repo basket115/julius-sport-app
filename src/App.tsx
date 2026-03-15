@@ -1,114 +1,103 @@
-import React, { useState, useEffect, createContext } from 'react';
+c// src/App.tsx
+import React, { useState } from 'react';
+import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
+import AdminPage from './pages/AdminPage';
 
-export const BrandingContext = createContext<any>(null);
+import '@ionic/react/css/core.css';
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
+import './theme/variables.css';
 
-const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec"
+const SCORPIONS_RED = '#C4161C';
+const ADMIN_PASSWORD = 'scorpions-admin';
 
-// ✅ OneSignal dynamisch initialisieren
-function initOneSignal(appId: string) {
-  if (!appId) return;
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  window.OneSignalDeferred.push(async function (OneSignal: any) {
-    await OneSignal.init({ appId });
-  });
-}
+type Screen = 'feed' | 'login' | 'admin';
 
 const App: React.FC = () => {
-  const [branding, setBranding] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [screen, setScreen] = useState<Screen>('feed');
   const [password, setPassword] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState('');
 
-  const kundenId =
-    new URLSearchParams(window.location.search).get('kunde') || '';
-
-  const loadBranding = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`
-      );
-      const data = await res.json();
-      if (data.success) {
-        setBranding(data.branding);
-        // ✅ OneSignal mit der App ID aus Google Sheets initialisieren
-        const osAppId = data.branding?.OneSignal_App_ID || '';
-        if (osAppId) initOneSignal(osAppId);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadBranding();
-  }, []); // eslint-disable-line
-
-  const reload = () => loadBranding();
-
-  const handleLogin = async () => {
-    try {
+  const handleLogin = () => {
+    if (password === ADMIN_PASSWORD) {
       setError('');
-      const res = await fetch(
-        `${API_EXEC_URL}?kundenId=${encodeURIComponent(kundenId)}&password=${encodeURIComponent(password)}`
-      );
-      const data = await res.json();
-      if (data.success) {
-        setIsAuthenticated(true);
-        setPassword('');
-      } else {
-        setError(data.error || 'Falsches Passwort!');
-      }
-    } catch (err: any) {
-      setError('Login Fehler');
+      setPassword('');
+      setScreen('admin');
+    } else {
+      setError('Falsches Passwort!');
     }
   };
 
-  const isAdmin = !!(branding as any)?.Passwort;
-
-  if (loading) {
+  if (screen === 'login') {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
-        <div style={{ color: 'white', fontSize: 18 }}>Laden...</div>
-      </div>
+      <IonApp>
+        <div style={{
+          minHeight: '100vh', background: SCORPIONS_RED,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', padding: 24,
+        }}>
+          <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+            <div style={{ fontSize: 56 }}>🦂</div>
+            <h2 style={{ color: 'white', fontWeight: 900, fontSize: 28, margin: 0 }}>Scorpions Admin</h2>
+            <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Bitte Passwort eingeben</p>
+            <input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              style={{
+                width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none',
+                fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const,
+              }}
+            />
+            {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
+            <button
+              onClick={handleLogin}
+              style={{
+                width: '100%', padding: 13, borderRadius: 10, border: 'none',
+                background: 'white', color: SCORPIONS_RED, fontWeight: 700,
+                fontSize: 16, cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              Einloggen
+            </button>
+            <button
+              onClick={() => { setScreen('feed'); setPassword(''); setError(''); }}
+              style={{
+                width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)',
+                background: 'transparent', color: 'white', fontSize: 15,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              ← Zurück zur App
+            </button>
+          </div>
+        </div>
+      </IonApp>
     );
   }
 
-  if (branding && isAdmin && !isAuthenticated) {
+  if (screen === 'admin') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: branding.Thema_Farbe || '#111111' }}>
-        {branding.Logo_verein && (
-          <img src={branding.Logo_verein} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, marginBottom: 16, objectFit: 'contain' }} />
-        )}
-        <h2 style={{ color: 'white', marginBottom: 4 }}>{branding.Verein_Name}</h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>Admin Login</p>
-        <input
-          type="password"
-          placeholder="Passwort eingeben"
-          value={password}
-          onChange={(e: any) => setPassword(e.target.value)}
-          onKeyDown={(e: any) => e.key === 'Enter' && handleLogin()}
-          style={{ padding: 12, borderRadius: 10, border: 'none', marginBottom: 10, width: 260, fontSize: 16 }}
-        />
-        {error && <p style={{ color: '#ff6b6b', marginBottom: 8 }}>{error}</p>}
-        <button
-          onClick={handleLogin}
-          style={{ padding: '12px 40px', borderRadius: 10, border: 'none', backgroundColor: 'white', color: branding.Thema_Farbe || '#111111', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', width: 260 }}
-        >
-          Einloggen
-        </button>
-      </div>
+      <IonApp>
+        <AdminPage onBack={() => setScreen('feed')} />
+      </IonApp>
     );
   }
 
   return (
-    <BrandingContext.Provider value={{ branding, loading, reload }}>
-      <Tab1 />
-    </BrandingContext.Provider>
+    <IonApp>
+      <Tab1 onAdminClick={() => setScreen('login')} />
+    </IonApp>
   );
 };
 
