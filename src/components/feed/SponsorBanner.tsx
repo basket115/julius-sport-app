@@ -10,8 +10,8 @@ export type SponsorRow = {
   aktiv: boolean;
 };
 
-// Google Apps Script URL — gleiche wie feed.ts aber für Sponsor_Inhalte Sheet
-const SPONSOR_URL = "https://script.google.com/macros/s/AKfycbxS0swicXVh5ZCS9A4AX48ZTkdgIWg7LjncuWT1-QM2p4Z8QW0xW6Rb4R5FFj33vNmyDw/exec";
+// Zentrale Apps Script URL (gleiche wie in feed.ts)
+const SPONSOR_URL = "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
 function cleanStr(v: any): string | undefined {
   if (v === null || v === undefined) return undefined;
@@ -20,17 +20,26 @@ function cleanStr(v: any): string | undefined {
 }
 
 function normalizeSponsor(row: any): SponsorRow {
+  // Aktiv-Check: fehlende/leere Spalte → als aktiv behandeln
+  const aktivRaw = row?.Aktiv;
+  const aktiv =
+    aktivRaw === undefined ||
+    aktivRaw === null ||
+    String(aktivRaw).trim() === ''
+      ? true
+      : String(aktivRaw).toUpperCase() === 'TRUE';
+
   return {
     kundenId: cleanStr(row?.Kunden_ID) ?? '',
     slot: cleanStr(row?.Slot),
     logoUrl: cleanStr(row?.Logo_URL),
     bannerText: cleanStr(row?.Banner_Text),
     bannerBildUrl: cleanStr(row?.Banner_Bild_URL),
-    aktiv: String(row?.Aktiv).toUpperCase() === 'TRUE',
+    aktiv,
   };
 }
 
-// Cache damit nicht jedes FeedItem separat fetched
+// Cache damit nicht jedes FeedItem separat fetcht
 let sponsorCache: SponsorRow[] | null = null;
 let sponsorFetchPromise: Promise<SponsorRow[]> | null = null;
 
@@ -39,7 +48,10 @@ export async function fetchSponsors(kundenId: string): Promise<SponsorRow[]> {
     return sponsorCache.filter(s => s.kundenId === kundenId && s.aktiv);
   }
   if (!sponsorFetchPromise) {
-    sponsorFetchPromise = fetch(`${SPONSOR_URL}?sheet=Sponsor_Inhalte`, { method: 'GET', redirect: 'follow' })
+    sponsorFetchPromise = fetch(`${SPONSOR_URL}?sheet=Sponsor_Inhalte`, {
+      method: 'GET',
+      redirect: 'follow',
+    })
       .then(res => res.json())
       .then(data => {
         const rows = (data?.rows || data?.data || []).map(normalizeSponsor);
@@ -53,6 +65,12 @@ export async function fetchSponsors(kundenId: string): Promise<SponsorRow[]> {
   }
   const all = await sponsorFetchPromise;
   return all.filter(s => s.kundenId === kundenId && s.aktiv);
+}
+
+// Cache manuell zurücksetzen (z.B. nach Admin-Änderungen)
+export function clearSponsorCache() {
+  sponsorCache = null;
+  sponsorFetchPromise = null;
 }
 
 type Props = {
