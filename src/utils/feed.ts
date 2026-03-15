@@ -41,7 +41,7 @@ export type FeedRow = {
 };
 
 const FEED_URL =
- "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 function cleanStr(v: any): string | undefined {
   if (v === null || v === undefined) return undefined;
@@ -56,6 +56,16 @@ function cleanNum(v: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+const DE_DATE = new Intl.DateTimeFormat("de-DE", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+function formatDate(d: Date): string {
+  return DE_DATE.format(d);
+}
+
 export function parseDate(input: unknown): Date | null {
   if (input === null || input === undefined) return null;
 
@@ -68,24 +78,22 @@ export function parseDate(input: unknown): Date | null {
     const trimmed = input.trim();
     if (!trimmed) return null;
 
+    // DD.MM.YYYY oder DD.MM.YY mit optionaler Uhrzeit
     const m = trimmed.match(
       /^(\d{1,2})\.(\d{1,2})\.(\d{3,4})(?:\s+(\d{1,2}):(\d{2}))?$/
     );
-
     if (m) {
       const dd = Number(m[1]);
       const mm = Number(m[2]);
       let yyyy = Number(m[3]);
-
       if (m[3].length === 3 || yyyy < 1000) yyyy = 2000 + yyyy;
-
       const hh = m[4] ? Number(m[4]) : 0;
       const min = m[5] ? Number(m[5]) : 0;
-
       const d = new Date(yyyy, mm - 1, dd, hh, min, 0, 0);
       return Number.isNaN(d.getTime()) ? null : d;
     }
 
+    // ISO-String und alle anderen Formate (z.B. "2026-03-13T23:00:00.000Z")
     const d = new Date(trimmed);
     return Number.isNaN(d.getTime()) ? null : d;
   }
@@ -100,7 +108,12 @@ function toKind(row: any): FeedKind {
 
   if (raw.includes("result") || raw.includes("ergebnis")) return "result";
   if (raw.includes("training")) return "training";
-  if (raw.includes("news") || raw.includes("nachricht") || raw.includes("info")) return "news";
+  if (
+    raw.includes("news") ||
+    raw.includes("nachricht") ||
+    raw.includes("info")
+  )
+    return "news";
 
   return "unknown";
 }
@@ -108,7 +121,6 @@ function toKind(row: any): FeedKind {
 function parseTeams(raw: any): string[] {
   const s = cleanStr(raw);
   if (!s) return [];
-
   return s
     .split(/[,\n;|]+/g)
     .map((x) => x.trim())
@@ -126,6 +138,17 @@ function normalizeRow(row: any): FeedRow {
 
   const date = parseDate(dateRaw);
 
+  // Datum-Label: erst geparste Date nutzen, dann Fallback auf rohen String
+  const dateLabel = (() => {
+    if (date) return formatDate(date);
+    const raw = cleanStr(row?.Datum ?? row?.date ?? row?.datum);
+    if (!raw) return undefined;
+    // Nochmal versuchen direkt zu parsen (z.B. ISO-String der parseDate nicht erwischt hat)
+    const fallback = new Date(raw);
+    if (!isNaN(fallback.getTime())) return formatDate(fallback);
+    return raw; // letzter Fallback: rohen String anzeigen
+  })();
+
   return {
     id: cleanStr(row?.id ?? row?.ID) ?? "ohne-id",
     kind: toKind(row),
@@ -142,13 +165,7 @@ function normalizeRow(row: any): FeedRow {
     linkLabel: cleanStr(row?.linkLabel),
     dateRaw,
     date,
-    dateLabel: date
-      ? new Intl.DateTimeFormat("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }).format(date)
-      : cleanStr(row?.Datum ?? row?.date ?? row?.datum),
+    dateLabel,
     home: cleanStr(row?.home),
     away: cleanStr(row?.away),
     homeScore: cleanNum(row?.homeScore),
