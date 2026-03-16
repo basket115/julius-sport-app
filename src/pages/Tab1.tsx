@@ -173,16 +173,17 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     } finally { setSaving(false); }
   };
 
+  // ✅ FIX: DELETE per GET statt POST (löst CORS-Problem)
   const handleDelete = async (beitrag: any) => {
     const beitragId = String(beitrag.id || beitrag.Id || '').trim();
     if (!beitragId) { alert('Keine ID — kann nicht gelöscht werden.'); return; }
     if (!window.confirm(`"${beitrag.Titel}" wirklich löschen?`)) return;
     setDeletingId(beitragId);
     try {
-      const res = await fetch(API_EXEC_URL, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete_beitrag', kundenId: branding?.Kunden_ID || '', id: beitragId }),
-      }).then(r => r.json());
+      const res = await fetch(
+        `${API_EXEC_URL}?action=delete_beitrag&kundenId=${encodeURIComponent(branding?.Kunden_ID || '')}&id=${encodeURIComponent(beitragId)}`,
+        { method: 'GET', redirect: 'follow' }
+      ).then(r => r.json());
       if (res.success) {
         setBeitraege(prev => prev.filter(item => String(item.id || item.Id || '') !== beitragId));
       } else { alert('Fehler: ' + (res.error || 'Unbekannt')); }
