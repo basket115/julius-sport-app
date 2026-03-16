@@ -53,25 +53,33 @@ const App: React.FC = () => {
         const themaFarbe = data.branding?.Thema_Farbe || '#111111';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
 
-        // ✅ Browser-Tab Titel dynamisch setzen
+        // ✅ Browser-Tab Titel
         document.title = vereinName;
 
-        // ✅ Apple PWA Titel aktualisieren
+        // ✅ Apple PWA Titel
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
         if (appleMeta) appleMeta.setAttribute('content', vereinName);
 
-        // ✅ Theme-Color Meta-Tag aktualisieren
-        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        // ✅ Theme-Color
+        let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
         if (themeColorMeta) {
           themeColorMeta.setAttribute('content', themaFarbe);
         } else {
-          const meta = document.createElement('meta');
-          meta.name = 'theme-color';
-          meta.content = themaFarbe;
-          document.head.appendChild(meta);
+          themeColorMeta = document.createElement('meta');
+          themeColorMeta.name = 'theme-color';
+          themeColorMeta.content = themaFarbe;
+          document.head.appendChild(themeColorMeta);
         }
 
-        // ✅ Manifest dynamisch mit Vereinsdaten überschreiben
+        // ✅ Favicon dynamisch setzen
+        if (logoUrl) {
+          const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+          const appleFavicon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
+          if (favicon) favicon.href = logoUrl;
+          if (appleFavicon) appleFavicon.href = logoUrl;
+        }
+
+        // ✅ Manifest dynamisch überschreiben
         const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
         if (manifestLink) {
           const manifest = {
