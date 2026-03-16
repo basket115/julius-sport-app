@@ -48,12 +48,57 @@ const App: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setBranding(data.branding);
-        // ✅ Browser-Tab Titel + PWA Name dynamisch setzen
+
         const vereinName = data.branding?.Verein_Name || 'Sport App';
+        const themaFarbe = data.branding?.Thema_Farbe || '#111111';
+        const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
+
+        // ✅ Browser-Tab Titel dynamisch setzen
         document.title = vereinName;
-        // Apple PWA Titel auch aktualisieren
+
+        // ✅ Apple PWA Titel aktualisieren
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
         if (appleMeta) appleMeta.setAttribute('content', vereinName);
+
+        // ✅ Theme-Color Meta-Tag aktualisieren
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+          themeColorMeta.setAttribute('content', themaFarbe);
+        } else {
+          const meta = document.createElement('meta');
+          meta.name = 'theme-color';
+          meta.content = themaFarbe;
+          document.head.appendChild(meta);
+        }
+
+        // ✅ Manifest dynamisch mit Vereinsdaten überschreiben
+        const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+        if (manifestLink) {
+          const manifest = {
+            short_name: vereinName,
+            name: vereinName + ' App',
+            icons: [
+              {
+                src: logoUrl || '/logo.png',
+                sizes: '192x192',
+                type: 'image/png',
+                purpose: 'any'
+              },
+              {
+                src: logoUrl || '/logo.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'maskable'
+              }
+            ],
+            start_url: './?kunde=' + kundenId,
+            display: 'standalone',
+            background_color: themaFarbe,
+            theme_color: themaFarbe
+          };
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+          manifestLink.href = URL.createObjectURL(blob);
+        }
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId);
@@ -149,8 +194,6 @@ const App: React.FC = () => {
   return (
     <BrandingContext.Provider value={{ branding, loading, reload, isAuthenticated }}>
       <IonApp>
-        {/* ✅ FIX: Zahnrad immer sichtbar wenn Passwort vorhanden,
-            egal ob eingeloggt oder nicht */}
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
       </IonApp>
     </BrandingContext.Provider>
