@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v5
+// src/pages/Tab1.tsx v6
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -14,10 +14,10 @@ function getYouTubeEmbedUrl(url: string): string | null {
 }
 
 // ─── Sponsor Cache & Loader ───────────────────────────────────
-type SponsorData = { logoUrl?: string; bannerText?: string; bannerBildUrl?: string };
+// ✅ linkUrl hinzugefügt
+type SponsorData = { logoUrl?: string; bannerText?: string; bannerBildUrl?: string; linkUrl?: string };
 const sponsorCache: Record<string, SponsorData | null> = {};
 
-// ✅ FIX: kundenId wird jetzt mitgeschickt
 async function loadSponsorsForKunde(kundenId: string): Promise<any[]> {
   try {
     const res = await fetch(
@@ -48,6 +48,7 @@ async function getSponsor(kundenId: string): Promise<SponsorData | null> {
         logoUrl: found.Logo_URL || undefined,
         bannerText: found.Banner_Text || undefined,
         bannerBildUrl: found.Banner_Bild_URL || undefined,
+        linkUrl: found.Banner_Link_URL || undefined, // ✅ NEU
       }
     : null;
   return sponsorCache[kundenId];
@@ -65,28 +66,66 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
 
   if (!loaded || !sponsor) return null;
 
+  // ✅ Banner ist klickbar wenn linkUrl vorhanden
+  const bannerInhalt = (
+    <>
+      {sponsor.logoUrl && (
+        <div style={{
+          flexShrink: 0, width: 56, height: 56, borderRadius: 10, overflow: 'hidden',
+          background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 4, border: '1px solid #eee',
+        }}>
+          <img src={sponsor.logoUrl} alt="Partner Logo"
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            referrerPolicy="no-referrer" />
+        </div>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {sponsor.bannerBildUrl && !sponsor.bannerText && (
+          <img src={sponsor.bannerBildUrl} alt="Partner Banner"
+            style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }}
+            referrerPolicy="no-referrer" />
+        )}
+        {sponsor.bannerText && (
+          <div style={{ fontSize: 13, lineHeight: 1.45, color: '#444', whiteSpace: 'pre-wrap' as const, fontWeight: 500 }}>
+            {sponsor.bannerText}
+          </div>
+        )}
+        {/* ✅ "Mehr erfahren" Hinweis wenn Link vorhanden */}
+        {sponsor.linkUrl && (
+          <div style={{ marginTop: 6, fontSize: 12, color: '#0057B7', fontWeight: 600 }}>
+            Mehr erfahren →
+          </div>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase' as const, color: '#aaa', marginBottom: 8 }}>
         Partner
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8f8f8', borderRadius: 12, padding: '10px 14px', border: '1px solid #eee' }}>
-        {sponsor.logoUrl && (
-          <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 10, overflow: 'hidden', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, border: '1px solid #eee' }}>
-            <img src={sponsor.logoUrl} alt="Partner Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
-          </div>
-        )}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {sponsor.bannerBildUrl && !sponsor.bannerText && (
-            <img src={sponsor.bannerBildUrl} alt="Partner Banner" style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
-          )}
-          {sponsor.bannerText && (
-            <div style={{ fontSize: 13, lineHeight: 1.45, color: '#444', whiteSpace: 'pre-wrap' as const, fontWeight: 500 }}>
-              {sponsor.bannerText}
-            </div>
-          )}
+      {/* ✅ Klickbar wenn linkUrl vorhanden, sonst normales div */}
+      {sponsor.linkUrl ? (
+        <a href={sponsor.linkUrl} target="_blank" rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            background: '#f8f8f8', borderRadius: 12, padding: '10px 14px',
+            border: '1px solid #eee', textDecoration: 'none',
+            cursor: 'pointer',
+          }}>
+          {bannerInhalt}
+        </a>
+      ) : (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          background: '#f8f8f8', borderRadius: 12, padding: '10px 14px',
+          border: '1px solid #eee',
+        }}>
+          {bannerInhalt}
         </div>
-      </div>
+      )}
     </div>
   );
 };
