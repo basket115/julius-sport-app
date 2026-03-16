@@ -48,6 +48,13 @@ const App: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setBranding(data.branding);
+        // ✅ Browser-Tab Titel + PWA Name dynamisch setzen
+        const vereinName = data.branding?.Verein_Name || 'Sport App';
+        document.title = vereinName;
+        // Apple PWA Titel auch aktualisieren
+        const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+        if (appleMeta) appleMeta.setAttribute('content', vereinName);
+
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId);
       }
@@ -142,7 +149,9 @@ const App: React.FC = () => {
   return (
     <BrandingContext.Provider value={{ branding, loading, reload, isAuthenticated }}>
       <IonApp>
-        <Tab1 onAdminClick={isAdmin && !isAuthenticated ? () => setShowLogin(true) : undefined} />
+        {/* ✅ FIX: Zahnrad immer sichtbar wenn Passwort vorhanden,
+            egal ob eingeloggt oder nicht */}
+        <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
       </IonApp>
     </BrandingContext.Provider>
   );
