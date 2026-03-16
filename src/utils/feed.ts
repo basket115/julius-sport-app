@@ -130,7 +130,6 @@ function normalizeRow(row: any): FeedRow {
     row?.time;
 
   const date = parseDate(dateRaw);
-  console.log('DEBUG dateRaw:', JSON.stringify(dateRaw), '| date:', date);
 
   const dateLabel = (() => {
     if (date) return formatDate(date);
