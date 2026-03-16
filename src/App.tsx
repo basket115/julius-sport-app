@@ -35,12 +35,36 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
+  const [brandingError, setBrandingError] = useState(false);
 
   const kundenId =
     new URLSearchParams(window.location.search).get('kunde') || '';
 
+  // ✅ Keine kundenId → sofort Fehlerseite zeigen
+  if (!kundenId) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', height: '100vh', backgroundColor: '#111',
+        padding: 32, textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 64, marginBottom: 24 }}>🏀</div>
+        <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, margin: '0 0 12px' }}>
+          Julius Sport App
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, margin: '0 0 8px' }}>
+          Kein Verein ausgewählt.
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
+          Bitte öffne die App über den Link deines Vereins.
+        </p>
+      </div>
+    );
+  }
+
   const loadBranding = async () => {
     setLoading(true);
+    setBrandingError(false);
     try {
       const res = await fetch(
         `${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`
@@ -86,18 +110,8 @@ const App: React.FC = () => {
             short_name: vereinName,
             name: vereinName + ' App',
             icons: [
-              {
-                src: logoUrl || '/logo.png',
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: logoUrl || '/logo.png',
-                sizes: '512x512',
-                type: 'image/png',
-                purpose: 'maskable'
-              }
+              { src: logoUrl || '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+              { src: logoUrl || '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
             ],
             start_url: './?kunde=' + kundenId,
             display: 'standalone',
@@ -110,9 +124,13 @@ const App: React.FC = () => {
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId);
+      } else {
+        // ✅ Verein nicht gefunden
+        setBrandingError(true);
       }
     } catch (err) {
       console.error(err);
+      setBrandingError(true);
     }
     setLoading(false);
   };
@@ -146,10 +164,33 @@ const App: React.FC = () => {
   const themaFarbe = branding?.Thema_Farbe || '#111111';
   const logoUrl = branding?.Logo_verein || branding?.Logo_Verein || '';
 
+  // ── LADEN ──────────────────────────────────────────────────
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
         <div style={{ color: 'white', fontSize: 18 }}>Laden...</div>
+      </div>
+    );
+  }
+
+  // ✅ Verein nicht gefunden
+  if (brandingError) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', height: '100vh', backgroundColor: '#111',
+        padding: 32, textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 64, marginBottom: 24 }}>🏀</div>
+        <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, margin: '0 0 12px' }}>
+          Verein nicht gefunden
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, margin: '0 0 8px' }}>
+          Der Verein "{kundenId}" wurde nicht gefunden.
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
+          Bitte prüfe den Link oder kontaktiere deinen Administrator.
+        </p>
       </div>
     );
   }
