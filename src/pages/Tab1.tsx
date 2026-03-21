@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v7
+// src/pages/Tab1.tsx v9
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -371,6 +371,8 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         ) : (
           beitraege.map((beitrag, i) => {
             const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
+            const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
+            const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
             const bId = String(beitrag.id || beitrag.Id || '');
             const isDeleting = deletingId === bId;
             return (
@@ -381,19 +383,47 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                     {isDeleting ? '...' : '🗑️'}
                   </button>
                 )}
+
+                {/* 1. Bild */}
                 {beitrag.Bild_URL && (
                   <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: 8, marginBottom: 8, display: 'block' }} />
                 )}
+
+                {/* 2. Kategorie + Datum */}
+                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{beitrag.Kategorie} • {beitrag.Datum}</div>
+
+                {/* 3. Titel */}
+                <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: isAdmin ? 44 : 0 }}>{beitrag.Titel}</h3>
+
+                {/* 4. Text */}
+                <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
+
+                {/* 5. Video */}
                 {embedUrl && (
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 10, borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
                     <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
                   </div>
                 )}
-                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{beitrag.Kategorie} • {beitrag.Datum}</div>
-                <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: isAdmin ? 44 : 0 }}>{beitrag.Titel}</h3>
-                <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
+
+                {/* 6. Button */}
+                {buttonLabel && buttonUrl && (
+                  <a href={buttonUrl} target="_blank" rel="noopener noreferrer"
+                    style={{
+                      display: 'block', marginTop: 14, padding: '12px 16px',
+                      backgroundColor: themaFarbe, color: 'white',
+                      borderRadius: 10, textAlign: 'center' as const,
+                      fontWeight: 700, fontSize: 15, textDecoration: 'none',
+                      cursor: 'pointer',
+                    }}>
+                    {buttonLabel}
+                  </a>
+                )}
+
+                {/* 7. Social Bar */}
                 <SocialBar b={b} />
+
+                {/* 8. Sponsor */}
                 {kundenId && <SponsorBanner kundenId={kundenId} />}
               </div>
             );
