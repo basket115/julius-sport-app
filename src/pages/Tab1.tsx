@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v9
+// src/pages/Tab1.tsx v10
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -162,7 +162,7 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
             <li>Rechtsklick auf Bild → <strong>"Bild-Adresse kopieren"</strong></li>
             <li>URL hier einfügen</li>
           </ol>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888' }}>Beispiel: https://i.imgur.com/EYrDIgA.png</p>
+          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888' }}>Beispiel: https://i.imgur.com/EYrDIgA.jpeg</p>
         </div>
         <div style={{ background: '#f8f8f8', borderRadius: 10, padding: 12, marginBottom: 12 }}>
           <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#1a73e8' }}>Option 2: Google Drive</p>
@@ -384,9 +384,19 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                   </button>
                 )}
 
-                {/* 1. Bild */}
+                {/* 1. Bild - Responsive 16:9 */}
                 {beitrag.Bild_URL && (
-                  <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: 8, marginBottom: 8, display: 'block' }} />
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
+                    <img
+                      src={beitrag.Bild_URL}
+                      alt=""
+                      style={{
+                        position: 'absolute', top: 0, left: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', display: 'block',
+                      }}
+                    />
+                  </div>
                 )}
 
                 {/* 2. Kategorie + Datum */}
@@ -398,7 +408,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                 {/* 4. Text */}
                 <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
 
-                {/* 5. Video */}
+                {/* 5. Video - Responsive 16:9 */}
                 {embedUrl && (
                   <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
                     <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
