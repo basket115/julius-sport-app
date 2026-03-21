@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v10
+// src/pages/Tab1.tsx v11
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -384,7 +384,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                   </button>
                 )}
 
-                {/* 1. Bild - Responsive 16:9 */}
+                {/* 1. Bild - Responsive 16:9 mit objectPosition top */}
                 {beitrag.Bild_URL && (
                   <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
                     <img
@@ -393,7 +393,9 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                       style={{
                         position: 'absolute', top: 0, left: 0,
                         width: '100%', height: '100%',
-                        objectFit: 'cover', display: 'block',
+                        objectFit: 'cover',
+                        objectPosition: 'top',
+                        display: 'block',
                       }}
                     />
                   </div>
