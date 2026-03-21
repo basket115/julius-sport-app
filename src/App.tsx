@@ -79,7 +79,7 @@ const App: React.FC = () => {
           if (appleFavicon) appleFavicon.href = logoUrl;
         }
 
-        // ✅ Manifest dynamisch überschreiben
+        // ✅ Manifest dynamisch überschreiben mit korrektem start_url + Vereinsname
         const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
         if (manifestLink) {
           const manifest = {
@@ -99,13 +99,15 @@ const App: React.FC = () => {
                 purpose: 'maskable'
               }
             ],
-            start_url: './?kunde=' + kundenId,
+            start_url: '/?kunde=' + kundenId,
             display: 'standalone',
             background_color: themaFarbe,
             theme_color: themaFarbe
           };
           const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+          const oldUrl = manifestLink.href;
           manifestLink.href = URL.createObjectURL(blob);
+          if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
         }
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
