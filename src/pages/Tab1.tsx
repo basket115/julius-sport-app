@@ -53,6 +53,13 @@ async function getSponsor(kundenId: string): Promise<SponsorData | null> {
   return sponsorCache[kundenId];
 }
 
+// ─── Default Sponsor (Fallback) ───────────────────────────────
+const DEFAULT_SPONSOR: SponsorData = {
+  logoUrl: 'https://i.imgur.com/5b852Lw.png',
+  bannerText: 'Partner für unsere Vereins-App\nDiese App wurde von ONLANG entwickelt – einer Plattform für moderne Vereinskommunikation.\n\nONLANG hilft Sportvereinen dabei, ihre Organisation zu digitalisieren und Mitglieder sowie Fans direkt über eine eigene App zu erreichen.\n\nNews, Ergebnisse, Trainingszeiten und vieles mehr – alles an einem Ort.',
+  linkUrl: 'https://onlang.de',
+};
+
 // ─── SponsorBanner ────────────────────────────────────────────
 const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
   const [sponsor, setSponsor] = useState<SponsorData | null>(null);
@@ -63,25 +70,26 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
     getSponsor(kundenId).then(s => { setSponsor(s); setLoaded(true); });
   }, [kundenId]);
 
-  if (!loaded || !sponsor) return null;
+  if (!loaded) return null;
+  const activeSponsor = sponsor ?? DEFAULT_SPONSOR;
 
   const bannerInhalt = (
     <>
-      {sponsor.logoUrl && (
+      {activeSponsor.logoUrl && (
         <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 10, overflow: 'hidden', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, border: '1px solid #eee' }}>
-          <img src={sponsor.logoUrl} alt="Partner Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
+          <img src={activeSponsor.logoUrl} alt="Partner Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
         </div>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {sponsor.bannerBildUrl && !sponsor.bannerText && (
-          <img src={sponsor.bannerBildUrl} alt="Partner Banner" style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
+        {activeSponsor.bannerBildUrl && !activeSponsor.bannerText && (
+          <img src={activeSponsor.bannerBildUrl} alt="Partner Banner" style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
         )}
-        {sponsor.bannerText && (
+        {activeSponsor.bannerText && (
           <div style={{ fontSize: 13, lineHeight: 1.45, color: '#444', whiteSpace: 'pre-wrap' as const, fontWeight: 500 }}>
-            {sponsor.bannerText}
+            {activeSponsor.bannerText}
           </div>
         )}
-        {sponsor.linkUrl && (
+        {activeSponsor.linkUrl && (
           <div style={{ marginTop: 6, fontSize: 12, color: '#0057B7', fontWeight: 600 }}>
             Mehr erfahren →
           </div>
@@ -95,8 +103,8 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase' as const, color: '#aaa', marginBottom: 8 }}>
         Partner
       </div>
-      {sponsor.linkUrl ? (
-        <a href={sponsor.linkUrl} target="_blank" rel="noopener noreferrer"
+      {activeSponsor.linkUrl ? (
+        <a href={activeSponsor.linkUrl} target="_blank" rel="noopener noreferrer"
           style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8f8f8', borderRadius: 12, padding: '10px 14px', border: '1px solid #eee', textDecoration: 'none', cursor: 'pointer' }}>
           {bannerInhalt}
         </a>
@@ -143,10 +151,8 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📸 Bild-URL Anleitung</h3>
         <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#999' }}>×</button>
       </div>
-
       <div style={{ fontSize: 14, lineHeight: 1.6, color: '#333' }}>
         <p style={{ margin: '0 0 12px', fontWeight: 600 }}>So lädst du ein Bild hoch:</p>
-
         <div style={{ background: '#f8f8f8', borderRadius: 10, padding: 12, marginBottom: 12 }}>
           <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#E8500A' }}>Option 1: Imgur (empfohlen)</p>
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13 }}>
@@ -158,7 +164,6 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
           </ol>
           <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888' }}>Beispiel: https://i.imgur.com/EYrDIgA.png</p>
         </div>
-
         <div style={{ background: '#f8f8f8', borderRadius: 10, padding: 12, marginBottom: 12 }}>
           <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#1a73e8' }}>Option 2: Google Drive</p>
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13 }}>
@@ -168,14 +173,12 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
             <li>Link kopieren & hier einfügen</li>
           </ol>
         </div>
-
         <div style={{ background: '#FFF3EC', borderRadius: 10, padding: 10 }}>
           <p style={{ margin: 0, fontSize: 13, color: '#E8500A' }}>
             <strong>Empfohlene Größe:</strong> 1200 x 675 px (16:9 Format) für beste Darstellung
           </p>
         </div>
       </div>
-
       <button onClick={onClose} style={{
         width: '100%', marginTop: 16, padding: 12, borderRadius: 10,
         border: 'none', background: '#E8500A', color: 'white',
@@ -202,7 +205,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showBildInfo, setShowBildInfo] = useState(false); // ✅ NEU
+  const [showBildInfo, setShowBildInfo] = useState(false);
 
   const b = branding as any;
   const isAdmin = !!b?.Passwort && isAuthenticated;
@@ -286,7 +289,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* ✅ Info Popup */}
       {showBildInfo && <InfoPopup onClose={() => setShowBildInfo(false)} />}
 
       <AppHeader
@@ -319,8 +321,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }} />
             <textarea placeholder="Text" value={text} onChange={(e: any) => setText(e.target.value)} rows={4}
               style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }} />
-
-            {/* ✅ Bild URL mit Fragezeichen-Button */}
             <div style={{ position: 'relative', marginBottom: 8 }}>
               <input
                 placeholder="Bild URL (optional)"
@@ -342,8 +342,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                 ?
               </button>
             </div>
-
-            {/* ✅ YouTube URL mit Fragezeichen-Button */}
             <div style={{ position: 'relative', marginBottom: 8 }}>
               <input
                 placeholder="▶ YouTube URL (optional)"
@@ -352,7 +350,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                 style={{ width: '100%', padding: 10, paddingRight: 44, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }}
               />
             </div>
-
             <select value={kategorie || kategorienFinal[0]} onChange={(e: any) => setKategorie(e.target.value)}
               style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: '1px solid #ccc', color: '#111' }}>
               {kategorienFinal.map(k => <option key={k} value={k}>{k}</option>)}
