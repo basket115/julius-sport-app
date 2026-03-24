@@ -36,8 +36,11 @@ const App: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
 
-  const kundenId =
-    new URLSearchParams(window.location.search).get('kunde') || '';
+  const kundenId = (() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('kunde');
+    if (fromUrl) { localStorage.setItem('kundenId', fromUrl); return fromUrl; }
+    return localStorage.getItem('kundenId') || '';
+  })();
 
   const loadBranding = async () => {
     setLoading(true);
@@ -53,14 +56,11 @@ const App: React.FC = () => {
         const themaFarbe = data.branding?.Thema_Farbe || '#111111';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
 
-        // ✅ Browser-Tab Titel
         document.title = vereinName;
 
-        // ✅ Apple PWA Titel
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
         if (appleMeta) appleMeta.setAttribute('content', vereinName);
 
-        // ✅ Theme-Color
         let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
         if (themeColorMeta) {
           themeColorMeta.setAttribute('content', themaFarbe);
@@ -71,7 +71,6 @@ const App: React.FC = () => {
           document.head.appendChild(themeColorMeta);
         }
 
-        // ✅ Favicon dynamisch setzen
         if (logoUrl) {
           const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
           const appleFavicon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
@@ -79,25 +78,14 @@ const App: React.FC = () => {
           if (appleFavicon) appleFavicon.href = logoUrl;
         }
 
-        // ✅ Manifest dynamisch überschreiben mit korrektem start_url + Vereinsname
         const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
         if (manifestLink) {
           const manifest = {
             short_name: vereinName,
             name: vereinName + ' App',
             icons: [
-              {
-                src: logoUrl || '/logo.png',
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: logoUrl || '/logo.png',
-                sizes: '512x512',
-                type: 'image/png',
-                purpose: 'maskable'
-              }
+              { src: logoUrl || '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+              { src: logoUrl || '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
             ],
             start_url: '/?kunde=' + kundenId,
             display: 'standalone',
@@ -156,15 +144,10 @@ const App: React.FC = () => {
     );
   }
 
-  // ── LOGIN SCREEN ──────────────────────────────────────────
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
-        <div style={{
-          minHeight: '100vh', background: themaFarbe,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', padding: 24,
-        }}>
+        <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
             {logoUrl && (
               <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
@@ -182,16 +165,10 @@ const App: React.FC = () => {
               style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
             />
             {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
-            <button
-              onClick={handleLogin}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={handleLogin} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
               Einloggen
             </button>
-            <button
-              onClick={() => { setShowLogin(false); setPassword(''); setError(''); }}
-              style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={() => { setShowLogin(false); setPassword(''); setError(''); }} style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>
               ← Zurück zur App
             </button>
           </div>
@@ -200,7 +177,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ── MAIN APP ──────────────────────────────────────────────
   return (
     <BrandingContext.Provider value={{ branding, loading, reload, isAuthenticated }}>
       <IonApp>
