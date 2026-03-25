@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v7
+// src/pages/Tab1.tsx v13
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import { BrandingContext } from '../App';
@@ -53,6 +53,13 @@ async function getSponsor(kundenId: string): Promise<SponsorData | null> {
   return sponsorCache[kundenId];
 }
 
+// ─── Default Sponsor (Fallback) ───────────────────────────────
+const DEFAULT_SPONSOR: SponsorData = {
+  logoUrl: 'https://i.imgur.com/5b852Lw.png',
+  bannerText: 'Partner für unsere Vereins-App\nDiese App wurde von ONLANG entwickelt – einer Plattform für moderne Vereinskommunikation.\n\nONLANG hilft Sportvereinen dabei, ihre Organisation zu digitalisieren und Mitglieder sowie Fans direkt über eine eigene App zu erreichen.\n\nNews, Ergebnisse, Trainingszeiten und vieles mehr – alles an einem Ort.',
+  linkUrl: 'https://onlang-app.netlify.app',
+};
+
 // ─── SponsorBanner ────────────────────────────────────────────
 const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
   const [sponsor, setSponsor] = useState<SponsorData | null>(null);
@@ -63,25 +70,26 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
     getSponsor(kundenId).then(s => { setSponsor(s); setLoaded(true); });
   }, [kundenId]);
 
-  if (!loaded || !sponsor) return null;
+  if (!loaded) return null;
+  const activeSponsor = sponsor ?? DEFAULT_SPONSOR;
 
   const bannerInhalt = (
     <>
-      {sponsor.logoUrl && (
+      {activeSponsor.logoUrl && (
         <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 10, overflow: 'hidden', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, border: '1px solid #eee' }}>
-          <img src={sponsor.logoUrl} alt="Partner Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
+          <img src={activeSponsor.logoUrl} alt="Partner Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
         </div>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {sponsor.bannerBildUrl && !sponsor.bannerText && (
-          <img src={sponsor.bannerBildUrl} alt="Partner Banner" style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
+        {activeSponsor.bannerBildUrl && !activeSponsor.bannerText && (
+          <img src={activeSponsor.bannerBildUrl} alt="Partner Banner" style={{ width: '100%', maxHeight: 60, objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
         )}
-        {sponsor.bannerText && (
+        {activeSponsor.bannerText && (
           <div style={{ fontSize: 13, lineHeight: 1.45, color: '#444', whiteSpace: 'pre-wrap' as const, fontWeight: 500 }}>
-            {sponsor.bannerText}
+            {activeSponsor.bannerText}
           </div>
         )}
-        {sponsor.linkUrl && (
+        {activeSponsor.linkUrl && (
           <div style={{ marginTop: 6, fontSize: 12, color: '#0057B7', fontWeight: 600 }}>
             Mehr erfahren →
           </div>
@@ -95,8 +103,8 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase' as const, color: '#aaa', marginBottom: 8 }}>
         Partner
       </div>
-      {sponsor.linkUrl ? (
-        <a href={sponsor.linkUrl} target="_blank" rel="noopener noreferrer"
+      {activeSponsor.linkUrl ? (
+        <a href={activeSponsor.linkUrl} target="_blank" rel="noopener noreferrer"
           style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8f8f8', borderRadius: 12, padding: '10px 14px', border: '1px solid #eee', textDecoration: 'none', cursor: 'pointer' }}>
           {bannerInhalt}
         </a>
@@ -143,10 +151,8 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📸 Bild-URL Anleitung</h3>
         <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#999' }}>×</button>
       </div>
-
       <div style={{ fontSize: 14, lineHeight: 1.6, color: '#333' }}>
         <p style={{ margin: '0 0 12px', fontWeight: 600 }}>So lädst du ein Bild hoch:</p>
-
         <div style={{ background: '#f8f8f8', borderRadius: 10, padding: 12, marginBottom: 12 }}>
           <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#E8500A' }}>Option 1: Imgur (empfohlen)</p>
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13 }}>
@@ -156,9 +162,8 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
             <li>Rechtsklick auf Bild → <strong>"Bild-Adresse kopieren"</strong></li>
             <li>URL hier einfügen</li>
           </ol>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888' }}>Beispiel: https://i.imgur.com/EYrDIgA.png</p>
+          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888' }}>Beispiel: https://i.imgur.com/EYrDIgA.jpeg</p>
         </div>
-
         <div style={{ background: '#f8f8f8', borderRadius: 10, padding: 12, marginBottom: 12 }}>
           <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#1a73e8' }}>Option 2: Google Drive</p>
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13 }}>
@@ -168,14 +173,12 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
             <li>Link kopieren & hier einfügen</li>
           </ol>
         </div>
-
         <div style={{ background: '#FFF3EC', borderRadius: 10, padding: 10 }}>
           <p style={{ margin: 0, fontSize: 13, color: '#E8500A' }}>
             <strong>Empfohlene Größe:</strong> 1200 x 675 px (16:9 Format) für beste Darstellung
           </p>
         </div>
       </div>
-
       <button onClick={onClose} style={{
         width: '100%', marginTop: 16, padding: 12, borderRadius: 10,
         border: 'none', background: '#E8500A', color: 'white',
@@ -187,6 +190,172 @@ const InfoPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   </div>
 );
 
+// ─── Sponsor Popup ────────────────────────────────────────────
+const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: () => void }> = ({ kundenId, themaFarbe, onClose }) => {
+  const [logoUrl, setLogoUrl] = useState('');
+  const [bannerText, setBannerText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getSponsor(kundenId).then(s => {
+      if (s) {
+        setLogoUrl(s.logoUrl || '');
+        setBannerText(s.bannerText || '');
+        setLinkUrl(s.linkUrl || '');
+      }
+    });
+  }, [kundenId]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    setSuccess('');
+    try {
+      const params = new URLSearchParams({
+        action: 'update_sponsor',
+        kundenId,
+        logoUrl,
+        bannerText,
+        linkUrl,
+      });
+      const res = await fetch(`${API_EXEC_URL}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        delete sponsorCache[kundenId];
+        setSuccess('✅ Sponsor gespeichert!');
+        setTimeout(() => { setSuccess(''); onClose(); }, 1500);
+      } else {
+        setError('Fehler: ' + (data.error || 'Unbekannt'));
+      }
+    } catch {
+      setError('Verbindungsfehler');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(0,0,0,0.6)', zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }} onClick={onClose}>
+      <div style={{
+        background: 'white', borderRadius: 16, padding: 24,
+        maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>🤝 Sponsor einrichten</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#999' }}>×</button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
+              Logo URL (Imgur .jpeg empfohlen)
+            </label>
+            <input
+              value={logoUrl}
+              onChange={(e: any) => setLogoUrl(e.target.value)}
+              placeholder="https://i.imgur.com/..."
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ddd', fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }}
+            />
+            {logoUrl && (
+              <img src={logoUrl} alt="Vorschau" style={{ marginTop: 8, height: 48, objectFit: 'contain', borderRadius: 6, border: '1px solid #eee' }} />
+            )}
+          </div>
+
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
+              Banner Text
+            </label>
+            <textarea
+              value={bannerText}
+              onChange={(e: any) => setBannerText(e.target.value)}
+              placeholder="Partner für unsere Vereins-App..."
+              rows={4}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ddd', fontSize: 14, boxSizing: 'border-box' as const, color: '#111', resize: 'vertical' as const }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
+              Link URL (Mehr erfahren →)
+            </label>
+            <input
+              value={linkUrl}
+              onChange={(e: any) => setLinkUrl(e.target.value)}
+              placeholder="https://onlang-app.netlify.app"
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ddd', fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }}
+            />
+          </div>
+        </div>
+
+        {success && <p style={{ color: 'green', margin: '12px 0 0', fontSize: 14 }}>{success}</p>}
+        {error && <p style={{ color: 'red', margin: '12px 0 0', fontSize: 14 }}>{error}</p>}
+
+        <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: 15, color: '#111' }}>
+            Abbrechen
+          </button>
+          <button onClick={handleSave} disabled={saving} style={{ flex: 2, padding: 12, borderRadius: 10, border: 'none', background: themaFarbe, color: 'white', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
+            {saving ? 'Speichern...' : '💾 Sponsor speichern'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Kategorie Filter Bar ─────────────────────────────────────
+const KategorieFilterBar: React.FC<{
+  kategorien: string[];
+  aktiv: string;
+  themaFarbe: string;
+  onChange: (k: string) => void;
+}> = ({ kategorien, aktiv, themaFarbe, onChange }) => {
+  if (!kategorien.length) return null;
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 8,
+      overflowX: 'auto',
+      paddingBottom: 4,
+      marginBottom: 12,
+      scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
+    }}>
+      {['Alle', ...kategorien].map(k => {
+        const isActive = aktiv === k;
+        return (
+          <button
+            key={k}
+            onClick={() => onChange(k)}
+            style={{
+              flexShrink: 0,
+              padding: '7px 14px',
+              borderRadius: 20,
+              border: isActive ? 'none' : '1px solid #ddd',
+              background: isActive ? themaFarbe : 'white',
+              color: isActive ? 'white' : '#555',
+              fontWeight: isActive ? 700 : 500,
+              fontSize: 13,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.15s',
+            }}
+          >
+            {k}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 // ─── Hauptkomponente ──────────────────────────────────────────
 type Props = { onAdminClick?: () => void };
 
@@ -194,6 +363,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const { branding, loading, reload, isAuthenticated } = useContext(BrandingContext);
   const [beitraege, setBeitraege] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showSponsorForm, setShowSponsorForm] = useState(false);
   const [titel, setTitel] = useState('');
   const [text, setText] = useState('');
   const [bildUrl, setBildUrl] = useState('');
@@ -202,7 +372,10 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showBildInfo, setShowBildInfo] = useState(false); // ✅ NEU
+  const [showBildInfo, setShowBildInfo] = useState(false);
+
+  // ── NEU: Aktiver Filter ──
+  const [aktiverFilter, setAktiverFilter] = useState('Alle');
 
   const b = branding as any;
   const isAdmin = !!b?.Passwort && isAuthenticated;
@@ -218,6 +391,26 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       return kat.split(',').map((k: string) => k.trim()).filter(Boolean);
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
+
+  // ── NEU: Kategorien aus Beiträgen ermitteln (nur vorhandene anzeigen) ──
+  const vorhandeneKategorien: string[] = useMemo(() => {
+    const alleKats = new Set<string>();
+    beitraege.forEach(b => {
+      const kat = b.Kategorie || '';
+      kat.split(',').map((k: string) => k.trim()).filter(Boolean).forEach((k: string) => alleKats.add(k));
+    });
+    // Reihenfolge wie in kategorienFinal beibehalten
+    return kategorienFinal.filter(k => alleKats.has(k));
+  }, [beitraege, kategorienFinal]);
+
+  // ── NEU: Gefilterte Beiträge ──
+  const gefilterteBeitraege = useMemo(() => {
+    if (aktiverFilter === 'Alle') return beitraege;
+    return beitraege.filter(b => {
+      const kat = b.Kategorie || '';
+      return kat.split(',').map((k: string) => k.trim()).includes(aktiverFilter);
+    });
+  }, [beitraege, aktiverFilter]);
 
   const ladeId = (b?.Parent_ID && String(b.Parent_ID).trim())
     ? String(b.Parent_ID).trim()
@@ -286,8 +479,14 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* ✅ Info Popup */}
       {showBildInfo && <InfoPopup onClose={() => setShowBildInfo(false)} />}
+      {showSponsorForm && (
+        <SponsorPopup
+          kundenId={kundenId}
+          themaFarbe={themaFarbe}
+          onClose={() => setShowSponsorForm(false)}
+        />
+      )}
 
       <AppHeader
         title={b?.Verein_Name || 'Sport App'}
@@ -307,9 +506,14 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         )}
 
         {isAdmin && !showForm && (
-          <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe, border: 'none', color: 'white', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', marginBottom: 16 }}>
-            ⊕ NEUEN BEITRAG ERSTELLEN
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+            <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe, border: 'none', color: 'white', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
+              ⊕ NEUEN BEITRAG ERSTELLEN
+            </button>
+            <button onClick={() => setShowSponsorForm(true)} style={{ width: '100%', padding: 12, borderRadius: 10, backgroundColor: 'white', border: `2px solid ${themaFarbe}`, color: themaFarbe, fontWeight: 'bold', fontSize: 15, cursor: 'pointer' }}>
+              🤝 SPONSOR EINRICHTEN
+            </button>
+          </div>
         )}
 
         {isAdmin && showForm && (
@@ -319,8 +523,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }} />
             <textarea placeholder="Text" value={text} onChange={(e: any) => setText(e.target.value)} rows={4}
               style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }} />
-
-            {/* ✅ Bild URL mit Fragezeichen-Button */}
             <div style={{ position: 'relative', marginBottom: 8 }}>
               <input
                 placeholder="Bild URL (optional)"
@@ -338,21 +540,16 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   lineHeight: 1,
                 }}
-              >
-                ?
-              </button>
+              >?</button>
             </div>
-
-            {/* ✅ YouTube URL mit Fragezeichen-Button */}
             <div style={{ position: 'relative', marginBottom: 8 }}>
               <input
                 placeholder="▶ YouTube URL (optional)"
                 value={videoUrl}
                 onChange={(e: any) => setVideoUrl(e.target.value)}
-                style={{ width: '100%', padding: 10, paddingRight: 44, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }}
+                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc', boxSizing: 'border-box' as const, color: '#111' }}
               />
             </div>
-
             <select value={kategorie || kategorienFinal[0]} onChange={(e: any) => setKategorie(e.target.value)}
               style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: '1px solid #ccc', color: '#111' }}>
               {kategorienFinal.map(k => <option key={k} value={k}>{k}</option>)}
@@ -369,11 +566,25 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         )}
 
-        {beitraege.length === 0 ? (
-          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>Noch keine Beiträge.</p>
+        {/* ── NEU: Filter Bar ── */}
+        {vorhandeneKategorien.length > 1 && (
+          <KategorieFilterBar
+            kategorien={vorhandeneKategorien}
+            aktiv={aktiverFilter}
+            themaFarbe={themaFarbe}
+            onChange={setAktiverFilter}
+          />
+        )}
+
+        {gefilterteBeitraege.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
+            {aktiverFilter === 'Alle' ? 'Noch keine Beiträge.' : `Keine Beiträge in „${aktiverFilter}".`}
+          </p>
         ) : (
-          beitraege.map((beitrag, i) => {
+          gefilterteBeitraege.map((beitrag, i) => {
             const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
+            const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
+            const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
             const bId = String(beitrag.id || beitrag.Id || '');
             const isDeleting = deletingId === bId;
             return (
@@ -385,17 +596,25 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                   </button>
                 )}
                 {beitrag.Bild_URL && (
-                  <img src={beitrag.Bild_URL} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: 8, marginBottom: 8, display: 'block' }} />
-                )}
-                {embedUrl && (
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 10, borderRadius: 8, overflow: 'hidden' }}>
-                    <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
+                    <img src={beitrag.Bild_URL} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
                   </div>
                 )}
                 <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{beitrag.Kategorie} • {beitrag.Datum}</div>
                 <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: isAdmin ? 44 : 0 }}>{beitrag.Titel}</h3>
                 <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
+                {embedUrl && (
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
+                    <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
+                  </div>
+                )}
+                {buttonLabel && buttonUrl && (
+                  <a href={buttonUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: themaFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none', cursor: 'pointer' }}>
+                    {buttonLabel}
+                  </a>
+                )}
                 <SocialBar b={b} />
                 {kundenId && <SponsorBanner kundenId={kundenId} />}
               </div>
