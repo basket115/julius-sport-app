@@ -392,16 +392,19 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
 
-  // ── NEU: Kategorien aus Beiträgen ermitteln (nur vorhandene anzeigen) ──
-  const vorhandeneKategorien: string[] = useMemo(() => {
-    const alleKats = new Set<string>();
-    beitraege.forEach(b => {
-      const kat = b.Kategorie || '';
-      kat.split(',').map((k: string) => k.trim()).filter(Boolean).forEach((k: string) => alleKats.add(k));
-    });
-    // Reihenfolge wie in kategorienFinal beibehalten
-    return kategorienFinal.filter(k => alleKats.has(k));
-  }, [beitraege, kategorienFinal]);
+// ── NEU: Kategorien aus Beiträgen ermitteln (alle vorhandenen anzeigen) ──
+const vorhandeneKategorien: string[] = useMemo(() => {
+  const alleKats = new Set<string>();
+  beitraege.forEach(b => {
+    const kat = b.Kategorie || '';
+    kat.split(',').map((k: string) => k.trim()).filter(Boolean).forEach((k: string) => alleKats.add(k));
+  });
+  // Erst kategorienFinal Reihenfolge, dann alle anderen
+  const result: string[] = [];
+  kategorienFinal.forEach(k => { if (alleKats.has(k)) result.push(k); alleKats.delete(k); });
+  alleKats.forEach(k => result.push(k));
+  return result;
+}, [beitraege, kategorienFinal]);
 
   // ── NEU: Gefilterte Beiträge ──
   const gefilterteBeitraege = useMemo(() => {
