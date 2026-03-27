@@ -28,6 +28,18 @@ function initOneSignal(appId: string) {
   });
 }
 
+// ── Domain → Kunden-ID Mapping ────────────────────────────────
+function getKundenIdFromDomain(): string {
+  const hostname = window.location.hostname;
+  const domainMap: Record<string, string> = {
+    'app.tgneuss.onlang.de': 'V044',
+    'app.tgneuss-tigers.onlang.de': 'V004',
+    'app.bbk.onlang.de': 'V006',
+    'app.scorpions-sggierath.de': 'V002',
+  };
+  return domainMap[hostname] || '';
+}
+
 const App: React.FC = () => {
   const [branding, setBranding] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -37,8 +49,14 @@ const App: React.FC = () => {
   const [error, setError] = useState('');
   const [brandingError, setBrandingError] = useState(false);
 
-  const kundenId =
-    new URLSearchParams(window.location.search).get('kunde') || '';
+  // ── KundenId: URL-Parameter → Domain → localStorage ──────
+  const kundenId = (() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('kunde');
+    if (fromUrl) { localStorage.setItem('kundenId', fromUrl); return fromUrl; }
+    const fromDomain = getKundenIdFromDomain();
+    if (fromDomain) { localStorage.setItem('kundenId', fromDomain); return fromDomain; }
+    return localStorage.getItem('kundenId') || '';
+  })();
 
   // ✅ Keine kundenId → sofort Fehlerseite zeigen
   if (!kundenId) {
@@ -77,14 +95,11 @@ const App: React.FC = () => {
         const themaFarbe = data.branding?.Thema_Farbe || '#111111';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
 
-        // ✅ Browser-Tab Titel
         document.title = vereinName;
 
-        // ✅ Apple PWA Titel
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
         if (appleMeta) appleMeta.setAttribute('content', vereinName);
 
-        // ✅ Theme-Color
         let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
         if (themeColorMeta) {
           themeColorMeta.setAttribute('content', themaFarbe);
@@ -95,7 +110,6 @@ const App: React.FC = () => {
           document.head.appendChild(themeColorMeta);
         }
 
-        // ✅ Favicon dynamisch setzen
         if (logoUrl) {
           const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
           const appleFavicon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
@@ -103,7 +117,6 @@ const App: React.FC = () => {
           if (appleFavicon) appleFavicon.href = logoUrl;
         }
 
-        // ✅ Manifest dynamisch überschreiben
         const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
         if (manifestLink) {
           const manifest = {
@@ -113,19 +126,20 @@ const App: React.FC = () => {
               { src: logoUrl || '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
               { src: logoUrl || '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
             ],
-            start_url: './?kunde=' + kundenId,
+            start_url: window.location.origin + window.location.pathname,
             display: 'standalone',
             background_color: themaFarbe,
             theme_color: themaFarbe
           };
           const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+          const oldUrl = manifestLink.href;
           manifestLink.href = URL.createObjectURL(blob);
+          if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
         }
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId);
       } else {
-        // ✅ Verein nicht gefunden
         setBrandingError(true);
       }
     } catch (err) {
@@ -164,7 +178,6 @@ const App: React.FC = () => {
   const themaFarbe = branding?.Thema_Farbe || '#111111';
   const logoUrl = branding?.Logo_verein || branding?.Logo_Verein || '';
 
-  // ── LADEN ──────────────────────────────────────────────────
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
@@ -173,7 +186,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ✅ Verein nicht gefunden
   if (brandingError) {
     return (
       <div style={{
@@ -195,7 +207,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ── LOGIN SCREEN ──────────────────────────────────────────
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
@@ -239,7 +250,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ── MAIN APP ──────────────────────────────────────────────
   return (
     <BrandingContext.Provider value={{ branding, loading, reload, isAuthenticated }}>
       <IonApp>
