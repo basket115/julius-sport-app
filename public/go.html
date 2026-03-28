@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TG Neuss App</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #003087;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .logo {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #003087;
+    line-height: 1;
+    border: 4px solid #cc0000;
+  }
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  p { font-size: 15px; opacity: 0.85; margin-bottom: 32px; }
+  .btn {
+    display: inline-block;
+    background: #cc0000;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+  .hint {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #auto { display: block; }
+  #manual { display: none; }
+</style>
+</head>
+<body>
+
+<div class="logo">TG<br><span style="font-size:14px">NEUSS</span></div>
+<h1>TG Neuss App</h1>
+<p>Du wirst automatisch weitergeleitet...</p>
+
+<div id="auto">
+  <div class="spinner"></div>
+</div>
+
+<div id="manual">
+  <a class="btn" href="https://app.tgneuss.onlang.de" id="openBtn">App öffnen</a>
+  <p class="hint" id="hintText"></p>
+</div>
+
+<script>
+const APP_URL = 'https://app.tgneuss.onlang.de';
+const ua = navigator.userAgent;
+const isIOS = /iPad|iPhone|iPod/.test(ua);
+const isAndroid = /Android/.test(ua);
+
+function showManual(hint) {
+  document.getElementById('auto').style.display = 'none';
+  document.getElementById('manual').style.display = 'block';
+  document.getElementById('hintText').textContent = hint;
+}
+
+if (isIOS) {
+  // Safari auf iPhone — direkt weiterleiten, Safari zeigt "Zum Home-Bildschirm" automatisch
+  setTimeout(() => { window.location.href = APP_URL; }, 800);
+} else if (isAndroid) {
+  // Chrome Intent — öffnet direkt in Chrome
+  const chromeIntent = 'intent://' + APP_URL.replace('https://', '') + '#Intent;scheme=https;package=com.android.chrome;end';
+  setTimeout(() => {
+    window.location.href = chromeIntent;
+    // Fallback nach 1.5s falls Intent nicht funktioniert
+    setTimeout(() => {
+      showManual('Tipp: In Chrome öffnen → Drei Punkte → "Zum Startbildschirm hinzufügen"');
+    }, 1500);
+  }, 800);
+} else {
+  // Desktop oder unbekannt
+  setTimeout(() => { window.location.href = APP_URL; }, 800);
+}
+</script>
+
+</body>
+</html>
