@@ -1,6 +1,7 @@
-// src/pages/Tab1.tsx v12
+// src/pages/Tab1.tsx v13
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
+import CategoriesComponent from '../components/CategoriesComponent';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
@@ -224,7 +225,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
       const res = await fetch(`${API_EXEC_URL}?${params}`);
       const data = await res.json();
       if (data.success) {
-        // Cache leeren damit neuer Sponsor sofort angezeigt wird
         delete sponsorCache[kundenId];
         setSuccess('✅ Sponsor gespeichert!');
         setTimeout(() => { setSuccess(''); onClose(); }, 1500);
@@ -252,7 +252,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>🤝 Sponsor einrichten</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#999' }}>×</button>
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
@@ -268,7 +267,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
               <img src={logoUrl} alt="Vorschau" style={{ marginTop: 8, height: 48, objectFit: 'contain', borderRadius: 6, border: '1px solid #eee' }} />
             )}
           </div>
-
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
               Banner Text
@@ -281,7 +279,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
               style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ddd', fontSize: 14, boxSizing: 'border-box' as const, color: '#111', resize: 'vertical' as const }}
             />
           </div>
-
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
               Link URL (Mehr erfahren →)
@@ -294,10 +291,8 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
             />
           </div>
         </div>
-
         {success && <p style={{ color: 'green', margin: '12px 0 0', fontSize: 14 }}>{success}</p>}
         {error && <p style={{ color: 'red', margin: '12px 0 0', fontSize: 14 }}>{error}</p>}
-
         <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
           <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: 15, color: '#111' }}>
             Abbrechen
@@ -328,6 +323,9 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [success, setSuccess] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showBildInfo, setShowBildInfo] = useState(false);
+
+  // ── NEU: aktiver Kategorie-Filter ──────────────────────────
+  const [activeKategorie, setActiveKategorie] = useState<string>('');
 
   const b = branding as any;
   const isAdmin = !!b?.Passwort && isAuthenticated;
@@ -363,6 +361,14 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     if (!kategorienFinal.length) return;
     setKategorie(prev => (!prev || prev === 'News') ? kategorienFinal[0] : prev);
   }, [kategorienFinal]);
+
+  // ── Gefilterte Beiträge ────────────────────────────────────
+  const gefilterteBeitraege = useMemo(() => {
+    if (!activeKategorie) return beitraege;
+    return beitraege.filter(b =>
+      String(b.Kategorie || '').trim() === activeKategorie
+    );
+  }, [beitraege, activeKategorie]);
 
   const handleSubmit = async () => {
     if (!titel || !text) return;
@@ -437,6 +443,16 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         )}
 
+        {/* ── NEU: Dropdown-Filter ─────────────────────────── */}
+        {kategorienFinal.length > 0 && (
+          <CategoriesComponent
+            categories={kategorienFinal}
+            selectedCategory={activeKategorie}
+            onSelect={setActiveKategorie}
+            themaFarbe={themaFarbe}
+          />
+        )}
+
         {isAdmin && !showForm && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe, border: 'none', color: 'white', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
@@ -498,10 +514,12 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         )}
 
-        {beitraege.length === 0 ? (
-          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>Noch keine Beiträge.</p>
+        {gefilterteBeitraege.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
+            {activeKategorie ? `Keine Beiträge in "${activeKategorie}".` : 'Noch keine Beiträge.'}
+          </p>
         ) : (
-          beitraege.map((beitrag, i) => {
+          gefilterteBeitraege.map((beitrag, i) => {
             const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
             const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
             const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
@@ -515,35 +533,27 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                     {isDeleting ? '...' : '🗑️'}
                   </button>
                 )}
-                {/* 1. Bild */}
                 {beitrag.Bild_URL && (
                   <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
                     <img src={beitrag.Bild_URL} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
                   </div>
                 )}
-                {/* 2. Kategorie + Datum */}
                 <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{beitrag.Kategorie} • {beitrag.Datum}</div>
-                {/* 3. Titel */}
                 <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: isAdmin ? 44 : 0 }}>{beitrag.Titel}</h3>
-                {/* 4. Text */}
                 <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
-                {/* 5. Video */}
                 {embedUrl && (
                   <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
                     <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
                   </div>
                 )}
-                {/* 6. Button */}
                 {buttonLabel && buttonUrl && (
                   <a href={buttonUrl} target="_blank" rel="noopener noreferrer"
                     style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: themaFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none', cursor: 'pointer' }}>
                     {buttonLabel}
                   </a>
                 )}
-                {/* 7. Social Bar */}
                 <SocialBar b={b} />
-                {/* 8. Sponsor */}
                 {kundenId && <SponsorBanner kundenId={kundenId} />}
               </div>
             );
