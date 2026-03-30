@@ -1,6 +1,7 @@
 // src/pages/Tab1.tsx v13
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
+import CategoriesComponent from '../components/CategoriesComponent';
 import { BrandingContext } from '../App';
 
 const API_EXEC_URL =
@@ -251,7 +252,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>🤝 Sponsor einrichten</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#999' }}>×</button>
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
@@ -267,7 +267,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
               <img src={logoUrl} alt="Vorschau" style={{ marginTop: 8, height: 48, objectFit: 'contain', borderRadius: 6, border: '1px solid #eee' }} />
             )}
           </div>
-
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
               Banner Text
@@ -280,7 +279,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
               style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ddd', fontSize: 14, boxSizing: 'border-box' as const, color: '#111', resize: 'vertical' as const }}
             />
           </div>
-
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
               Link URL (Mehr erfahren →)
@@ -293,10 +291,8 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
             />
           </div>
         </div>
-
         {success && <p style={{ color: 'green', margin: '12px 0 0', fontSize: 14 }}>{success}</p>}
         {error && <p style={{ color: 'red', margin: '12px 0 0', fontSize: 14 }}>{error}</p>}
-
         <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
           <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: 15, color: '#111' }}>
             Abbrechen
@@ -306,49 +302,6 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; onClose: ()
           </button>
         </div>
       </div>
-    </div>
-  );
-};
-
-// ─── Kategorie Filter Bar ─────────────────────────────────────
-const KategorieFilterBar: React.FC<{
-  kategorien: string[];
-  aktiv: string;
-  themaFarbe: string;
-  onChange: (k: string) => void;
-}> = ({ kategorien, aktiv, themaFarbe, onChange }) => {
-  if (!kategorien.length) return null;
-  return (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 8,
-      marginBottom: 12,
-    }}>
-      {['Alle', ...kategorien].map(k => {
-        const isActive = aktiv === k;
-        return (
-          <button
-            key={k}
-            onClick={() => onChange(k)}
-            style={{
-              flexShrink: 0,
-              padding: '7px 14px',
-              borderRadius: 20,
-              border: isActive ? 'none' : '1px solid #ddd',
-              background: isActive ? themaFarbe : 'white',
-              color: isActive ? 'white' : '#555',
-              fontWeight: isActive ? 700 : 500,
-              fontSize: 13,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all 0.15s',
-            }}
-          >
-            {k}
-          </button>
-        );
-      })}
     </div>
   );
 };
@@ -371,8 +324,8 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showBildInfo, setShowBildInfo] = useState(false);
 
-  // ── NEU: Aktiver Filter ──
-  const [aktiverFilter, setAktiverFilter] = useState('Alle');
+  // ── NEU: aktiver Kategorie-Filter ──────────────────────────
+  const [activeKategorie, setActiveKategorie] = useState<string>('');
 
   const b = branding as any;
   const isAdmin = !!b?.Passwort && isAuthenticated;
@@ -388,26 +341,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       return kat.split(',').map((k: string) => k.trim()).filter(Boolean);
     return ['News', 'Spiel', 'Training', 'Sonstiges'];
   }, [b?.Kategorien]);
-
-  // ── NEU: Kategorien aus Beiträgen ermitteln (nur vorhandene anzeigen) ──
-  const vorhandeneKategorien: string[] = useMemo(() => {
-    const alleKats = new Set<string>();
-    beitraege.forEach(b => {
-      const kat = b.Kategorie || '';
-      kat.split(',').map((k: string) => k.trim()).filter(Boolean).forEach((k: string) => alleKats.add(k));
-    });
-    // Reihenfolge wie in kategorienFinal beibehalten
-    return kategorienFinal.filter(k => alleKats.has(k));
-  }, [beitraege, kategorienFinal]);
-
-  // ── NEU: Gefilterte Beiträge ──
-  const gefilterteBeitraege = useMemo(() => {
-    if (aktiverFilter === 'Alle') return beitraege;
-    return beitraege.filter(b => {
-      const kat = b.Kategorie || '';
-      return kat.split(',').map((k: string) => k.trim()).includes(aktiverFilter);
-    });
-  }, [beitraege, aktiverFilter]);
 
   const ladeId = (b?.Parent_ID && String(b.Parent_ID).trim())
     ? String(b.Parent_ID).trim()
@@ -428,6 +361,14 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     if (!kategorienFinal.length) return;
     setKategorie(prev => (!prev || prev === 'News') ? kategorienFinal[0] : prev);
   }, [kategorienFinal]);
+
+  // ── Gefilterte Beiträge ────────────────────────────────────
+  const gefilterteBeitraege = useMemo(() => {
+    if (!activeKategorie) return beitraege;
+    return beitraege.filter(b =>
+      String(b.Kategorie || '').trim() === activeKategorie
+    );
+  }, [beitraege, activeKategorie]);
 
   const handleSubmit = async () => {
     if (!titel || !text) return;
@@ -502,6 +443,16 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         )}
 
+        {/* ── NEU: Dropdown-Filter ─────────────────────────── */}
+        {kategorienFinal.length > 0 && (
+          <CategoriesComponent
+            categories={kategorienFinal}
+            selectedCategory={activeKategorie}
+            onSelect={setActiveKategorie}
+            themaFarbe={themaFarbe}
+          />
+        )}
+
         {isAdmin && !showForm && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe, border: 'none', color: 'white', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
@@ -563,19 +514,9 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         )}
 
-        {/* ── NEU: Filter Bar ── */}
-        {vorhandeneKategorien.length > 1 && (
-          <KategorieFilterBar
-            kategorien={vorhandeneKategorien}
-            aktiv={aktiverFilter}
-            themaFarbe={themaFarbe}
-            onChange={setAktiverFilter}
-          />
-        )}
-
         {gefilterteBeitraege.length === 0 ? (
           <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
-            {aktiverFilter === 'Alle' ? 'Noch keine Beiträge.' : `Keine Beiträge in „${aktiverFilter}".`}
+            {activeKategorie ? `Keine Beiträge in "${activeKategorie}".` : 'Noch keine Beiträge.'}
           </p>
         ) : (
           gefilterteBeitraege.map((beitrag, i) => {
