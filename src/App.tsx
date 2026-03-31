@@ -20,24 +20,15 @@ export const BrandingContext = createContext<any>(null);
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
+// Kunden mit aktivem Team-Login-System
+const TEAM_LOGIN_KUNDEN = ['V004'];
+
 function initOneSignal(appId: string) {
   if (!appId) return;
   (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
   (window as any).OneSignalDeferred.push(async function (OneSignal: any) {
     await OneSignal.init({ appId });
   });
-}
-
-// ── Domain → Kunden-ID Mapping ────────────────────────────────
-function getKundenIdFromDomain(): string {
-  const hostname = window.location.hostname;
-  const domainMap: Record<string, string> = {
-    'app.tgneuss.onlang.de': 'V044',
-    'app.tgneuss-tigers.onlang.de': 'V004',
-    'app.bbk.onlang.de': 'V006',
-    'app.scorpions-sggierath.de': 'V002',
-  };
-  return domainMap[hostname] || '';
 }
 
 const App: React.FC = () => {
@@ -47,42 +38,27 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
-  const [brandingError, setBrandingError] = useState(false);
 
-  // ── KundenId: URL-Parameter → Domain → localStorage ──────
+  // NEU: Team-Login States
+  const [teamRolle, setTeamRolle] = useState<'admin' | 'abtl' | 'team' | null>(null);
+  const [teamMannschaft, setTeamMannschaft] = useState('');
+  const [teamId, setTeamId] = useState('');
+  const [showTeamLogin, setShowTeamLogin] = useState(false);
+  const [teamLoginDone, setTeamLoginDone] = useState(false);
+  const [teamPassword, setTeamPassword] = useState('');
+  const [teamError, setTeamError] = useState('');
+  const [teamLoading, setTeamLoading] = useState(false);
+
   const kundenId = (() => {
     const fromUrl = new URLSearchParams(window.location.search).get('kunde');
     if (fromUrl) { localStorage.setItem('kundenId', fromUrl); return fromUrl; }
-    const fromDomain = getKundenIdFromDomain();
-    if (fromDomain) { localStorage.setItem('kundenId', fromDomain); return fromDomain; }
     return localStorage.getItem('kundenId') || '';
   })();
 
-  // ✅ Keine kundenId → sofort Fehlerseite zeigen
-  if (!kundenId) {
-    return (
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100vh', backgroundColor: '#111',
-        padding: 32, textAlign: 'center',
-      }}>
-        <div style={{ fontSize: 64, marginBottom: 24 }}>🏀</div>
-        <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, margin: '0 0 12px' }}>
-          Julius Sport App
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, margin: '0 0 8px' }}>
-          Kein Verein ausgewählt.
-        </p>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
-          Bitte öffne die App über den Link deines Vereins.
-        </p>
-      </div>
-    );
-  }
+  const hasTeamLogin = TEAM_LOGIN_KUNDEN.includes(kundenId);
 
   const loadBranding = async () => {
     setLoading(true);
-    setBrandingError(false);
     try {
       const res = await fetch(
         `${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`
@@ -126,7 +102,7 @@ const App: React.FC = () => {
               { src: logoUrl || '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
               { src: logoUrl || '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
             ],
-            start_url: window.location.origin + window.location.pathname,
+            start_url: '/?kunde=' + kundenId,
             display: 'standalone',
             background_color: themaFarbe,
             theme_color: themaFarbe
@@ -139,12 +115,9 @@ const App: React.FC = () => {
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId);
-      } else {
-        setBrandingError(true);
       }
     } catch (err) {
       console.error(err);
-      setBrandingError(true);
     }
     setLoading(false);
   };
@@ -153,8 +126,67 @@ const App: React.FC = () => {
     loadBranding();
   }, []); // eslint-disable-line
 
+  // NEU: Beim Start prüfen ob Team-Session noch vorhanden
+  useEffect(() => {
+    if (!hasTeamLogin) return;
+    const savedRolle = sessionStorage.getItem('teamRolle') as 'admin' | 'abtl' | 'team' | null;
+    const savedMannschaft = sessionStorage.getItem('teamMannschaft') || '';
+    const savedTeamId = sessionStorage.getItem('teamId') || '';
+    if (savedRolle) {
+      setTeamRolle(savedRolle);
+      setTeamMannschaft(savedMannschaft);
+      setTeamId(savedTeamId);
+      setTeamLoginDone(true);
+    } else {
+      setShowTeamLogin(true);
+    }
+  }, [hasTeamLogin]); // eslint-disable-line
+
   const reload = () => loadBranding();
 
+  // NEU: Team-Login Handler
+  const handleTeamLogin = async () => {
+    if (!teamPassword.trim()) return;
+    setTeamLoading(true);
+    setTeamError('');
+    try {
+      const res = await fetch(
+        `${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}`
+      );
+      const data = await res.json();
+      if (data.success) {
+        setTeamRolle(data.rolle);
+        setTeamMannschaft(data.mannschaft);
+        setTeamId(data.team_id);
+        setTeamLoginDone(true);
+        setShowTeamLogin(false);
+        setTeamPassword('');
+        // Session speichern (bleibt bis Browser-Tab geschlossen)
+        sessionStorage.setItem('teamRolle', data.rolle);
+        sessionStorage.setItem('teamMannschaft', data.mannschaft);
+        sessionStorage.setItem('teamId', data.team_id);
+      } else {
+        setTeamError('Falsches Passwort');
+      }
+    } catch {
+      setTeamError('Verbindungsfehler');
+    }
+    setTeamLoading(false);
+  };
+
+  // NEU: Team-Logout
+  const handleTeamLogout = () => {
+    sessionStorage.removeItem('teamRolle');
+    sessionStorage.removeItem('teamMannschaft');
+    sessionStorage.removeItem('teamId');
+    setTeamRolle(null);
+    setTeamMannschaft('');
+    setTeamId('');
+    setTeamLoginDone(false);
+    setShowTeamLogin(true);
+  };
+
+  // Bestehender Admin-Login Handler (unverändert)
   const handleLogin = async () => {
     try {
       setError('');
@@ -186,35 +218,48 @@ const App: React.FC = () => {
     );
   }
 
-  if (brandingError) {
+  // NEU: Team-Login Screen
+  if (hasTeamLogin && showTeamLogin && !teamLoginDone) {
     return (
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100vh', backgroundColor: '#111',
-        padding: 32, textAlign: 'center',
-      }}>
-        <div style={{ fontSize: 64, marginBottom: 24 }}>🏀</div>
-        <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, margin: '0 0 12px' }}>
-          Verein nicht gefunden
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, margin: '0 0 8px' }}>
-          Der Verein "{kundenId}" wurde nicht gefunden.
-        </p>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
-          Bitte prüfe den Link oder kontaktiere deinen Administrator.
-        </p>
-      </div>
+      <IonApp>
+        <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+            {logoUrl && (
+              <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
+            )}
+            <h2 style={{ color: 'white', fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
+              {branding?.Verein_Name || 'TG Neuss Tigers'}
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>
+              Bitte mit deinem Team-Passwort einloggen
+            </p>
+            <input
+              type="password"
+              placeholder="Passwort eingeben"
+              value={teamPassword}
+              onChange={(e: any) => setTeamPassword(e.target.value)}
+              onKeyDown={(e: any) => e.key === 'Enter' && handleTeamLogin()}
+              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
+            />
+            {teamError && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{teamError}</p>}
+            <button
+              onClick={handleTeamLogin}
+              disabled={teamLoading}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}
+            >
+              {teamLoading ? 'Einloggen...' : 'Einloggen'}
+            </button>
+          </div>
+        </div>
+      </IonApp>
     );
   }
 
+  // Bestehender Admin-Login Screen (unverändert)
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
-        <div style={{
-          minHeight: '100vh', background: themaFarbe,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', padding: 24,
-        }}>
+        <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
             {logoUrl && (
               <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
@@ -232,16 +277,10 @@ const App: React.FC = () => {
               style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
             />
             {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
-            <button
-              onClick={handleLogin}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={handleLogin} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
               Einloggen
             </button>
-            <button
-              onClick={() => { setShowLogin(false); setPassword(''); setError(''); }}
-              style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={() => { setShowLogin(false); setPassword(''); setError(''); }} style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>
               ← Zurück zur App
             </button>
           </div>
@@ -251,7 +290,18 @@ const App: React.FC = () => {
   }
 
   return (
-    <BrandingContext.Provider value={{ branding, loading, reload, isAuthenticated }}>
+    <BrandingContext.Provider value={{
+      branding,
+      loading,
+      reload,
+      isAuthenticated,
+      // NEU: Team-Login Werte im Context
+      teamRolle,
+      teamMannschaft,
+      teamId,
+      teamLoginDone,
+      handleTeamLogout,
+    }}>
       <IonApp>
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
       </IonApp>
