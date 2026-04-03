@@ -424,13 +424,13 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     finally { setDeletingId(null); }
   };
 
-  const demoTage = (() => {
-    const ende = b?.Demo_Ende;
-    if (!ende) return null;
-    const tage = Math.ceil((new Date(ende).getTime() - Date.now()) / 86400000);
-    return tage > 0 ? tage : null;
-  })();
-
+const demoTage = (() => {
+  if (String(b?.Status || '').trim().toUpperCase() === 'AKTIV') return null;
+  const ende = b?.Demo_Ende;
+  if (!ende) return null;
+  const tage = Math.ceil((new Date(ende).getTime() - Date.now()) / 86400000);
+  return tage > 0 ? tage : null;
+})();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {showBildInfo && <InfoPopup onClose={() => setShowBildInfo(false)} />}
