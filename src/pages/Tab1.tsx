@@ -295,7 +295,8 @@ const IconBar: React.FC<{
     alignItems: 'stretch',
     justifyContent: 'space-around',
     backgroundColor: themaFarbe,
-    borderTop: '2px solid rgba(255,255,255,0.1)',
+    borderTop: 'none',
+    boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
     height: 62,
     flexShrink: 0,
     paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -528,15 +529,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         </svg>
       ),
     },
-    {
-      id: 'info',
-      label: 'Info',
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-        </svg>
-      ),
-    },
   ];
 
   // ── News-Tab Inhalt ────────────────────────────────────────
@@ -730,7 +722,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {activeTab === 'news'      && newsContent}
       {activeTab === 'spielplan' && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Spielplan" akzentFarbe={akzentFarbe} /></div>}
       {activeTab === 'tabelle'   && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Tabelle" akzentFarbe={akzentFarbe} /></div>}
-      {activeTab === 'info'      && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Info" akzentFarbe={akzentFarbe} /></div>}
+
 
       {/* Icon Bar */}
       <IconBar
