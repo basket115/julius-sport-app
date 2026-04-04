@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v16 — IconBar eingebaut
+// src/pages/Tab1.tsx v17 FINAL
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -106,11 +106,11 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
       </div>
       {activeSponsor.linkUrl ? (
         <a href={activeSponsor.linkUrl} target="_blank" rel="noopener noreferrer"
-          style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8f8f8', borderRadius: 12, padding: '10px 14px', border: '1px solid #eee', textDecoration: 'none', cursor: 'pointer' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', borderRadius: 12, padding: '12px 14px', border: '2px solid var(--thema-farbe, #1A2E4A)', boxShadow: '0 2px 10px rgba(0,0,0,0.12)', textDecoration: 'none', cursor: 'pointer' }}>
           {bannerInhalt}
         </a>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8f8f8', borderRadius: 12, padding: '10px 14px', border: '1px solid #eee' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', borderRadius: 12, padding: '12px 14px', border: '2px solid var(--thema-farbe, #1A2E4A)', boxShadow: '0 2px 10px rgba(0,0,0,0.12)' }}>
           {bannerInhalt}
         </div>
       )}
@@ -127,7 +127,7 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
   const tt = b?.TikTok_URL || '';
   if (!web && !fb && !ig && !yt && !tt) return null;
   return (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'center', borderTop: '1px solid #f0f0f0', marginTop: 14, paddingTop: 12 }}>
+    <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 14, padding: '12px 14px', background: '#ffffff', borderRadius: 12, border: '2px solid var(--thema-farbe, #1A2E4A)', boxShadow: '0 2px 10px rgba(0,0,0,0.12)' }}>
       {web && (<a href={web} target="_blank" rel="noopener noreferrer" style={{ lineHeight: 0 }}><svg width="36" height="36" viewBox="0 0 24 24" fill="#1a73e8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></a>)}
       {fb && (<a href={fb} target="_blank" rel="noopener noreferrer" style={{ lineHeight: 0 }}><svg width="36" height="36" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>)}
       {ig && (<a href={ig} target="_blank" rel="noopener noreferrer" style={{ lineHeight: 0 }}><svg width="36" height="36" viewBox="0 0 24 24" fill="#e1306c"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>)}
@@ -295,8 +295,7 @@ const IconBar: React.FC<{
     alignItems: 'stretch',
     justifyContent: 'space-around',
     backgroundColor: themaFarbe,
-    borderTop: 'none',
-    boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
+    borderTop: '4px solid rgba(255,255,255,0.35)',
     height: 62,
     flexShrink: 0,
     paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -324,12 +323,7 @@ const IconBar: React.FC<{
           }}
         >
           <span style={{ fontSize: 21, lineHeight: 1, color: 'inherit' }}>{tab.icon}</span>
-          <span style={{
-            fontSize: 10,
-            fontWeight: isActive ? 700 : 500,
-            letterSpacing: '0.3px',
-            color: 'inherit',
-          }}>
+          <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 500, letterSpacing: '0.3px', color: 'inherit' }}>
             {tab.label}
           </span>
         </button>
@@ -338,7 +332,7 @@ const IconBar: React.FC<{
   </div>
 );
 
-// ─── Tab-Inhalte (Platzhalter) ────────────────────────────────
+// ─── Platzhalter Tab ──────────────────────────────────────────
 const PlaceholderTab: React.FC<{ label: string; akzentFarbe: string }> = ({ label, akzentFarbe }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#bbb', gap: 12 }}>
     <span style={{ fontSize: 48 }}>🚧</span>
@@ -377,8 +371,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showBildInfo, setShowBildInfo] = useState(false);
   const [activeKategorie, setActiveKategorie] = useState<string>('');
-
-  // ── Aktiver Icon-Tab ───────────────────────────────────────
   const [activeTab, setActiveTab] = useState<string>('news');
 
   const b = branding as any;
@@ -500,7 +492,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     return tage > 0 ? tage : null;
   })();
 
-  // ── Icon-Tabs Definition ───────────────────────────────────
+  // ── Icon-Tabs: nur News + Spielplan ───────────────────────
   const iconTabs: IconTabDef[] = [
     {
       id: 'news',
@@ -520,20 +512,11 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         </svg>
       ),
     },
-    {
-      id: 'tabelle',
-      label: 'Tabelle',
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 3h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3z"/>
-        </svg>
-      ),
-    },
   ];
 
   // ── News-Tab Inhalt ────────────────────────────────────────
   const newsContent = (
-    <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
+    <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0', boxShadow: 'inset 0 -8px 16px rgba(0,0,0,0.12)' }}>
 
       {teamRolle && (
         <div style={{
@@ -718,13 +701,9 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         onAdminClick={onAdminClick}
       />
 
-      {/* Tab-Inhalte */}
       {activeTab === 'news'      && newsContent}
       {activeTab === 'spielplan' && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Spielplan" akzentFarbe={akzentFarbe} /></div>}
-      {activeTab === 'tabelle'   && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Tabelle" akzentFarbe={akzentFarbe} /></div>}
 
-
-      {/* Icon Bar */}
       <IconBar
         tabs={iconTabs}
         activeId={activeTab}
