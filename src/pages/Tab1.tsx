@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v15 — Farberweiterung
+// src/pages/Tab1.tsx v16 — IconBar eingebaut
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -279,6 +279,73 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; akzentFarbe
   );
 };
 
+// ─── Icon Bar ─────────────────────────────────────────────────
+type IconTabDef = { id: string; label: string; icon: React.ReactNode };
+
+const IconBar: React.FC<{
+  tabs: IconTabDef[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  themaFarbe: string;
+  iconBarAktiv: string;
+}> = ({ tabs, activeId, onSelect, themaFarbe, iconBarAktiv }) => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    justifyContent: 'space-around',
+    backgroundColor: themaFarbe,
+    borderTop: '2px solid rgba(255,255,255,0.1)',
+    height: 62,
+    flexShrink: 0,
+    paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+  }}>
+    {tabs.map(tab => {
+      const isActive = tab.id === activeId;
+      return (
+        <button
+          key={tab.id}
+          onClick={() => onSelect(tab.id)}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 3,
+            background: 'none',
+            border: 'none',
+            borderTop: isActive ? `3px solid ${iconBarAktiv}` : '3px solid transparent',
+            cursor: 'pointer',
+            padding: '6px 0 4px',
+            color: isActive ? iconBarAktiv : 'rgba(255,255,255,0.4)',
+            transition: 'color 0.15s, border-color 0.15s',
+          }}
+        >
+          <span style={{ fontSize: 21, lineHeight: 1, color: 'inherit' }}>{tab.icon}</span>
+          <span style={{
+            fontSize: 10,
+            fontWeight: isActive ? 700 : 500,
+            letterSpacing: '0.3px',
+            color: 'inherit',
+          }}>
+            {tab.label}
+          </span>
+        </button>
+      );
+    })}
+  </div>
+);
+
+// ─── Tab-Inhalte (Platzhalter) ────────────────────────────────
+const PlaceholderTab: React.FC<{ label: string; akzentFarbe: string }> = ({ label, akzentFarbe }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#bbb', gap: 12 }}>
+    <span style={{ fontSize: 48 }}>🚧</span>
+    <span style={{ fontSize: 18, fontWeight: 700, color: '#999' }}>{label}</span>
+    <span style={{ fontSize: 14, color: '#bbb' }}>Kommt bald</span>
+  </div>
+);
+
 // ─── Hauptkomponente ──────────────────────────────────────────
 type Props = { onAdminClick?: () => void };
 
@@ -286,7 +353,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const {
     branding, loading, reload, isAuthenticated,
     teamRolle, teamMannschaft, handleTeamLogout,
-    // NEU: Farben aus BrandingContext
     themaFarbe: ctxThema,
     akzentFarbe: ctxAkzent,
     headerTextFarbe: ctxHeaderText,
@@ -311,9 +377,11 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [showBildInfo, setShowBildInfo] = useState(false);
   const [activeKategorie, setActiveKategorie] = useState<string>('');
 
+  // ── Aktiver Icon-Tab ───────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<string>('news');
+
   const b = branding as any;
 
-  // ── Farben (Context hat Vorrang, Fallback auf Sheet-Werte) ──
   const themaFarbe      = ctxThema      || b?.Thema_Farbe       || '#111111';
   const akzentFarbe     = ctxAkzent     || b?.Akzent_Farbe      || '#C8611A';
   const headerTextFarbe = ctxHeaderText || b?.Header_Text_Farbe || '#FFFFFF';
@@ -321,8 +389,8 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const cardRahmen      = ctxCardRahmen || b?.Card_Rahmen       || '#E5E5E5';
   const tagFarbe        = ctxTagFarbe   || b?.Tag_Farbe         || akzentFarbe;
   const tagTextFarbe    = ctxTagText    || b?.Tag_Text_Farbe    || '#FFFFFF';
+  const iconBarAktiv    = ctxIconAktiv  || akzentFarbe;
 
-  // ── Berechtigungen ─────────────────────────────────────────
   const isAdmin     = !!b?.Passwort && isAuthenticated;
   const isTeamAdmin = teamRolle === 'admin';
   const isAbtl      = teamRolle === 'abtl';
@@ -431,6 +499,216 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     return tage > 0 ? tage : null;
   })();
 
+  // ── Icon-Tabs Definition ───────────────────────────────────
+  const iconTabs: IconTabDef[] = [
+    {
+      id: 'news',
+      label: 'News',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h12v2H6zm0 4h8v2H6z"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'spielplan',
+      label: 'Spielplan',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'tabelle',
+      label: 'Tabelle',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 3h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3z"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'info',
+      label: 'Info',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+      ),
+    },
+  ];
+
+  // ── News-Tab Inhalt ────────────────────────────────────────
+  const newsContent = (
+    <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
+
+      {teamRolle && (
+        <div style={{
+          background: themaFarbe, borderRadius: 10, padding: '10px 14px',
+          marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span style={{ color: headerTextFarbe, fontWeight: 700, fontSize: 14 }}>
+            {teamRolle === 'admin' ? '👑 Hauptadmin' : teamRolle === 'abtl' ? '🏅 Abteilungsleiter' : `🏀 ${teamMannschaft}`}
+          </span>
+          <button onClick={handleTeamLogout} style={{
+            background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)',
+            color: headerTextFarbe, borderRadius: 8, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
+          }}>
+            Abmelden
+          </button>
+        </div>
+      )}
+
+      {demoTage && (
+        <div style={{ backgroundColor: akzentFarbe, borderRadius: 10, padding: '12px 16px', marginBottom: 12, textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15 }}>
+          ⏱ Demo läuft noch {demoTage} Tage
+        </div>
+      )}
+
+      {sichtbareKategorien.length > 0 && (
+        <CategoriesComponent
+          categories={sichtbareKategorien}
+          selectedCategory={activeKategorie}
+          onSelect={setActiveKategorie}
+          themaFarbe={themaFarbe}
+        />
+      )}
+
+      {canPost && !showForm && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          <button onClick={() => setShowForm(true)} style={{
+            width: '100%', padding: 14, borderRadius: 10,
+            backgroundColor: themaFarbe, border: 'none',
+            color: headerTextFarbe, fontWeight: 'bold', fontSize: 16, cursor: 'pointer',
+          }}>
+            ⊕ NEUEN BEITRAG ERSTELLEN
+          </button>
+          {isAdmin && (
+            <button onClick={() => setShowSponsorForm(true)} style={{
+              width: '100%', padding: 12, borderRadius: 10,
+              backgroundColor: 'white', border: `2px solid ${themaFarbe}`,
+              color: themaFarbe, fontWeight: 'bold', fontSize: 15, cursor: 'pointer',
+            }}>
+              🤝 SPONSOR EINRICHTEN
+            </button>
+          )}
+        </div>
+      )}
+
+      {canPost && showForm && (
+        <div style={{ background: cardHintergrund, borderRadius: 12, padding: 16, marginBottom: 20, border: `1px solid ${cardRahmen}` }}>
+          <h3 style={{ marginTop: 0, color: themaFarbe }}>
+            📝 Neuer Beitrag
+            {isTeam && teamMannschaft && (
+              <span style={{ fontSize: 13, fontWeight: 400, color: '#888', marginLeft: 8 }}>für {teamMannschaft}</span>
+            )}
+          </h3>
+          <input placeholder="Titel" value={titel} onChange={(e: any) => setTitel(e.target.value)}
+            style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
+          <textarea placeholder="Text" value={text} onChange={(e: any) => setText(e.target.value)} rows={4}
+            style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
+          <div style={{ position: 'relative', marginBottom: 8 }}>
+            <input placeholder="Bild URL (optional)" value={bildUrl} onChange={(e: any) => setBildUrl(e.target.value)}
+              style={{ width: '100%', padding: 10, paddingRight: 44, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
+            <button onClick={() => setShowBildInfo(true)} title="Wie lade ich ein Bild hoch?"
+              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 28, height: 28, borderRadius: '50%', border: `2px solid ${cardRahmen}`, background: 'white', color: '#888', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+              ?
+            </button>
+          </div>
+          <input placeholder="▶ YouTube URL (optional)" value={videoUrl} onChange={(e: any) => setVideoUrl(e.target.value)}
+            style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
+
+          {isTeam && teamMannschaft ? (
+            <div style={{ padding: '10px 12px', marginBottom: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, background: '#f0f0f0', color: '#555', fontSize: 14 }}>
+              Kategorie: <strong>{teamMannschaft}</strong>
+            </div>
+          ) : (
+            <select value={kategorie || kategorienFinal[0]} onChange={(e: any) => setKategorie(e.target.value)}
+              style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, color: '#111' }}>
+              {kategorienFinal.map(k => <option key={k} value={k}>{k}</option>)}
+            </select>
+          )}
+
+          {success && <p style={{ color: 'green' }}>{success}</p>}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, backgroundColor: 'white', cursor: 'pointer', color: '#111' }}>
+              Abbrechen
+            </button>
+            <button onClick={handleSubmit} disabled={saving} style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', backgroundColor: akzentFarbe, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
+              {saving ? 'Speichern...' : 'Veröffentlichen'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {gefilterteBeitraege.length === 0 ? (
+        <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
+          {activeKategorie ? `Keine Beiträge in "${activeKategorie}".` : 'Noch keine Beiträge.'}
+        </p>
+      ) : (
+        gefilterteBeitraege.map((beitrag, i) => {
+          const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
+          const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
+          const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
+          const bId = String(beitrag.id || beitrag.Id || '');
+          const isDeleting = deletingId === bId;
+          const darfLoeschen = canDelete(beitrag);
+          return (
+            <div key={bId || i} style={{
+              background: cardHintergrund,
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 12,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: `1px solid ${cardRahmen}`,
+              position: 'relative',
+            }}>
+              {darfLoeschen && (
+                <button onClick={() => handleDelete(beitrag)} disabled={isDeleting} title="Beitrag löschen"
+                  style={{ position: 'absolute', top: 12, right: 12, background: isDeleting ? '#ccc' : '#ff4444', color: 'white', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: isDeleting ? 'default' : 'pointer', fontWeight: 'bold', zIndex: 1 }}>
+                  {isDeleting ? '...' : '🗑️'}
+                </button>
+              )}
+              {beitrag.Bild_URL && (
+                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
+                  <img src={beitrag.Bild_URL} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
+                </div>
+              )}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <span style={{
+                  background: tagFarbe, color: tagTextFarbe,
+                  borderRadius: 6, padding: '2px 10px',
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.5px',
+                  textTransform: 'uppercase' as const,
+                }}>
+                  {beitrag.Kategorie}
+                </span>
+                <span style={{ fontSize: 12, color: '#999' }}>{beitrag.Datum}</span>
+              </div>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: darfLoeschen ? 44 : 0 }}>{beitrag.Titel}</h3>
+              <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
+              {embedUrl && (
+                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
+                  <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
+                </div>
+              )}
+              {buttonLabel && buttonUrl && (
+                <a href={buttonUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: akzentFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none', cursor: 'pointer' }}>
+                  {buttonLabel}
+                </a>
+              )}
+              <SocialBar b={b} />
+              {kundenId && <SponsorBanner kundenId={kundenId} />}
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {showBildInfo && <InfoPopup onClose={() => setShowBildInfo(false)} akzentFarbe={akzentFarbe} />}
@@ -448,174 +726,20 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         onAdminClick={onAdminClick}
       />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
+      {/* Tab-Inhalte */}
+      {activeTab === 'news'      && newsContent}
+      {activeTab === 'spielplan' && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Spielplan" akzentFarbe={akzentFarbe} /></div>}
+      {activeTab === 'tabelle'   && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Tabelle" akzentFarbe={akzentFarbe} /></div>}
+      {activeTab === 'info'      && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Info" akzentFarbe={akzentFarbe} /></div>}
 
-        {/* Team-Info Banner */}
-        {teamRolle && (
-          <div style={{
-            background: themaFarbe, borderRadius: 10, padding: '10px 14px',
-            marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span style={{ color: headerTextFarbe, fontWeight: 700, fontSize: 14 }}>
-              {teamRolle === 'admin' ? '👑 Hauptadmin' : teamRolle === 'abtl' ? '🏅 Abteilungsleiter' : `🏀 ${teamMannschaft}`}
-            </span>
-            <button onClick={handleTeamLogout} style={{
-              background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)',
-              color: headerTextFarbe, borderRadius: 8, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
-            }}>
-              Abmelden
-            </button>
-          </div>
-        )}
-
-        {demoTage && (
-          <div style={{ backgroundColor: akzentFarbe, borderRadius: 10, padding: '12px 16px', marginBottom: 12, textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15 }}>
-            ⏱ Demo läuft noch {demoTage} Tage
-          </div>
-        )}
-
-        {sichtbareKategorien.length > 0 && (
-          <CategoriesComponent
-            categories={sichtbareKategorien}
-            selectedCategory={activeKategorie}
-            onSelect={setActiveKategorie}
-            themaFarbe={themaFarbe}
-          />
-        )}
-
-        {canPost && !showForm && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-            <button onClick={() => setShowForm(true)} style={{
-              width: '100%', padding: 14, borderRadius: 10,
-              backgroundColor: themaFarbe, border: 'none',
-              color: headerTextFarbe, fontWeight: 'bold', fontSize: 16, cursor: 'pointer',
-            }}>
-              ⊕ NEUEN BEITRAG ERSTELLEN
-            </button>
-            {isAdmin && (
-              <button onClick={() => setShowSponsorForm(true)} style={{
-                width: '100%', padding: 12, borderRadius: 10,
-                backgroundColor: 'white', border: `2px solid ${themaFarbe}`,
-                color: themaFarbe, fontWeight: 'bold', fontSize: 15, cursor: 'pointer',
-              }}>
-                🤝 SPONSOR EINRICHTEN
-              </button>
-            )}
-          </div>
-        )}
-
-        {canPost && showForm && (
-          <div style={{ background: cardHintergrund, borderRadius: 12, padding: 16, marginBottom: 20, border: `1px solid ${cardRahmen}` }}>
-            <h3 style={{ marginTop: 0, color: themaFarbe }}>
-              📝 Neuer Beitrag
-              {isTeam && teamMannschaft && (
-                <span style={{ fontSize: 13, fontWeight: 400, color: '#888', marginLeft: 8 }}>für {teamMannschaft}</span>
-              )}
-            </h3>
-            <input placeholder="Titel" value={titel} onChange={(e: any) => setTitel(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
-            <textarea placeholder="Text" value={text} onChange={(e: any) => setText(e.target.value)} rows={4}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
-            <div style={{ position: 'relative', marginBottom: 8 }}>
-              <input placeholder="Bild URL (optional)" value={bildUrl} onChange={(e: any) => setBildUrl(e.target.value)}
-                style={{ width: '100%', padding: 10, paddingRight: 44, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
-              <button onClick={() => setShowBildInfo(true)} title="Wie lade ich ein Bild hoch?"
-                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 28, height: 28, borderRadius: '50%', border: `2px solid ${cardRahmen}`, background: 'white', color: '#888', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-                ?
-              </button>
-            </div>
-            <input placeholder="▶ YouTube URL (optional)" value={videoUrl} onChange={(e: any) => setVideoUrl(e.target.value)}
-              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
-
-            {isTeam && teamMannschaft ? (
-              <div style={{ padding: '10px 12px', marginBottom: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, background: '#f0f0f0', color: '#555', fontSize: 14 }}>
-                Kategorie: <strong>{teamMannschaft}</strong>
-              </div>
-            ) : (
-              <select value={kategorie || kategorienFinal[0]} onChange={(e: any) => setKategorie(e.target.value)}
-                style={{ width: '100%', padding: 10, marginBottom: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, color: '#111' }}>
-                {kategorienFinal.map(k => <option key={k} value={k}>{k}</option>)}
-              </select>
-            )}
-
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: 12, borderRadius: 8, border: `1px solid ${cardRahmen}`, backgroundColor: 'white', cursor: 'pointer', color: '#111' }}>
-                Abbrechen
-              </button>
-              <button onClick={handleSubmit} disabled={saving} style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', backgroundColor: akzentFarbe, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
-                {saving ? 'Speichern...' : 'Veröffentlichen'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {gefilterteBeitraege.length === 0 ? (
-          <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>
-            {activeKategorie ? `Keine Beiträge in "${activeKategorie}".` : 'Noch keine Beiträge.'}
-          </p>
-        ) : (
-          gefilterteBeitraege.map((beitrag, i) => {
-            const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
-            const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
-            const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
-            const bId = String(beitrag.id || beitrag.Id || '');
-            const isDeleting = deletingId === bId;
-            const darfLoeschen = canDelete(beitrag);
-            return (
-              <div key={bId || i} style={{
-                background: cardHintergrund,
-                borderRadius: 12,
-                padding: 16,
-                marginBottom: 12,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                border: `1px solid ${cardRahmen}`,
-                position: 'relative',
-              }}>
-                {darfLoeschen && (
-                  <button onClick={() => handleDelete(beitrag)} disabled={isDeleting} title="Beitrag löschen"
-                    style={{ position: 'absolute', top: 12, right: 12, background: isDeleting ? '#ccc' : '#ff4444', color: 'white', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: isDeleting ? 'default' : 'pointer', fontWeight: 'bold', zIndex: 1 }}>
-                    {isDeleting ? '...' : '🗑️'}
-                  </button>
-                )}
-                {beitrag.Bild_URL && (
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
-                    <img src={beitrag.Bild_URL} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
-                  </div>
-                )}
-                {/* ── Tag (Kategorie + Datum) mit Vereinsfarbe ── */}
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <span style={{
-                    background: tagFarbe, color: tagTextFarbe,
-                    borderRadius: 6, padding: '2px 10px',
-                    fontSize: 11, fontWeight: 700, letterSpacing: '0.5px',
-                    textTransform: 'uppercase' as const,
-                  }}>
-                    {beitrag.Kategorie}
-                  </span>
-                  <span style={{ fontSize: 12, color: '#999' }}>{beitrag.Datum}</span>
-                </div>
-                <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: darfLoeschen ? 44 : 0 }}>{beitrag.Titel}</h3>
-                <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
-                {embedUrl && (
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
-                    <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
-                  </div>
-                )}
-                {buttonLabel && buttonUrl && (
-                  <a href={buttonUrl} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: akzentFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none', cursor: 'pointer' }}>
-                    {buttonLabel}
-                  </a>
-                )}
-                <SocialBar b={b} />
-                {kundenId && <SponsorBanner kundenId={kundenId} />}
-              </div>
-            );
-          })
-        )}
-      </div>
+      {/* Icon Bar */}
+      <IconBar
+        tabs={iconTabs}
+        activeId={activeTab}
+        onSelect={setActiveTab}
+        themaFarbe={themaFarbe}
+        iconBarAktiv={iconBarAktiv}
+      />
     </div>
   );
 };
