@@ -39,7 +39,7 @@ const App: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
 
-  // NEU: Team-Login States
+  // Team-Login States
   const [teamRolle, setTeamRolle] = useState<'admin' | 'abtl' | 'team' | null>(null);
   const [teamMannschaft, setTeamMannschaft] = useState('');
   const [teamId, setTeamId] = useState('');
@@ -68,9 +68,29 @@ const App: React.FC = () => {
         setBranding(data.branding);
 
         const vereinName = data.branding?.Verein_Name || 'Sport App';
-        const themaFarbe = data.branding?.Thema_Farbe || '#111111';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
 
+        // ── FARBEN aus Sheet ──────────────────────────────────────────
+        const themaFarbe      = data.branding?.Thema_Farbe       || '#111111';
+        const akzentFarbe     = data.branding?.Akzent_Farbe      || '#C8611A';
+        const headerTextFarbe = data.branding?.Header_Text_Farbe || '#FFFFFF';
+        const cardHintergrund = data.branding?.Card_Hintergrund  || '#F4F0E8';
+        const cardRahmen      = data.branding?.Card_Rahmen       || themaFarbe;
+        const tagFarbe        = data.branding?.Tag_Farbe         || akzentFarbe;
+        const tagTextFarbe    = data.branding?.Tag_Text_Farbe    || '#FFFFFF';
+        const iconBarAktiv    = data.branding?.IconBar_Aktiv     || akzentFarbe;
+
+        // ── CSS Variablen global setzen ───────────────────────────────
+        document.documentElement.style.setProperty('--thema-farbe',       themaFarbe);
+        document.documentElement.style.setProperty('--akzent-farbe',      akzentFarbe);
+        document.documentElement.style.setProperty('--header-text-farbe', headerTextFarbe);
+        document.documentElement.style.setProperty('--card-hintergrund',  cardHintergrund);
+        document.documentElement.style.setProperty('--card-rahmen',       cardRahmen);
+        document.documentElement.style.setProperty('--tag-farbe',         tagFarbe);
+        document.documentElement.style.setProperty('--tag-text-farbe',    tagTextFarbe);
+        document.documentElement.style.setProperty('--icon-bar-aktiv',    iconBarAktiv);
+
+        // ── Browser Meta / PWA ────────────────────────────────────────
         document.title = vereinName;
 
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
@@ -126,7 +146,7 @@ const App: React.FC = () => {
     loadBranding();
   }, []); // eslint-disable-line
 
-  // NEU: Beim Start prüfen ob Team-Session noch vorhanden
+  // Beim Start prüfen ob Team-Session noch vorhanden
   useEffect(() => {
     if (!hasTeamLogin) return;
     const savedRolle = sessionStorage.getItem('teamRolle') as 'admin' | 'abtl' | 'team' | null;
@@ -144,7 +164,7 @@ const App: React.FC = () => {
 
   const reload = () => loadBranding();
 
-  // NEU: Team-Login Handler
+  // Team-Login Handler
   const handleTeamLogin = async () => {
     if (!teamPassword.trim()) return;
     setTeamLoading(true);
@@ -161,7 +181,6 @@ const App: React.FC = () => {
         setTeamLoginDone(true);
         setShowTeamLogin(false);
         setTeamPassword('');
-        // Session speichern (bleibt bis Browser-Tab geschlossen)
         sessionStorage.setItem('teamRolle', data.rolle);
         sessionStorage.setItem('teamMannschaft', data.mannschaft);
         sessionStorage.setItem('teamId', data.team_id);
@@ -174,7 +193,7 @@ const App: React.FC = () => {
     setTeamLoading(false);
   };
 
-  // NEU: Team-Logout
+  // Team-Logout
   const handleTeamLogout = () => {
     sessionStorage.removeItem('teamRolle');
     sessionStorage.removeItem('teamMannschaft');
@@ -186,7 +205,7 @@ const App: React.FC = () => {
     setShowTeamLogin(true);
   };
 
-  // Bestehender Admin-Login Handler (unverändert)
+  // Admin-Login Handler
   const handleLogin = async () => {
     try {
       setError('');
@@ -207,8 +226,15 @@ const App: React.FC = () => {
   };
 
   const isAdmin = !!(branding as any)?.Passwort;
-  const themaFarbe = branding?.Thema_Farbe || '#111111';
-  const logoUrl = branding?.Logo_verein || branding?.Logo_Verein || '';
+  const themaFarbe      = branding?.Thema_Farbe       || '#111111';
+  const akzentFarbe     = branding?.Akzent_Farbe      || '#C8611A';
+  const headerTextFarbe = branding?.Header_Text_Farbe || '#FFFFFF';
+  const cardHintergrund = branding?.Card_Hintergrund  || '#F4F0E8';
+  const cardRahmen      = branding?.Card_Rahmen       || themaFarbe;
+  const tagFarbe        = branding?.Tag_Farbe         || akzentFarbe;
+  const tagTextFarbe    = branding?.Tag_Text_Farbe    || '#FFFFFF';
+  const iconBarAktiv    = branding?.IconBar_Aktiv     || akzentFarbe;
+  const logoUrl         = branding?.Logo_verein       || branding?.Logo_Verein || '';
 
   if (loading) {
     return (
@@ -218,7 +244,7 @@ const App: React.FC = () => {
     );
   }
 
-  // NEU: Team-Login Screen
+  // Team-Login Screen
   if (hasTeamLogin && showTeamLogin && !teamLoginDone) {
     return (
       <IonApp>
@@ -227,7 +253,7 @@ const App: React.FC = () => {
             {logoUrl && (
               <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
             )}
-            <h2 style={{ color: 'white', fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
+            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
               {branding?.Verein_Name || 'TG Neuss Tigers'}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>
@@ -245,7 +271,7 @@ const App: React.FC = () => {
             <button
               onClick={handleTeamLogin}
               disabled={teamLoading}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}
             >
               {teamLoading ? 'Einloggen...' : 'Einloggen'}
             </button>
@@ -255,7 +281,7 @@ const App: React.FC = () => {
     );
   }
 
-  // Bestehender Admin-Login Screen (unverändert)
+  // Admin-Login Screen
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
@@ -264,7 +290,7 @@ const App: React.FC = () => {
             {logoUrl && (
               <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
             )}
-            <h2 style={{ color: 'white', fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
+            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
               {branding?.Verein_Name || 'Admin Login'}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Admin Login</p>
@@ -277,10 +303,16 @@ const App: React.FC = () => {
               style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
             />
             {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
-            <button onClick={handleLogin} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button
+              onClick={handleLogin}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
               Einloggen
             </button>
-            <button onClick={() => { setShowLogin(false); setPassword(''); setError(''); }} style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button
+              onClick={() => { setShowLogin(false); setPassword(''); setError(''); }}
+              style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: headerTextFarbe, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
               ← Zurück zur App
             </button>
           </div>
@@ -295,12 +327,21 @@ const App: React.FC = () => {
       loading,
       reload,
       isAuthenticated,
-      // NEU: Team-Login Werte im Context
+      // Team-Login
       teamRolle,
       teamMannschaft,
       teamId,
       teamLoginDone,
       handleTeamLogout,
+      // Farben
+      themaFarbe,
+      akzentFarbe,
+      headerTextFarbe,
+      cardHintergrund,
+      cardRahmen,
+      tagFarbe,
+      tagTextFarbe,
+      iconBarAktiv,
     }}>
       <IonApp>
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
