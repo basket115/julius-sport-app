@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.tsx — automatisches Team-Login via Sheet
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -20,9 +20,6 @@ export const BrandingContext = createContext<any>(null);
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
-// Kunden mit aktivem Team-Login-System
-const TEAM_LOGIN_KUNDEN = ['V004'];
-
 function initOneSignal(appId: string) {
   if (!appId) return;
   (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
@@ -40,6 +37,8 @@ const App: React.FC = () => {
   const [error, setError] = useState('');
 
   // Team-Login States
+  const [hasTeamLogin, setHasTeamLogin] = useState(false);
+  const [teamLoginChecked, setTeamLoginChecked] = useState(false);
   const [teamRolle, setTeamRolle] = useState<'admin' | 'abtl' | 'team' | null>(null);
   const [teamMannschaft, setTeamMannschaft] = useState('');
   const [teamId, setTeamId] = useState('');
@@ -55,7 +54,17 @@ const App: React.FC = () => {
     return localStorage.getItem('kundenId') || '';
   })();
 
-  const hasTeamLogin = TEAM_LOGIN_KUNDEN.includes(kundenId);
+  // ── Automatisch prüfen ob Team-Login aktiv ist ────────────
+  useEffect(() => {
+    if (!kundenId) { setTeamLoginChecked(true); return; }
+    fetch(`${API_EXEC_URL}?action=checkTeamLogin&kundenId=${kundenId}`)
+      .then(r => r.json())
+      .then(d => {
+        setHasTeamLogin(d.hasTeamLogin || false);
+        setTeamLoginChecked(true);
+      })
+      .catch(() => { setTeamLoginChecked(true); });
+  }, [kundenId]); // eslint-disable-line
 
   const loadBranding = async () => {
     setLoading(true);
@@ -70,7 +79,7 @@ const App: React.FC = () => {
         const vereinName = data.branding?.Verein_Name || 'Sport App';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
 
-        // ── FARBEN aus Sheet ──────────────────────────────────────────
+        // ── FARBEN aus Sheet ──────────────────────────────────
         const themaFarbe      = data.branding?.Thema_Farbe       || '#111111';
         const akzentFarbe     = data.branding?.Akzent_Farbe      || '#C8611A';
         const headerTextFarbe = data.branding?.Header_Text_Farbe || '#FFFFFF';
@@ -80,7 +89,7 @@ const App: React.FC = () => {
         const tagTextFarbe    = data.branding?.Tag_Text_Farbe    || '#FFFFFF';
         const iconBarAktiv    = data.branding?.IconBar_Aktiv     || akzentFarbe;
 
-        // ── CSS Variablen global setzen ───────────────────────────────
+        // ── CSS Variablen global setzen ───────────────────────
         document.documentElement.style.setProperty('--thema-farbe',       themaFarbe);
         document.documentElement.style.setProperty('--akzent-farbe',      akzentFarbe);
         document.documentElement.style.setProperty('--header-text-farbe', headerTextFarbe);
@@ -90,7 +99,7 @@ const App: React.FC = () => {
         document.documentElement.style.setProperty('--tag-text-farbe',    tagTextFarbe);
         document.documentElement.style.setProperty('--icon-bar-aktiv',    iconBarAktiv);
 
-        // ── Browser Meta / PWA ────────────────────────────────────────
+        // ── Browser Meta / PWA ────────────────────────────────
         document.title = vereinName;
 
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
@@ -146,8 +155,9 @@ const App: React.FC = () => {
     loadBranding();
   }, []); // eslint-disable-line
 
-  // Beim Start prüfen ob Team-Session noch vorhanden
+  // ── Team-Session prüfen sobald hasTeamLogin bekannt ───────
   useEffect(() => {
+    if (!teamLoginChecked) return;
     if (!hasTeamLogin) return;
     const savedRolle = sessionStorage.getItem('teamRolle') as 'admin' | 'abtl' | 'team' | null;
     const savedMannschaft = sessionStorage.getItem('teamMannschaft') || '';
@@ -160,7 +170,7 @@ const App: React.FC = () => {
     } else {
       setShowTeamLogin(true);
     }
-  }, [hasTeamLogin]); // eslint-disable-line
+  }, [hasTeamLogin, teamLoginChecked]); // eslint-disable-line
 
   const reload = () => loadBranding();
 
@@ -171,7 +181,7 @@ const App: React.FC = () => {
     setTeamError('');
     try {
       const res = await fetch(
-        `${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}`
+        `${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}&kundenId=${encodeURIComponent(kundenId)}`
       );
       const data = await res.json();
       if (data.success) {
@@ -236,7 +246,8 @@ const App: React.FC = () => {
   const iconBarAktiv    = branding?.IconBar_Aktiv     || akzentFarbe;
   const logoUrl         = branding?.Logo_verein       || branding?.Logo_Verein || '';
 
-  if (loading) {
+  // Warten bis Team-Login-Check abgeschlossen
+  if (loading || !teamLoginChecked) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
         <div style={{ color: 'white', fontSize: 18 }}>Laden...</div>
@@ -254,7 +265,7 @@ const App: React.FC = () => {
               <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
             )}
             <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
-              {branding?.Verein_Name || 'TG Neuss Tigers'}
+              {branding?.Verein_Name || 'Sport App'}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>
               Bitte mit deinem Team-Passwort einloggen
