@@ -295,7 +295,7 @@ const IconBar: React.FC<{
     alignItems: 'stretch',
     justifyContent: 'space-around',
     backgroundColor: themaFarbe,
-    borderTop: '4px solid rgba(255,255,255,0.35)',
+    borderTop: 'none',
     height: 62,
     flexShrink: 0,
     paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -516,7 +516,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
 
   // ── News-Tab Inhalt ────────────────────────────────────────
   const newsContent = (
-    <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0', boxShadow: 'inset 0 -8px 16px rgba(0,0,0,0.12)' }}>
+    <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f0f0f0' }}>
 
       {teamRolle && (
         <div style={{
@@ -704,13 +704,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {activeTab === 'news'      && newsContent}
       {activeTab === 'spielplan' && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Spielplan" akzentFarbe={akzentFarbe} /></div>}
 
-      <IconBar
-        tabs={iconTabs}
-        activeId={activeTab}
-        onSelect={setActiveTab}
-        themaFarbe={themaFarbe}
-        iconBarAktiv={iconBarAktiv}
-      />
+
     </div>
   );
 };
