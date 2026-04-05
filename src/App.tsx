@@ -1,4 +1,4 @@
-// src/App.tsx — automatisches Team-Login via Sheet
+// src/App.tsx — OneSignal mit kundenId-Tag
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -20,11 +20,17 @@ export const BrandingContext = createContext<any>(null);
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
-function initOneSignal(appId: string) {
+// ── OneSignal initialisieren + kundenId als Tag setzen ────────
+function initOneSignal(appId: string, kundenId: string) {
   if (!appId) return;
   (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
   (window as any).OneSignalDeferred.push(async function (OneSignal: any) {
     await OneSignal.init({ appId });
+    try {
+      await OneSignal.User.addTag('kundenId', kundenId);
+    } catch (e) {
+      console.warn('OneSignal Tag Fehler:', e);
+    }
   });
 }
 
@@ -36,7 +42,6 @@ const App: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
 
-  // Team-Login States
   const [hasTeamLogin, setHasTeamLogin] = useState(false);
   const [teamLoginChecked, setTeamLoginChecked] = useState(false);
   const [teamRolle, setTeamRolle] = useState<'admin' | 'abtl' | 'team' | null>(null);
@@ -54,32 +59,23 @@ const App: React.FC = () => {
     return localStorage.getItem('kundenId') || '';
   })();
 
-  // ── Automatisch prüfen ob Team-Login aktiv ist ────────────
   useEffect(() => {
     if (!kundenId) { setTeamLoginChecked(true); return; }
     fetch(`${API_EXEC_URL}?action=checkTeamLogin&kundenId=${kundenId}`)
       .then(r => r.json())
-      .then(d => {
-        setHasTeamLogin(d.hasTeamLogin || false);
-        setTeamLoginChecked(true);
-      })
+      .then(d => { setHasTeamLogin(d.hasTeamLogin || false); setTeamLoginChecked(true); })
       .catch(() => { setTeamLoginChecked(true); });
   }, [kundenId]); // eslint-disable-line
 
   const loadBranding = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`
-      );
+      const res = await fetch(`${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`);
       const data = await res.json();
       if (data.success) {
         setBranding(data.branding);
-
         const vereinName = data.branding?.Verein_Name || 'Sport App';
         const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
-
-        // ── FARBEN aus Sheet ──────────────────────────────────
         const themaFarbe      = data.branding?.Thema_Farbe       || '#111111';
         const akzentFarbe     = data.branding?.Akzent_Farbe      || '#C8611A';
         const headerTextFarbe = data.branding?.Header_Text_Farbe || '#FFFFFF';
@@ -89,7 +85,6 @@ const App: React.FC = () => {
         const tagTextFarbe    = data.branding?.Tag_Text_Farbe    || '#FFFFFF';
         const iconBarAktiv    = data.branding?.IconBar_Aktiv     || akzentFarbe;
 
-        // ── CSS Variablen global setzen ───────────────────────
         document.documentElement.style.setProperty('--thema-farbe',       themaFarbe);
         document.documentElement.style.setProperty('--akzent-farbe',      akzentFarbe);
         document.documentElement.style.setProperty('--header-text-farbe', headerTextFarbe);
@@ -99,9 +94,7 @@ const App: React.FC = () => {
         document.documentElement.style.setProperty('--tag-text-farbe',    tagTextFarbe);
         document.documentElement.style.setProperty('--icon-bar-aktiv',    iconBarAktiv);
 
-        // ── Browser Meta / PWA ────────────────────────────────
         document.title = vereinName;
-
         const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
         if (appleMeta) appleMeta.setAttribute('content', vereinName);
 
@@ -142,8 +135,9 @@ const App: React.FC = () => {
           if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
         }
 
+        // ── OneSignal mit kundenId-Tag ────────────────────────
         const osAppId = data.branding?.OneSignal_App_ID || '';
-        if (osAppId) initOneSignal(osAppId);
+        if (osAppId) initOneSignal(osAppId, kundenId);
       }
     } catch (err) {
       console.error(err);
@@ -151,14 +145,10 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadBranding();
-  }, []); // eslint-disable-line
+  useEffect(() => { loadBranding(); }, []); // eslint-disable-line
 
-  // ── Team-Session prüfen sobald hasTeamLogin bekannt ───────
   useEffect(() => {
-    if (!teamLoginChecked) return;
-    if (!hasTeamLogin) return;
+    if (!teamLoginChecked || !hasTeamLogin) return;
     const savedRolle = sessionStorage.getItem('teamRolle') as 'admin' | 'abtl' | 'team' | null;
     const savedMannschaft = sessionStorage.getItem('teamMannschaft') || '';
     const savedTeamId = sessionStorage.getItem('teamId') || '';
@@ -174,7 +164,6 @@ const App: React.FC = () => {
 
   const reload = () => loadBranding();
 
-  // Team-Login Handler
   const handleTeamLogin = async () => {
     if (!teamPassword.trim()) return;
     setTeamLoading(true);
@@ -203,7 +192,6 @@ const App: React.FC = () => {
     setTeamLoading(false);
   };
 
-  // Team-Logout
   const handleTeamLogout = () => {
     sessionStorage.removeItem('teamRolle');
     sessionStorage.removeItem('teamMannschaft');
@@ -215,7 +203,6 @@ const App: React.FC = () => {
     setShowTeamLogin(true);
   };
 
-  // Admin-Login Handler
   const handleLogin = async () => {
     try {
       setError('');
@@ -246,7 +233,6 @@ const App: React.FC = () => {
   const iconBarAktiv    = branding?.IconBar_Aktiv     || akzentFarbe;
   const logoUrl         = branding?.Logo_verein       || branding?.Logo_Verein || '';
 
-  // Warten bis Team-Login-Check abgeschlossen
   if (loading || !teamLoginChecked) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#111' }}>
@@ -255,35 +241,21 @@ const App: React.FC = () => {
     );
   }
 
-  // Team-Login Screen
   if (hasTeamLogin && showTeamLogin && !teamLoginDone) {
     return (
       <IonApp>
         <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-            {logoUrl && (
-              <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
-            )}
-            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
-              {branding?.Verein_Name || 'Sport App'}
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>
-              Bitte mit deinem Team-Passwort einloggen
-            </p>
-            <input
-              type="password"
-              placeholder="Passwort eingeben"
-              value={teamPassword}
+            {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />}
+            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>{branding?.Verein_Name || 'Sport App'}</h2>
+            <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Bitte mit deinem Team-Passwort einloggen</p>
+            <input type="password" placeholder="Passwort eingeben" value={teamPassword}
               onChange={(e: any) => setTeamPassword(e.target.value)}
               onKeyDown={(e: any) => e.key === 'Enter' && handleTeamLogin()}
-              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
-            />
+              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
             {teamError && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{teamError}</p>}
-            <button
-              onClick={handleTeamLogin}
-              disabled={teamLoading}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}
-            >
+            <button onClick={handleTeamLogin} disabled={teamLoading}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}>
               {teamLoading ? 'Einloggen...' : 'Einloggen'}
             </button>
           </div>
@@ -292,38 +264,25 @@ const App: React.FC = () => {
     );
   }
 
-  // Admin-Login Screen
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
         <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-            {logoUrl && (
-              <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />
-            )}
-            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>
-              {branding?.Verein_Name || 'Admin Login'}
-            </h2>
+            {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />}
+            <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>{branding?.Verein_Name || 'Admin Login'}</h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Admin Login</p>
-            <input
-              type="password"
-              placeholder="Passwort eingeben"
-              value={password}
+            <input type="password" placeholder="Passwort eingeben" value={password}
               onChange={(e: any) => setPassword(e.target.value)}
               onKeyDown={(e: any) => e.key === 'Enter' && handleLogin()}
-              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }}
-            />
+              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
             {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
-            <button
-              onClick={handleLogin}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={handleLogin}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
               Einloggen
             </button>
-            <button
-              onClick={() => { setShowLogin(false); setPassword(''); setError(''); }}
-              style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: headerTextFarbe, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
+            <button onClick={() => { setShowLogin(false); setPassword(''); setError(''); }}
+              style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: headerTextFarbe, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>
               ← Zurück zur App
             </button>
           </div>
@@ -334,25 +293,9 @@ const App: React.FC = () => {
 
   return (
     <BrandingContext.Provider value={{
-      branding,
-      loading,
-      reload,
-      isAuthenticated,
-      // Team-Login
-      teamRolle,
-      teamMannschaft,
-      teamId,
-      teamLoginDone,
-      handleTeamLogout,
-      // Farben
-      themaFarbe,
-      akzentFarbe,
-      headerTextFarbe,
-      cardHintergrund,
-      cardRahmen,
-      tagFarbe,
-      tagTextFarbe,
-      iconBarAktiv,
+      branding, loading, reload, isAuthenticated,
+      teamRolle, teamMannschaft, teamId, teamLoginDone, handleTeamLogout,
+      themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, tagFarbe, tagTextFarbe, iconBarAktiv,
     }}>
       <IonApp>
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
