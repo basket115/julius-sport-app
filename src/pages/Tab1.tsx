@@ -596,9 +596,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         />
       )}
       <AppHeader title={b?.Verein_Name || 'Sport App'} logoUrl={logoUrl} sponsorLogoUrl={sponsorLogoUrl} themaFarbe={themaFarbe} onRefresh={reload} loading={loading} onAdminClick={onAdminClick} />
-      {activeTab === 'news' && newsContent}
-      {activeTab === 'spielplan' && <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f0f0' }}><PlaceholderTab label="Spielplan" akzentFarbe={akzentFarbe} /></div>}
-      <IconBar tabs={iconTabs} activeId={activeTab} onSelect={setActiveTab} themaFarbe={themaFarbe} iconBarAktiv={iconBarAktiv} />
+      {newsContent}
     </div>
   );
 };
