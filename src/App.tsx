@@ -34,6 +34,48 @@ function initOneSignal(appId: string, kundenId: string) {
   });
 }
 
+// ── Oster-Animationen global einmalig injizieren ─────────────
+(function injectOsterStyles() {
+  if (document.head.querySelector('#oster-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'oster-styles';
+  style.textContent = `
+    @keyframes osterFall {
+      0% { transform: translateY(-60px) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+    }
+    @keyframes osterBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-18px) scale(1.08); }
+      60% { transform: translateY(-8px) scale(1.03); }
+    }
+    @keyframes osterPop {
+      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+      70% { transform: scale(1.12) rotate(3deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes osterFadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes osterShimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.75; }
+    }
+    @keyframes osterRock {
+      0% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+      100% { transform: rotate(-8deg); }
+    }
+    @keyframes osterFadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // ── Oster-Screen Palina ───────────────────────────────────────
 const OsterScreenPalina: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const [visible, setVisible] = useState(true);
@@ -126,46 +168,6 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
     }, 8000);
     return () => clearTimeout(timer);
   }, [onDone]);
-
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes osterFall {
-      0% { transform: translateY(-60px) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
-    }
-    @keyframes osterBounce {
-      0%, 100% { transform: translateY(0) scale(1); }
-      30% { transform: translateY(-18px) scale(1.08); }
-      60% { transform: translateY(-8px) scale(1.03); }
-    }
-    @keyframes osterPop {
-      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-      70% { transform: scale(1.12) rotate(3deg); }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    }
-    @keyframes osterFadeUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes osterShimmer {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.75; }
-    }
-    @keyframes osterRock {
-      0% { transform: rotate(-8deg); }
-      50% { transform: rotate(8deg); }
-      100% { transform: rotate(-8deg); }
-    }
-    @keyframes osterFadeOut {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-  `;
-  if (!document.head.querySelector('#oster-styles')) {
-    style.id = 'oster-styles';
-    document.head.appendChild(style);
-  }
 
   const confetti = [
     { left: '5%', bg: '#E8A020', w: 8, h: 12, dur: '3.1s', delay: '0s', round: false },
