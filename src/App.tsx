@@ -34,6 +34,87 @@ function initOneSignal(appId: string, kundenId: string) {
   });
 }
 
+// ── Oster-Screen Palina ───────────────────────────────────────
+const OsterScreenPalina: React.FC<{ onDone: () => void }> = ({ onDone }) => {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => { setVisible(false); setTimeout(onDone, 600); }, 8000);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
+  const confetti = [
+    { left: '4%', bg: '#E879F9', w: 10, h: 10, dur: '3.0s', delay: '0s', round: true },
+    { left: '12%', bg: '#C084FC', w: 8, h: 13, dur: '2.8s', delay: '0.4s', round: false },
+    { left: '22%', bg: '#F472B6', w: 11, h: 11, dur: '3.5s', delay: '0.9s', round: true },
+    { left: '33%', bg: '#A855F7', w: 9, h: 9, dur: '2.6s', delay: '0.2s', round: false },
+    { left: '44%', bg: '#EC4899', w: 10, h: 14, dur: '3.8s', delay: '1.2s', round: true },
+    { left: '55%', bg: '#D946EF', w: 8, h: 8, dur: '3.1s', delay: '0.6s', round: true },
+    { left: '66%', bg: '#F9A8D4', w: 12, h: 9, dur: '2.9s', delay: '1.0s', round: false },
+    { left: '77%', bg: '#C084FC', w: 9, h: 12, dur: '3.3s', delay: '0.3s', round: false },
+    { left: '87%', bg: '#F472B6', w: 10, h: 10, dur: '2.7s', delay: '0.8s', round: true },
+    { left: '94%', bg: '#E879F9', w: 8, h: 11, dur: '3.6s', delay: '1.5s', round: false },
+  ];
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'linear-gradient(160deg, #FDF0FF 0%, #FFF0F8 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      overflow: 'hidden',
+      animation: visible ? 'none' : 'osterFadeOut 0.6s ease forwards',
+    }}>
+      {confetti.map((c, i) => (
+        <div key={i} style={{
+          position: 'absolute', top: 0, left: c.left, width: c.w, height: c.h,
+          background: c.bg, borderRadius: c.round ? '50%' : '2px',
+          animation: `osterFall ${c.dur} linear infinite`, animationDelay: c.delay,
+          pointerEvents: 'none',
+        }} />
+      ))}
+      <div style={{
+        background: 'rgba(255,255,255,0.96)', border: '2.5px solid #E879F9',
+        borderRadius: 28, padding: '1.75rem 1.75rem 1.25rem',
+        maxWidth: 340, width: '88%', textAlign: 'center',
+        position: 'relative', zIndex: 10,
+        animation: 'osterPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both',
+      }}>
+        <div style={{ fontSize: 52, lineHeight: 1.2, marginBottom: 6 }}>
+          <span style={{ display: 'inline-block', animation: 'osterBounce 1.8s ease-in-out infinite', animationDelay: '0s' }}>🐰</span>
+          <span style={{ display: 'inline-block', animation: 'osterBounce 2.0s ease-in-out infinite', animationDelay: '0.2s' }}>🐣</span>
+          <span style={{ display: 'inline-block', animation: 'osterBounce 1.8s ease-in-out infinite', animationDelay: '0.4s' }}>🐇</span>
+        </div>
+        <div style={{ fontSize: 48, fontWeight: 900, color: '#C026D3', lineHeight: 1.1, margin: '4px 0', animation: 'osterShimmer 2s ease-in-out infinite' }}>
+          Palina! 💗
+        </div>
+        <div style={{ fontSize: 28, margin: '6px 0', animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.4s' }}>💗 💜 💗</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: '#C026D3', margin: '8px 0', animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.5s' }}>
+          🌸 Frohe Ostern! 🌸
+        </div>
+        <div style={{ fontSize: 40, lineHeight: 1.4, margin: '10px 0', animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.6s' }}>
+          🐥 🦋 🐝 🌷 🐛
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #FDF4FF, #FFF0F8)',
+          border: '2px solid #E879F9', borderRadius: 16,
+          padding: '12px 14px', margin: '10px 0',
+          animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.8s',
+        }}>
+          <div style={{ fontSize: 22, marginBottom: 4 }}>👴💗👵</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#A855F7' }}>Von Opa &amp; Oma</div>
+          <div style={{ fontSize: 28, marginTop: 6 }}>🌈 ⭐ 🎀 ⭐ 🌈</div>
+        </div>
+        <div style={{ fontSize: 32, margin: '8px 0', animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.0s' }}>
+          🥚🟣🩷🟣🩷🥚
+        </div>
+        <button onClick={() => { setVisible(false); setTimeout(onDone, 300); }}
+          style={{ marginTop: 12, background: 'linear-gradient(135deg, #E879F9, #A855F7)', border: 'none', borderRadius: 12, padding: '10px 28px', fontSize: 15, fontWeight: 700, color: 'white', cursor: 'pointer', fontFamily: 'inherit' }}>
+          ▶ Weiter
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // ── Oster-Screen für Julius ────────────────────────────────────
 const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const [visible, setVisible] = useState(true);
@@ -235,6 +316,7 @@ const App: React.FC = () => {
 
   // ── Oster-State ───────────────────────────────────────────────
   const [showOster, setShowOster] = useState(false);
+  const [showOsterPalina, setShowOsterPalina] = useState(false);
 
   const kundenId = (() => {
     const fromUrl = new URLSearchParams(window.location.search).get('kunde');
@@ -321,10 +403,9 @@ const App: React.FC = () => {
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId, kundenId);
 
-        // ── Oster-Screen nur für Julius (V003) ───────────────
-        if (kundenId === 'V003') {
-          setShowOster(true);
-        }
+        // ── Oster-Screen nur für Julius (V003) & Palina (V003P) ──
+        if (kundenId === 'V003') setShowOster(true);
+        if (kundenId === 'V003P') setShowOsterPalina(true);
       }
     } catch (err) {
       console.error(err);
@@ -486,6 +567,7 @@ const App: React.FC = () => {
     }}>
       <IonApp>
         {showOster && <OsterScreen onDone={() => setShowOster(false)} />}
+        {showOsterPalina && <OsterScreenPalina onDone={() => setShowOsterPalina(false)} />}
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
       </IonApp>
     </BrandingContext.Provider>
