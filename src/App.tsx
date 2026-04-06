@@ -34,6 +34,186 @@ function initOneSignal(appId: string, kundenId: string) {
   });
 }
 
+// ── Oster-Screen für Julius ────────────────────────────────────
+const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(false);
+      setTimeout(onDone, 600);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes osterFall {
+      0% { transform: translateY(-60px) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+    }
+    @keyframes osterBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-18px) scale(1.08); }
+      60% { transform: translateY(-8px) scale(1.03); }
+    }
+    @keyframes osterPop {
+      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+      70% { transform: scale(1.12) rotate(3deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes osterFadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes osterShimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.75; }
+    }
+    @keyframes osterRock {
+      0% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+      100% { transform: rotate(-8deg); }
+    }
+    @keyframes osterFadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  `;
+  if (!document.head.querySelector('#oster-styles')) {
+    style.id = 'oster-styles';
+    document.head.appendChild(style);
+  }
+
+  const confetti = [
+    { left: '5%', bg: '#E8A020', w: 8, h: 12, dur: '3.1s', delay: '0s', round: false },
+    { left: '15%', bg: '#C4161C', w: 10, h: 10, dur: '2.8s', delay: '0.3s', round: true },
+    { left: '25%', bg: '#3A7D44', w: 7, h: 14, dur: '3.4s', delay: '0.8s', round: false },
+    { left: '35%', bg: '#9B59B6', w: 10, h: 8, dur: '2.6s', delay: '0.2s', round: false },
+    { left: '45%', bg: '#E8A020', w: 9, h: 9, dur: '3.7s', delay: '1.1s', round: true },
+    { left: '55%', bg: '#E74C3C', w: 8, h: 13, dur: '3.0s', delay: '0.5s', round: false },
+    { left: '65%', bg: '#27AE60', w: 11, h: 8, dur: '2.9s', delay: '0.9s', round: false },
+    { left: '75%', bg: '#8E44AD', w: 9, h: 11, dur: '3.3s', delay: '0.1s', round: false },
+    { left: '85%', bg: '#F39C12', w: 7, h: 10, dur: '2.7s', delay: '0.7s', round: true },
+    { left: '92%', bg: '#C4161C', w: 10, h: 9, dur: '3.5s', delay: '0.4s', round: false },
+    { left: '10%', bg: '#1ABC9C', w: 8, h: 12, dur: '4.0s', delay: '1.5s', round: false },
+    { left: '70%', bg: '#E8A020', w: 12, h: 8, dur: '3.8s', delay: '1.8s', round: false },
+  ];
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'linear-gradient(160deg, #FFF9F0 0%, #FFF0F5 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      overflow: 'hidden',
+      animation: visible ? 'none' : 'osterFadeOut 0.6s ease forwards',
+    }}>
+      {/* Confetti */}
+      {confetti.map((c, i) => (
+        <div key={i} style={{
+          position: 'absolute', top: 0,
+          left: c.left, width: c.w, height: c.h,
+          background: c.bg,
+          borderRadius: c.round ? '50%' : '2px',
+          animation: `osterFall ${c.dur} linear infinite`,
+          animationDelay: c.delay,
+          pointerEvents: 'none',
+        }} />
+      ))}
+
+      {/* Card */}
+      <div style={{
+        background: 'rgba(255,255,255,0.95)',
+        border: '2px solid #F5C842',
+        borderRadius: 24,
+        padding: '2rem 2rem 1.5rem',
+        maxWidth: 340, width: '88%',
+        textAlign: 'center',
+        position: 'relative', zIndex: 10,
+        animation: 'osterPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both',
+      }}>
+        {/* Eggs */}
+        <div style={{ fontSize: 48, marginBottom: 8, lineHeight: 1 }}>
+          <span style={{ display: 'inline-block', animation: 'osterRock 1.5s ease-in-out infinite', transformOrigin: 'bottom center' }}>🥚</span>
+          <span style={{ display: 'inline-block', fontSize: 64, animation: 'osterBounce 2s ease-in-out infinite', animationDelay: '0.1s' }}>🐣</span>
+          <span style={{ display: 'inline-block', animation: 'osterRock 1.5s ease-in-out infinite', animationDelay: '0.3s', transformOrigin: 'bottom center' }}>🥚</span>
+        </div>
+
+        {/* Frohe Ostern */}
+        <div style={{
+          fontSize: 12, fontWeight: 600, color: '#C4161C',
+          letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4,
+          animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.3s',
+        }}>Frohe Ostern</div>
+
+        {/* Julius */}
+        <div style={{
+          fontSize: 42, fontWeight: 800, color: '#E8820A', lineHeight: 1.1,
+          margin: '4px 0',
+          animation: 'osterShimmer 2s ease-in-out infinite, osterFadeUp 0.8s ease both',
+          animationDelay: '0s, 0.5s',
+        }}>Julius! 🎉</div>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0' }}>
+          <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to right, transparent, #F5C842)' }} />
+          <span style={{ fontSize: 20 }}>🐇</span>
+          <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to left, transparent, #F5C842)' }} />
+        </div>
+
+        {/* Message */}
+        <div style={{
+          fontSize: 15, color: '#5a3a1a', lineHeight: 1.65, marginBottom: 14,
+          animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.7s',
+        }}>
+          Der Osterhase hat etwas ganz Besonderes<br />
+          für dich versteckt — schau mal nach! 🌟
+        </div>
+
+        {/* Opa & Oma Box */}
+        <div style={{
+          background: '#FFF5E0', border: '1.5px solid #F5C842',
+          borderRadius: 14, padding: '12px 14px', marginBottom: 14,
+          animation: 'osterFadeUp 0.8s ease both', animationDelay: '1s',
+        }}>
+          <div style={{ fontSize: 12, color: '#8B6914', fontWeight: 600, marginBottom: 4 }}>
+            💌 Von Opa &amp; Oma
+          </div>
+          <div style={{ fontSize: 14, color: '#5a3a1a', lineHeight: 1.6 }}>
+            Wir sind so stolz auf dich, Julius!<br />
+            Du bist unser allergrößter Schatz. 🧡
+          </div>
+        </div>
+
+        {/* Colored circles */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: 8, fontSize: 26, marginBottom: 10,
+          animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.2s',
+        }}>
+          🟡🟠🟣🟢🔴
+        </div>
+
+        {/* Basketball touch */}
+        <div style={{ fontSize: 12, color: '#bbb', animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.4s' }}>
+          🏀 Dein Team freut sich auf dich!
+        </div>
+
+        {/* Skip button */}
+        <button
+          onClick={() => { setVisible(false); setTimeout(onDone, 300); }}
+          style={{
+            marginTop: 16, background: 'transparent', border: '1px solid #ddd',
+            borderRadius: 8, padding: '6px 18px', fontSize: 12, color: '#aaa',
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+          Weiter →
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [branding, setBranding] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +232,9 @@ const App: React.FC = () => {
   const [teamPassword, setTeamPassword] = useState('');
   const [teamError, setTeamError] = useState('');
   const [teamLoading, setTeamLoading] = useState(false);
+
+  // ── Oster-State ───────────────────────────────────────────────
+  const [showOster, setShowOster] = useState(false);
 
   const kundenId = (() => {
     const fromUrl = new URLSearchParams(window.location.search).get('kunde');
@@ -135,9 +318,13 @@ const App: React.FC = () => {
           if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
         }
 
-        // ── OneSignal mit kundenId-Tag ────────────────────────
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId, kundenId);
+
+        // ── Oster-Screen nur für Julius (V003) ───────────────
+        if (kundenId === 'V003') {
+          setShowOster(true);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -298,6 +485,7 @@ const App: React.FC = () => {
       themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, tagFarbe, tagTextFarbe, iconBarAktiv,
     }}>
       <IonApp>
+        {showOster && <OsterScreen onDone={() => setShowOster(false)} />}
         <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
       </IonApp>
     </BrandingContext.Provider>
