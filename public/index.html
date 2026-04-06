@@ -10,13 +10,49 @@
     content="viewport-fit=cover, width=device-width, initial-scale=1.0,
     minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
   />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link id="apple-touch-icon" rel="apple-touch-icon" href="/logo.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Sport App" />
+  <meta name="apple-mobile-web-app-title" id="apple-app-title" content="Sport App" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <link rel="icon" type="image/png" href="/logo.png" />
+  <link id="manifest-link" rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <link rel="icon" id="favicon" type="image/png" href="/logo.png" />
+  <script>
+    (function() {
+      const kunde = new URLSearchParams(window.location.search).get('kunde')
+                 || localStorage.getItem('kundenId') || '';
+      if (!kunde) return;
+      fetch('https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec?action=get_branding&kundenId=' + kunde)
+        .then(r => r.json())
+        .then(d => {
+          if (!d.success) return;
+          const b = d.branding;
+          const name = b.Verein_Name || 'Sport App';
+          const logo = b.Logo_Verein || b.Logo_verein || '/logo.png';
+          const farbe = b.Thema_Farbe || '#111111';
+
+          document.title = name;
+          document.getElementById('apple-app-title').setAttribute('content', name);
+          document.getElementById('apple-touch-icon').setAttribute('href', logo);
+          document.getElementById('favicon').setAttribute('href', logo);
+
+          const manifest = {
+            short_name: name,
+            name: name + ' App',
+            icons: [
+              { src: logo, sizes: '192x192', type: 'image/png', purpose: 'any' },
+              { src: logo, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+            ],
+            start_url: '/?kunde=' + kunde,
+            display: 'standalone',
+            background_color: farbe,
+            theme_color: farbe
+          };
+          const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+          document.getElementById('manifest-link').setAttribute('href', URL.createObjectURL(blob));
+        });
+    })();
+  </script>
 </head>
 <body>
   <div id="root"></div>
