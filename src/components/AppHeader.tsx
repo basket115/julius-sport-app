@@ -18,7 +18,7 @@ interface AppHeaderProps {
 
 const s: Record<string, React.CSSProperties> = {
   startSlot: { display: 'flex', alignItems: 'center', paddingLeft: 6 },
-  logo: { height: 44, width: 44, objectFit: 'contain', borderRadius: 12, background: 'rgba(255,255,255,0.15)' },
+  logo: { height: 56, width: 56, objectFit: 'contain', borderRadius: 14, background: 'rgba(255,255,255,0.15)' },
   title: { color: 'white', fontWeight: 700, fontSize: '1.1rem' },
   endSlot: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: 4 },
   partnerLabel: { fontSize: '0.5rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '1px' },
