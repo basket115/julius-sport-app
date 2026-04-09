@@ -6,633 +6,375 @@
   <title>ONLANG — Kunden Admin</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f0f0f;
-      color: #f0f0f0;
-      min-height: 100vh;
-    }
-
-    .header {
-      background: #1a1a1a;
-      border-bottom: 1px solid #2a2a2a;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-logo {
-      width: 36px;
-      height: 36px;
-      background: #ff6b00;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 14px;
-      color: white;
-    }
-
-    .header h1 {
-      font-size: 16px;
-      font-weight: 700;
-      color: #f0f0f0;
-    }
-
-    .header p {
-      font-size: 12px;
-      color: #888;
-    }
-
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 32px 20px;
-    }
-
-    .login-card {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 16px;
-      padding: 32px;
-      margin-top: 40px;
-    }
-
-    .login-card h2 {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .login-card p {
-      font-size: 14px;
-      color: #888;
-      margin-bottom: 28px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="color"],
-    select {
-      width: 100%;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 15px;
-      color: #f0f0f0;
-      font-family: inherit;
-      margin-bottom: 18px;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-
-    input[type="text"]:focus,
-    input[type="password"]:focus,
-    select:focus {
-      border-color: #ff6b00;
-    }
-
-    input[type="color"] {
-      height: 48px;
-      padding: 4px;
-      cursor: pointer;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f0f0f; color: #f0f0f0; min-height: 100vh; }
+    .header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 16px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+    .header-logo { width: 36px; height: 36px; background: #ff6b00; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: white; }
+    .header h1 { font-size: 16px; font-weight: 700; }
+    .header p { font-size: 12px; color: #888; }
+    .container { max-width: 640px; margin: 0 auto; padding: 32px 20px; }
+    .login-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 32px; margin-top: 40px; }
+    .login-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .login-card p { font-size: 14px; color: #888; margin-bottom: 28px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    input[type="text"], input[type="password"] { width: 100%; background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px 14px; font-size: 15px; color: #f0f0f0; font-family: inherit; margin-bottom: 18px; transition: border-color 0.2s; outline: none; }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: #ff6b00; }
+    input[type="color"] { width: 100%; height: 48px; padding: 4px; background: #111; border: 1px solid #333; border-radius: 10px; cursor: pointer; margin-bottom: 18px; }
+    .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s, transform 0.1s; }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-primary {
-      background: #ff6b00;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #2a2a2a;
-      color: #f0f0f0;
-      margin-top: 10px;
-    }
-
-    .error {
-      background: #3a1a1a;
-      border: 1px solid #ff4444;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: #ff8888;
-      margin-bottom: 16px;
-    }
-
-    .success {
-      background: #1a3a1a;
-      border: 1px solid #44ff44;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: #88ff88;
-      margin-bottom: 16px;
-    }
-
-    .form-card {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 16px;
-    }
-
-    .form-card h3 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #ff6b00;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #2a2a2a;
-    }
-
-    .color-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .color-field {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin-bottom: 18px;
-      cursor: pointer;
-    }
-
-    .color-field input[type="color"] {
-      width: 36px;
-      height: 36px;
-      border: none;
-      border-radius: 6px;
-      padding: 2px;
-      margin: 0;
-      background: none;
-    }
-
-    .color-field span {
-      font-size: 14px;
-      color: #aaa;
-      flex: 1;
-    }
-
-    .color-field code {
-      font-size: 12px;
-      color: #666;
-      font-family: monospace;
-    }
-
-    .logo-preview {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
-      object-fit: contain;
-      background: #111;
-      border: 1px solid #333;
-      margin-bottom: 10px;
-    }
-
-    .logo-hint {
-      background: #1a1a2a;
-      border: 1px solid #334;
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 12px;
-      color: #88aaff;
-      margin-bottom: 18px;
-      line-height: 1.6;
-    }
-
-    .logo-hint strong {
-      color: #aaccff;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .verein-name-display {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .kunden-id-badge {
-      display: inline-block;
-      background: #ff6b00;
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-    }
-
-    .preview-bar {
-      border-radius: 10px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .preview-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      object-fit: contain;
-      background: rgba(255,255,255,0.1);
-    }
-
-    .hidden { display: none; }
-
-    .section-divider {
-      height: 1px;
-      background: #2a2a2a;
-      margin: 24px 0;
-    }
-
-    .app-preview {
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #333;
-      margin-bottom: 18px;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-
+    .btn-primary { background: #ff6b00; color: white; }
+    .btn-secondary { background: #2a2a2a; color: #f0f0f0; margin-top: 10px; }
+    .btn-small { width: auto; padding: 8px 16px; font-size: 13px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; }
+    .btn-add { background: #ff6b00; color: white; }
+    .error { background: #3a1a1a; border: 1px solid #ff4444; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ff8888; margin-bottom: 16px; }
+    .success { background: #1a3a1a; border: 1px solid #44ff44; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #88ff88; margin-bottom: 16px; }
+    .form-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 28px; margin-bottom: 16px; }
+    .form-card h3 { font-size: 13px; font-weight: 700; color: #ff6b00; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #2a2a2a; }
+    .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .color-field { display: flex; align-items: center; gap: 10px; background: #111; border: 1px solid #333; border-radius: 10px; padding: 8px 12px; margin-bottom: 18px; cursor: pointer; }
+    .color-field input[type="color"] { width: 36px; height: 36px; border: none; border-radius: 6px; padding: 2px; margin: 0; background: none; }
+    .color-field span { font-size: 13px; color: #aaa; flex: 1; }
+    .color-field code { font-size: 11px; color: #666; font-family: monospace; }
+    .verein-name-display { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .kunden-id-badge { display: inline-block; background: #ff6b00; color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 20px; }
+    .preview-bar { border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .preview-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; background: rgba(255,255,255,0.1); }
+    .logo-preview { width: 60px; height: 60px; border-radius: 12px; object-fit: contain; background: #111; border: 1px solid #333; margin-bottom: 10px; }
+    .app-preview { border-radius: 12px; overflow: hidden; border: 1px solid #333; margin-bottom: 18px; }
+    .info-dropdown { background: #111; border: 1px solid #2a2a2a; border-radius: 10px; margin-bottom: 18px; overflow: hidden; }
+    .info-dropdown-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; transition: background 0.15s; }
+    .info-dropdown-header:hover { background: #1a1a1a; }
+    .info-dropdown-header-left { display: flex; align-items: center; gap: 10px; }
+    .info-dropdown-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .info-dropdown-icon.blue { background: rgba(59,130,246,0.2); }
+    .info-dropdown-icon.green { background: rgba(34,197,94,0.2); }
+    .info-dropdown-title { font-size: 13px; font-weight: 600; color: #ccc; }
+    .info-dropdown-sub { font-size: 11px; color: #666; margin-top: 1px; }
+    .info-dropdown-arrow { font-size: 12px; color: #666; transition: transform 0.2s; }
+    .info-dropdown-arrow.open { transform: rotate(180deg); }
+    .info-dropdown-body { display: none; padding: 0 16px 16px; border-top: 1px solid #222; }
+    .info-dropdown-body.open { display: block; }
+    .info-step { display: flex; gap: 12px; margin-top: 14px; }
+    .info-step-num { width: 24px; height: 24px; border-radius: 50%; background: #ff6b00; color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .info-step-text { font-size: 13px; color: #bbb; line-height: 1.5; }
+    .info-step-text strong { color: #f0f0f0; }
+    .info-highlight { background: #1a1a2a; border: 1px solid #334; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #88aaff; margin-top: 14px; line-height: 1.6; }
+    .kat-list { margin-bottom: 16px; min-height: 36px; }
+    .kat-item { display: inline-flex; align-items: center; gap: 8px; background: #222; border: 1px solid #333; border-radius: 20px; padding: 6px 14px; margin: 4px; font-size: 13px; }
+    .kat-remove { background: none; border: none; color: #ff6666; cursor: pointer; font-size: 15px; font-weight: 700; padding: 0; line-height: 1; }
+    .kat-remove:hover { color: #ff4444; }
+    .kat-input-row { display: flex; gap: 10px; align-items: center; }
+    .kat-input-row input { flex: 1; margin-bottom: 0; padding: 10px 14px; font-size: 14px; }
+    .kat-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .kat-preset { background: #1a1a1a; border: 1px solid #333; border-radius: 16px; padding: 5px 12px; font-size: 12px; color: #aaa; cursor: pointer; transition: all 0.15s; }
+    .kat-preset:hover { background: #ff6b00; border-color: #ff6b00; color: white; }
+    .kat-why-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .kat-why-item { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; }
+    .kat-why-title { font-size: 12px; font-weight: 700; color: #ff6b00; margin-bottom: 3px; }
+    .kat-why-desc { font-size: 11px; color: #777; line-height: 1.4; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 480px) {
-      .field-row, .color-row { grid-template-columns: 1fr; }
-      .container { padding: 20px 14px; }
-      .login-card, .form-card { padding: 20px; }
-    }
+    .hidden { display: none; }
+    @media (max-width: 480px) { .color-row { grid-template-columns: 1fr; } .container { padding: 20px 14px; } .form-card { padding: 20px; } .kat-why-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-logo">ON</div>
-  <div>
-    <h1>ONLANG Admin</h1>
-    <p>Vereins-App Verwaltung</p>
-  </div>
+  <div><h1>ONLANG Admin</h1><p>Vereins-App Verwaltung</p></div>
 </div>
 
-<!-- LOGIN -->
 <div class="container" id="loginSection">
   <div class="login-card">
     <h2>Willkommen</h2>
-    <p>Melde dich mit deiner Kunden-ID und deinem Passwort an, um deine App-Daten zu verwalten.</p>
-
+    <p>Melde dich mit deiner Kunden-ID und deinem Passwort an.</p>
     <div id="loginError" class="error hidden"></div>
-
     <label>Kunden-ID</label>
     <input type="text" id="inputKundenId" placeholder="z.B. V003" />
-
     <label>Passwort</label>
     <input type="password" id="inputPasswort" placeholder="Dein Passwort" />
-
     <button class="btn btn-primary" id="btnLogin" onclick="handleLogin()">Anmelden</button>
   </div>
 </div>
 
-<!-- ADMIN FORM -->
 <div class="container hidden" id="adminSection">
-
   <div class="form-card">
-    <div id="vereinHeader">
-      <div class="verein-name-display" id="vereinNameDisplay">Laden...</div>
-      <div class="kunden-id-badge" id="kundenIdBadge"></div>
-    </div>
-
-    <div id="saveSuccess" class="success hidden">Gespeichert!</div>
+    <div class="verein-name-display" id="vereinNameDisplay">Laden...</div>
+    <div class="kunden-id-badge" id="kundenIdBadge"></div>
+    <div id="saveSuccess" class="success hidden"></div>
     <div id="saveError" class="error hidden"></div>
-
-    <!-- APP VORSCHAU -->
-    <div class="app-preview" id="appPreview">
+    <div class="app-preview">
       <div class="preview-bar" id="previewBar">
-        <img id="previewLogo" class="preview-logo" src="" alt="" onerror="this.style.display='none'" />
-        <span id="previewName" style="font-weight:700; font-size:15px;"></span>
+        <img id="previewLogo" class="preview-logo" src="" alt="" onerror="this.style.display='none'" style="display:none" />
+        <span id="previewName" style="font-weight:700;font-size:15px;"></span>
       </div>
     </div>
   </div>
 
-  <!-- VEREIN INFO -->
   <div class="form-card">
     <h3>Verein</h3>
-
     <label>Vereinsname</label>
     <input type="text" id="fVereinName" placeholder="z.B. TG Neuss Basketball" oninput="updatePreview()" />
-
     <label>Logo URL</label>
-    <div class="logo-hint">
-      <strong>So bekommst du den richtigen Link:</strong>
-      1. Gehe zu imgur.com und lade dein Logo hoch<br>
-      2. Rechtsklick auf das Bild → "Bildadresse kopieren"<br>
-      3. Den kopierten Link hier einfügen
+    <div class="info-dropdown">
+      <div class="info-dropdown-header" onclick="toggleDropdown('imgurInfo')">
+        <div class="info-dropdown-header-left">
+          <div class="info-dropdown-icon blue">📷</div>
+          <div>
+            <div class="info-dropdown-title">Wie bekomme ich einen Logo-Link?</div>
+            <div class="info-dropdown-sub">Schritt-für-Schritt Anleitung mit Imgur</div>
+          </div>
+        </div>
+        <div class="info-dropdown-arrow" id="imgurInfoArrow">▼</div>
+      </div>
+      <div class="info-dropdown-body" id="imgurInfoBody">
+        <div class="info-step"><div class="info-step-num">1</div><div class="info-step-text">Gehe zu <strong>imgur.com</strong> im Browser und klick auf <strong>"New Post"</strong></div></div>
+        <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Lade dein Logo-Bild hoch — einfach reinziehen oder <strong>"Browse"</strong> klicken</div></div>
+        <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text"><strong>Wichtig:</strong> Mach einen <strong>Rechtsklick</strong> direkt auf das Bild → <strong>"Bildadresse kopieren"</strong></div></div>
+        <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Den kopierten Link hier einfügen. Er muss so aussehen: <strong>https://i.imgur.com/xxxxx.png</strong></div></div>
+        <div class="info-highlight">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button oben rechts verwenden — das gibt den falschen Link! Immer <strong>Rechtsklick direkt auf das Bild</strong> → Bildadresse kopieren.</div>
+      </div>
     </div>
     <input type="text" id="fLogoVerein" placeholder="https://i.imgur.com/..." oninput="updatePreview()" />
     <img id="logoPreviewImg" class="logo-preview hidden" src="" alt="Logo Vorschau" />
-
     <label>Logo Sponsor (optional)</label>
     <input type="text" id="fLogoSponsor" placeholder="https://i.imgur.com/..." />
-
     <label>Headline Text (optional)</label>
-    <input type="text" id="fHeadlineText" placeholder="z.B. Julius News App" />
+    <input type="text" id="fHeadlineText" placeholder="z.B. Vereinsnews App" />
   </div>
 
-  <!-- FARBEN -->
   <div class="form-card">
     <h3>Farben</h3>
-
     <div class="color-row">
       <div>
         <label>Hauptfarbe (Header)</label>
         <div class="color-field" onclick="document.getElementById('cThema').click()">
-          <input type="color" id="cThema" value="#111111" oninput="updatePreview()" />
-          <span>Header Hintergrund</span>
-          <code id="cThemaCode">#111111</code>
+          <input type="color" id="cThema" value="#111111" oninput="syncColor('cThema');updatePreview()" />
+          <span>Header Hintergrund</span><code id="cThemaCode">#111111</code>
         </div>
       </div>
       <div>
         <label>Akzentfarbe (Buttons)</label>
         <div class="color-field" onclick="document.getElementById('cAkzent').click()">
-          <input type="color" id="cAkzent" value="#C8611A" oninput="updatePreview()" />
-          <span>Buttons & Tags</span>
-          <code id="cAkzentCode">#C8611A</code>
+          <input type="color" id="cAkzent" value="#C8611A" oninput="syncColor('cAkzent')" />
+          <span>Buttons &amp; Tags</span><code id="cAkzentCode">#C8611A</code>
         </div>
       </div>
     </div>
-
     <div class="color-row">
       <div>
         <label>Header Text</label>
         <div class="color-field" onclick="document.getElementById('cHeaderText').click()">
-          <input type="color" id="cHeaderText" value="#FFFFFF" oninput="updatePreview()" />
-          <span>Text im Header</span>
-          <code id="cHeaderTextCode">#FFFFFF</code>
+          <input type="color" id="cHeaderText" value="#FFFFFF" oninput="syncColor('cHeaderText');updatePreview()" />
+          <span>Text im Header</span><code id="cHeaderTextCode">#FFFFFF</code>
         </div>
       </div>
       <div>
         <label>Card Hintergrund</label>
         <div class="color-field" onclick="document.getElementById('cCard').click()">
-          <input type="color" id="cCard" value="#F4F0E8" oninput="updatePreview()" />
-          <span>Beitrags-Karten</span>
-          <code id="cCardCode">#F4F0E8</code>
+          <input type="color" id="cCard" value="#F4F0E8" oninput="syncColor('cCard')" />
+          <span>Beitrags-Karten</span><code id="cCardCode">#F4F0E8</code>
         </div>
       </div>
     </div>
-
     <div class="color-row">
       <div>
         <label>Card Rahmen</label>
         <div class="color-field" onclick="document.getElementById('cRahmen').click()">
-          <input type="color" id="cRahmen" value="#111111" oninput="updatePreview()" />
-          <span>Rahmen der Karten</span>
-          <code id="cRahmenCode">#111111</code>
+          <input type="color" id="cRahmen" value="#111111" oninput="syncColor('cRahmen')" />
+          <span>Rahmen der Karten</span><code id="cRahmenCode">#111111</code>
         </div>
       </div>
       <div>
         <label>Tag Farbe</label>
         <div class="color-field" onclick="document.getElementById('cTag').click()">
-          <input type="color" id="cTag" value="#C8611A" oninput="updatePreview()" />
-          <span>News / Sport Tags</span>
-          <code id="cTagCode">#C8611A</code>
+          <input type="color" id="cTag" value="#C8611A" oninput="syncColor('cTag')" />
+          <span>News / Sport Tags</span><code id="cTagCode">#C8611A</code>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SPEICHERN -->
+  <div class="form-card">
+    <h3>Kategorien</h3>
+    <div class="info-dropdown">
+      <div class="info-dropdown-header" onclick="toggleDropdown('katInfo')">
+        <div class="info-dropdown-header-left">
+          <div class="info-dropdown-icon green">📂</div>
+          <div>
+            <div class="info-dropdown-title">Warum sind Kategorien wichtig?</div>
+            <div class="info-dropdown-sub">So filtern deine Mitglieder die Beiträge</div>
+          </div>
+        </div>
+        <div class="info-dropdown-arrow" id="katInfoArrow">▼</div>
+      </div>
+      <div class="info-dropdown-body" id="katInfoBody">
+        <div class="info-step"><div class="info-step-num">💡</div><div class="info-step-text">Kategorien helfen deinen Mitgliedern, <strong>nur die Beiträge zu sehen die für sie relevant sind</strong>. Ein Jugendtrainer sieht nur Jugend-Beiträge, der Vorstand nur Vorstandsinfos.</div></div>
+        <div class="kat-why-row">
+          <div class="kat-why-item"><div class="kat-why-title">📰 News</div><div class="kat-why-desc">Allgemeine Vereinsnachrichten für alle Mitglieder</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🏛️ Vorstand</div><div class="kat-why-desc">Interne Infos, Protokolle, Beschlüsse</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">👴 Senioren</div><div class="kat-why-desc">Trainingszeiten, Spiele, Infos für Erwachsene</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🧒 Jugend</div><div class="kat-why-desc">U8 bis U18 — Termine, Turniere, Ergebnisse</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🏆 Mannschaften</div><div class="kat-why-desc">Spezifische Teams z.B. "1. Herren", "Damen 1"</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">➕ Eigene</div><div class="kat-why-desc">Deine eigenen Kategorien für deinen Verein</div></div>
+        </div>
+      </div>
+    </div>
+    <label>Aktuelle Kategorien</label>
+    <div class="kat-list" id="katList"><span style="color:#666;font-size:13px;">Keine Kategorien vorhanden</span></div>
+    <label>Schnell hinzufügen</label>
+    <div class="kat-presets">
+      <span class="kat-preset" onclick="addKatPreset('News')">+ News</span>
+      <span class="kat-preset" onclick="addKatPreset('Vorstand')">+ Vorstand</span>
+      <span class="kat-preset" onclick="addKatPreset('Senioren')">+ Senioren</span>
+      <span class="kat-preset" onclick="addKatPreset('Jugend')">+ Jugend</span>
+      <span class="kat-preset" onclick="addKatPreset('Mannschaften')">+ Mannschaften</span>
+      <span class="kat-preset" onclick="addKatPreset('Termine')">+ Termine</span>
+      <span class="kat-preset" onclick="addKatPreset('Ergebnisse')">+ Ergebnisse</span>
+      <span class="kat-preset" onclick="addKatPreset('Sponsoren')">+ Sponsoren</span>
+    </div>
+    <label>Eigene Kategorie</label>
+    <div class="kat-input-row">
+      <input type="text" id="katInput" placeholder="z.B. U12, Damen 1, Vorstand..." />
+      <button class="btn-small btn-add" onclick="addKategorie()">Hinzufügen</button>
+    </div>
+    <div id="katError" class="error hidden" style="margin-top:10px;"></div>
+  </div>
+
   <button class="btn btn-primary" id="btnSave" onclick="handleSave()">Speichern</button>
   <button class="btn btn-secondary" onclick="handleLogout()">Abmelden</button>
-
-  <p style="text-align:center; font-size:12px; color:#555; margin-top:20px;">
-    ONLANG — Vereins-App Platform
-  </p>
+  <p style="text-align:center;font-size:12px;color:#555;margin-top:20px;">ONLANG — Vereins-App Platform</p>
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
-
 let currentKundenId = '';
-let currentBranding = {};
+let kategorien = [];
 
 function $(id) { return document.getElementById(id); }
 
-function showError(elId, msg) {
-  const el = $(elId);
-  el.textContent = msg;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 5000);
+function showMsg(elId, msg) {
+  const el = $(elId); el.textContent = msg; el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 4000);
 }
 
-function showSuccess(elId, msg) {
-  const el = $(elId);
-  el.textContent = msg;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 4000);
+function toggleDropdown(id) {
+  const body = $(id + 'Body'); const arrow = $(id + 'Arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen); arrow.classList.toggle('open', !isOpen);
 }
 
 async function handleLogin() {
   const kundenId = $('inputKundenId').value.trim().toUpperCase();
   const passwort = $('inputPasswort').value.trim();
-
-  if (!kundenId || !passwort) {
-    showError('loginError', 'Bitte Kunden-ID und Passwort eingeben.');
-    return;
-  }
-
-  const btn = $('btnLogin');
-  btn.innerHTML = '<span class="spinner"></span> Anmelden...';
-  btn.disabled = true;
-
+  if (!kundenId || !passwort) { showMsg('loginError', 'Bitte Kunden-ID und Passwort eingeben.'); return; }
+  const btn = $('btnLogin'); btn.innerHTML = '<span class="spinner"></span>Anmelden...'; btn.disabled = true;
   try {
     const res = await fetch(`${API}?kundenId=${encodeURIComponent(kundenId)}&password=${encodeURIComponent(passwort)}`);
     const data = await res.json();
-
     if (data.success) {
       currentKundenId = kundenId;
       await loadBranding();
       $('loginSection').classList.add('hidden');
       $('adminSection').classList.remove('hidden');
-    } else {
-      showError('loginError', 'Falsches Passwort oder unbekannte Kunden-ID.');
-    }
-  } catch(e) {
-    showError('loginError', 'Verbindungsfehler. Bitte erneut versuchen.');
-  }
-
-  btn.innerHTML = 'Anmelden';
-  btn.disabled = false;
+    } else { showMsg('loginError', 'Falsches Passwort oder unbekannte Kunden-ID.'); }
+  } catch(e) { showMsg('loginError', 'Verbindungsfehler.'); }
+  btn.innerHTML = 'Anmelden'; btn.disabled = false;
 }
 
 async function loadBranding() {
   try {
     const res = await fetch(`${API}?action=get_branding&kundenId=${currentKundenId}`);
     const data = await res.json();
-    if (data.success) {
-      currentBranding = data.branding || {};
-      fillForm(currentBranding);
-    }
-  } catch(e) {
-    console.error('Branding laden fehlgeschlagen', e);
-  }
+    if (data.success) fillForm(data.branding || {});
+  } catch(e) { console.error(e); }
 }
 
 function fillForm(b) {
   $('vereinNameDisplay').textContent = b.Verein_Name || currentKundenId;
   $('kundenIdBadge').textContent = currentKundenId;
-
   $('fVereinName').value = b.Verein_Name || '';
   $('fLogoVerein').value = b.Logo_Verein || b.Logo_verein || '';
   $('fLogoSponsor').value = b.Logo_Sponsor || '';
   $('fHeadlineText').value = b.Headline_Text || '';
-
   setColor('cThema', b.Thema_Farbe || '#111111');
   setColor('cAkzent', b.Akzent_Farbe || '#C8611A');
   setColor('cHeaderText', b.Header_Text_Farbe || '#FFFFFF');
   setColor('cCard', b.Card_Hintergrund || '#F4F0E8');
   setColor('cRahmen', b.Card_Rahmen || '#111111');
   setColor('cTag', b.Tag_Farbe || '#C8611A');
-
-  updatePreview();
+  const katRaw = b.Kategorien || [];
+  kategorien = Array.isArray(katRaw) ? [...katRaw] : String(katRaw).split(',').map(k => k.trim()).filter(k => k);
+  renderKategorien(); updatePreview();
 }
 
-function setColor(id, val) {
-  $(id).value = val;
-  $(id + 'Code').textContent = val;
-}
+function setColor(id, val) { $(id).value = val; $(id + 'Code').textContent = val; }
+function syncColor(id) { $(id + 'Code').textContent = $(id).value; }
 
 function updatePreview() {
   const name = $('fVereinName').value || 'Vereinsname';
   const logo = $('fLogoVerein').value;
-  const thema = $('cThema').value;
-  const headerText = $('cHeaderText').value;
-
-  $('cThemaCode').textContent = $('cThema').value;
-  $('cAkzentCode').textContent = $('cAkzent').value;
-  $('cHeaderTextCode').textContent = $('cHeaderText').value;
-  $('cCardCode').textContent = $('cCard').value;
-  $('cRahmenCode').textContent = $('cRahmen').value;
-  $('cTagCode').textContent = $('cTag').value;
-
-  $('previewBar').style.background = thema;
-  $('previewName').style.color = headerText;
+  $('previewBar').style.background = $('cThema').value;
+  $('previewName').style.color = $('cHeaderText').value;
   $('previewName').textContent = name;
-
   if (logo) {
-    $('previewLogo').src = logo;
-    $('previewLogo').style.display = 'block';
-    $('logoPreviewImg').src = logo;
-    $('logoPreviewImg').classList.remove('hidden');
+    $('previewLogo').src = logo; $('previewLogo').style.display = 'block';
+    $('logoPreviewImg').src = logo; $('logoPreviewImg').classList.remove('hidden');
   } else {
-    $('previewLogo').style.display = 'none';
-    $('logoPreviewImg').classList.add('hidden');
+    $('previewLogo').style.display = 'none'; $('logoPreviewImg').classList.add('hidden');
   }
 }
 
+function renderKategorien() {
+  const list = $('katList');
+  if (!kategorien.length) { list.innerHTML = '<span style="color:#666;font-size:13px;">Keine Kategorien vorhanden</span>'; return; }
+  list.innerHTML = kategorien.map((k, i) =>
+    `<span class="kat-item">${k}<button class="kat-remove" onclick="removeKategorie(${i})">×</button></span>`
+  ).join('');
+}
+
+function addKatPreset(name) {
+  if (kategorien.includes(name)) return;
+  kategorien.push(name); renderKategorien();
+}
+
+function addKategorie() {
+  const input = $('katInput'); const val = input.value.trim();
+  if (!val) { showMsg('katError', 'Bitte eine Kategorie eingeben.'); return; }
+  if (kategorien.includes(val)) { showMsg('katError', '"' + val + '" existiert bereits.'); return; }
+  kategorien.push(val); input.value = ''; renderKategorien();
+}
+
+function removeKategorie(idx) { kategorien.splice(idx, 1); renderKategorien(); }
+
 async function handleSave() {
-  const btn = $('btnSave');
-  btn.innerHTML = '<span class="spinner"></span> Speichern...';
-  btn.disabled = true;
-
+  const btn = $('btnSave'); btn.innerHTML = '<span class="spinner"></span>Speichern...'; btn.disabled = true;
   const params = new URLSearchParams({
-    action: 'update_branding',
-    kundenId: currentKundenId,
-    Verein_Name: $('fVereinName').value,
-    Logo_Verein: $('fLogoVerein').value,
-    Logo_Sponsor: $('fLogoSponsor').value,
-    Headline_Text: $('fHeadlineText').value,
-    Thema_Farbe: $('cThema').value,
-    Akzent_Farbe: $('cAkzent').value,
-    Header_Text_Farbe: $('cHeaderText').value,
-    Card_Hintergrund: $('cCard').value,
-    Card_Rahmen: $('cRahmen').value,
-    Tag_Farbe: $('cTag').value,
+    action: 'update_branding', kundenId: currentKundenId,
+    Verein_Name: $('fVereinName').value, Logo_Verein: $('fLogoVerein').value,
+    Logo_Sponsor: $('fLogoSponsor').value, Headline_Text: $('fHeadlineText').value,
+    Thema_Farbe: $('cThema').value, Akzent_Farbe: $('cAkzent').value,
+    Header_Text_Farbe: $('cHeaderText').value, Card_Hintergrund: $('cCard').value,
+    Card_Rahmen: $('cRahmen').value, Tag_Farbe: $('cTag').value,
+    Kategorien: kategorien.join(', '),
   });
-
   try {
     const res = await fetch(`${API}?${params}`);
     const data = await res.json();
-    if (data.success) {
-      showSuccess('saveSuccess', 'Erfolgreich gespeichert!');
-      $('vereinNameDisplay').textContent = $('fVereinName').value;
-    } else {
-      showError('saveError', data.error || 'Fehler beim Speichern.');
-    }
-  } catch(e) {
-    showError('saveError', 'Verbindungsfehler. Bitte erneut versuchen.');
-  }
-
-  btn.innerHTML = 'Speichern';
-  btn.disabled = false;
+    if (data.success) { showMsg('saveSuccess', '✓ Erfolgreich gespeichert!'); $('vereinNameDisplay').textContent = $('fVereinName').value; }
+    else { showMsg('saveError', data.error || 'Fehler beim Speichern.'); }
+  } catch(e) { showMsg('saveError', 'Verbindungsfehler.'); }
+  btn.innerHTML = 'Speichern'; btn.disabled = false;
 }
 
 function handleLogout() {
-  currentKundenId = '';
-  currentBranding = {};
-  $('inputPasswort').value = '';
-  $('adminSection').classList.add('hidden');
-  $('loginSection').classList.remove('hidden');
+  currentKundenId = ''; kategorien = []; $('inputPasswort').value = '';
+  $('adminSection').classList.add('hidden'); $('loginSection').classList.remove('hidden');
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !$('loginSection').classList.contains('hidden')) {
-    handleLogin();
-  }
+  if (e.key === 'Enter' && !$('loginSection').classList.contains('hidden')) handleLogin();
+  if (e.key === 'Enter' && document.activeElement === $('katInput')) addKategorie();
 });
 </script>
 </body>
