@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONLANG — Owner Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #222222;
+      --border2: #2e2e2e;
+      --text: #f0f0f0;
+      --muted: #666;
+      --accent: #ff6b00;
+      --accent2: #ff8c00;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      font-size: 13px;
+      color: white;
+      letter-spacing: -0.5px;
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--green);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* LOGIN */
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 75px);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-card h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .login-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 7px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: #0f0f0f;
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 15px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus { border-color: var(--accent); }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent2); }
+
+    .error-msg {
+      background: #2a1010;
+      border: 1px solid #5a2020;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ff8888;
+      margin-bottom: 16px;
+    }
+
+    /* DASHBOARD */
+    .dash { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.yellow { color: var(--yellow); }
+    .stat-value.accent { color: var(--accent); }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .filter-btn:hover:not(.active) {
+      border-color: var(--border2);
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .search-input {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      width: 200px;
+      margin-left: auto;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+
+    .refresh-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      transition: all 0.15s;
+    }
+
+    .refresh-btn:hover { color: var(--text); border-color: var(--accent); }
+
+    /* TABLE */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 14px 18px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    tbody td {
+      padding: 14px 18px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .badge-online {
+      background: rgba(34,197,94,0.15);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+
+    .badge-recent {
+      background: rgba(234,179,8,0.15);
+      color: var(--yellow);
+      border: 1px solid rgba(234,179,8,0.3);
+    }
+
+    .badge-offline {
+      background: rgba(102,102,102,0.15);
+      color: var(--muted);
+      border: 1px solid rgba(102,102,102,0.2);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .badge-dot.pulsing { animation: pulse 1.5s infinite; }
+
+    .kunden-id {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(255,107,0,0.1);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    .verein-name {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .time-cell {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .action-cell {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .action-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .action-login { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .action-team { background: rgba(168,85,247,0.15); color: #c4b5fd; }
+
+    .logins-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 14px;
+    }
+
+    .last-updated {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 12px;
+      text-align: right;
+    }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .dash { padding: 16px; }
+      .header { padding: 14px 16px; }
+      table { font-size: 12px; }
+      thead th, tbody td { padding: 10px 12px; }
+      .search-input { width: 140px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .col-action, .col-logins { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">ON</div>
+    <div>
+      <div class="header-title">ONLANG Dashboard</div>
+      <div class="header-sub">Owner Panel</div>
+    </div>
+  </div>
+  <div class="live-dot" id="liveDot" style="display:none">
+    <div class="dot"></div>
+    LIVE
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginSection">
+  <div class="login-card">
+    <h2>Owner Login</h2>
+    <p>Nur für ONLANG-Administratoren</p>
+    <div id="loginError" class="error-msg" style="display:none"></div>
+    <label>Master-Passwort</label>
+    <input type="password" id="masterPw" placeholder="••••••••" />
+    <button class="btn btn-primary" onclick="handleLogin()">Dashboard öffnen</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dashSection" style="display:none">
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-label">Online jetzt</div>
+      <div class="stat-value green" id="statOnline">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Letzte 24h</div>
+      <div class="stat-value yellow" id="stat24h">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Gesamt Kunden</div>
+      <div class="stat-value accent" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Logins heute</div>
+      <div class="stat-value" id="statToday">—</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">Alle</button>
+    <button class="filter-btn" id="filterOnline" onclick="setFilter('online')">Online</button>
+    <button class="filter-btn" id="filter24h" onclick="setFilter('24h')">Letzte 24h</button>
+    <button class="filter-btn" id="filterOffline" onclick="setFilter('offline')">Inaktiv</button>
+    <input type="text" class="search-input" id="searchInput" placeholder="Suchen..." oninput="renderTable()" />
+    <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Verein</th>
+          <th>Status</th>
+          <th>Letzter Login</th>
+          <th class="col-action">Aktion</th>
+          <th class="col-logins">Logins</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" class="loading-state"><span class="spinner"></span>Lade Daten...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="last-updated" id="lastUpdated"></div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
+const OWNER_PASSWORD = "onlang2024owner";
+
+let allData = [];
+let currentFilter = 'all';
+let refreshInterval = null;
+
+function handleLogin() {
+  const pw = document.getElementById('masterPw').value.trim();
+  if (pw === OWNER_PASSWORD) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('dashSection').style.display = 'block';
+    document.getElementById('liveDot').style.display = 'flex';
+    loadData();
+    refreshInterval = setInterval(loadData, 60000);
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Falsches Passwort.';
+    err.style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginSection').style.display !== 'none') handleLogin();
+});
+
+async function loadData() {
+  try {
+    const res = await fetch(`${API}?action=get_aktivitaeten`);
+    const data = await res.json();
+    if (data.success) {
+      allData = data.rows || [];
+      renderStats();
+      renderTable();
+      document.getElementById('lastUpdated').textContent =
+        'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+    }
+  } catch(e) {
+    document.getElementById('tableBody').innerHTML =
+      '<tr><td colspan="6" class="empty-state">Verbindungsfehler — bitte neu laden</td></tr>';
+  }
+}
+
+function parseTimestamp(ts) {
+  if (!ts) return null;
+  const m = String(ts).match(/(\d{2})\.(\d{2})\.(\d{4}),?\s*(\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  return new Date(`${m[3]}-${m[2]}-${m[1]}T${m[4]}:${m[5]}:${m[6]}`);
+}
+
+function getStatus(ts) {
+  const d = parseTimestamp(ts);
+  if (!d) return 'offline';
+  const diff = (Date.now() - d.getTime()) / 1000 / 60;
+  if (diff < 10) return 'online';
+  if (diff < 1440) return 'recent';
+  return 'offline';
+}
+
+function timeAgo(ts) {
+  const d = parseTimestamp(ts);
+  if (!d) return '—';
+  const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 60) return 'Gerade eben';
+  if (diff < 3600) return Math.floor(diff/60) + ' Min. ago';
+  if (diff < 86400) return Math.floor(diff/3600) + ' Std. ago';
+  if (diff < 172800) return 'Gestern';
+  return Math.floor(diff/86400) + ' Tage ago';
+}
+
+function renderStats() {
+  const now = Date.now();
+  let online = 0, recent = 0, todayLogins = 0;
+  const seen = new Set();
+
+  allData.forEach(row => {
+    const d = parseTimestamp(row.timestamp);
+    if (!d) return;
+    const diff = (now - d.getTime()) / 1000 / 60;
+    if (diff < 10) online++;
+    if (diff < 1440) {
+      if (!seen.has(row.kundenId)) { recent++; seen.add(row.kundenId); }
+    }
+    const today = new Date();
+    if (d.toDateString() === today.toDateString()) todayLogins++;
+  });
+
+  const uniqueKunden = new Set(allData.map(r => r.kundenId)).size;
+
+  document.getElementById('statOnline').textContent = online;
+  document.getElementById('stat24h').textContent = recent;
+  document.getElementById('statTotal').textContent = uniqueKunden;
+  document.getElementById('statToday').textContent = todayLogins;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  ['All','Online','24h','Offline'].forEach(x => {
+    document.getElementById('filter' + x).classList.remove('active');
+  });
+  document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1)).classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const now = Date.now();
+
+  // Gruppiere nach kundenId — letzter Login pro Kunde
+  const kundenMap = {};
+  allData.forEach(row => {
+    const kid = row.kundenId;
+    if (!kid) return;
+    if (!kundenMap[kid]) {
+      kundenMap[kid] = { kundenId: kid, vereinName: row.vereinName, lastTs: row.timestamp, lastAction: row.action, loginCount: 0 };
+    }
+    kundenMap[kid].loginCount++;
+    const d1 = parseTimestamp(row.timestamp);
+    const d2 = parseTimestamp(kundenMap[kid].lastTs);
+    if (d1 && d2 && d1 > d2) {
+      kundenMap[kid].lastTs = row.timestamp;
+      kundenMap[kid].lastAction = row.action;
+    }
+  });
+
+  let rows = Object.values(kundenMap);
+
+  // Filter
+  rows = rows.filter(r => {
+    const status = getStatus(r.lastTs);
+    if (currentFilter === 'online' && status !== 'online') return false;
+    if (currentFilter === '24h' && status === 'offline') return false;
+    if (currentFilter === 'offline' && status !== 'offline') return false;
+    if (search) {
+      const q = (r.kundenId + ' ' + r.vereinName).toLowerCase();
+      if (!q.includes(search)) return false;
+    }
+    return true;
+  });
+
+  // Sortiere: online zuerst, dann recent, dann offline
+  rows.sort((a, b) => {
+    const order = { online: 0, recent: 1, offline: 2 };
+    const sa = order[getStatus(a.lastTs)];
+    const sb = order[getStatus(b.lastTs)];
+    if (sa !== sb) return sa - sb;
+    const da = parseTimestamp(a.lastTs) || new Date(0);
+    const db = parseTimestamp(b.lastTs) || new Date(0);
+    return db - da;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Keine Einträge gefunden</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const status = getStatus(r.lastTs);
+    let badgeHtml = '';
+    if (status === 'online') {
+      badgeHtml = `<span class="badge badge-online"><span class="badge-dot pulsing"></span>Online</span>`;
+    } else if (status === 'recent') {
+      badgeHtml = `<span class="badge badge-recent"><span class="badge-dot"></span>Aktiv heute</span>`;
+    } else {
+      badgeHtml = `<span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>`;
+    }
+
+    const actionClass = String(r.lastAction || '').includes('TEAM') ? 'action-team' : 'action-login';
+    const actionLabel = String(r.lastAction || 'LOGIN');
+
+    return `<tr>
+      <td><span class="kunden-id">${r.kundenId}</span></td>
+      <td><span class="verein-name">${r.vereinName || '—'}</span></td>
+      <td>${badgeHtml}</td>
+      <td>
+        <div class="time-cell">${timeAgo(r.lastTs)}</div>
+        <div style="font-size:11px;color:#444;font-family:'DM Mono',monospace;margin-top:2px">${r.lastTs || '—'}</div>
+      </td>
+      <td class="col-action"><span class="action-tag ${actionClass}">${actionLabel}</span></td>
+      <td class="col-logins"><span class="logins-count">${r.loginCount}</span></td>
+    </tr>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
