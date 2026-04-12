@@ -492,7 +492,7 @@ const App: React.FC = () => {
     }
   };
 
-  const isAdmin = !!(branding as any)?.Passwort;
+  const isAdmin = true;
   const themaFarbe      = branding?.Thema_Farbe       || '#111111';
   const akzentFarbe     = branding?.Akzent_Farbe      || '#C8611A';
   const headerTextFarbe = branding?.Header_Text_Farbe || '#FFFFFF';
