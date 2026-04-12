@@ -1,0 +1,14 @@
+[[redirects]]
+  from = "https://anmeldung.onlang.de/*"
+  to = "/anmeldung.html"
+  status = 200
+
+[[redirects]]
+  from = "https://admin.onlang.de/*"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "https://dashboard.onlang.de/*"
+  to = "/dashboard.html"
+  status = 200
