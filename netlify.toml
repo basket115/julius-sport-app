@@ -12,3 +12,11 @@
   from = "https://dashboard.onlang.de/*"
   to = "/dashboard.html"
   status = 200
+
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[[edge_functions]]
+  path = "/manifest.json"
+  function = "manifest"
