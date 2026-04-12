@@ -16,8 +16,13 @@
     .login-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
     .login-card p { font-size: 14px; color: #888; margin-bottom: 28px; }
     label { display: block; font-size: 12px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    input[type="text"], input[type="password"] { width: 100%; background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px 14px; font-size: 15px; color: #f0f0f0; font-family: inherit; margin-bottom: 18px; transition: border-color 0.2s; outline: none; }
-    input[type="text"]:focus, input[type="password"]:focus { border-color: #ff6b00; }
+    input[type="text"], input[type="password"], input[type="url"], select {
+      width: 100%; background: #111; border: 1px solid #333; border-radius: 10px;
+      padding: 12px 14px; font-size: 15px; color: #f0f0f0; font-family: inherit;
+      margin-bottom: 18px; transition: border-color 0.2s; outline: none;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, input[type="url"]:focus, select:focus { border-color: #ff6b00; }
+    select option { background: #1a1a1a; }
     input[type="color"] { width: 100%; height: 48px; padding: 4px; background: #111; border: 1px solid #333; border-radius: 10px; cursor: pointer; margin-bottom: 18px; }
     .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s, transform 0.1s; }
     .btn:active { transform: scale(0.98); }
@@ -26,6 +31,8 @@
     .btn-secondary { background: #2a2a2a; color: #f0f0f0; margin-top: 10px; }
     .btn-small { width: auto; padding: 8px 16px; font-size: 13px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; }
     .btn-add { background: #ff6b00; color: white; }
+    .btn-danger { background: #3a1a1a; color: #ff6666; border: 1px solid #5a2020; }
+    .btn-blue { background: #1a3a5a; color: #66aaff; border: 1px solid #2a5a8a; }
     .error { background: #3a1a1a; border: 1px solid #ff4444; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ff8888; margin-bottom: 16px; }
     .success { background: #1a3a1a; border: 1px solid #44ff44; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #88ff88; margin-bottom: 16px; }
     .form-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 28px; margin-bottom: 16px; }
@@ -48,6 +55,7 @@
     .info-dropdown-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
     .info-dropdown-icon.blue { background: rgba(59,130,246,0.2); }
     .info-dropdown-icon.green { background: rgba(34,197,94,0.2); }
+    .info-dropdown-icon.orange { background: rgba(255,107,0,0.2); }
     .info-dropdown-title { font-size: 13px; font-weight: 600; color: #ccc; }
     .info-dropdown-sub { font-size: 11px; color: #666; margin-top: 1px; }
     .info-dropdown-arrow { font-size: 12px; color: #666; transition: transform 0.2s; }
@@ -72,9 +80,23 @@
     .kat-why-item { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; }
     .kat-why-title { font-size: 12px; font-weight: 700; color: #ff6b00; margin-bottom: 3px; }
     .kat-why-desc { font-size: 11px; color: #777; line-height: 1.4; }
+    .team-item { background: #111; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+    .team-item-info { flex: 1; }
+    .team-item-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .team-item-meta { font-size: 12px; color: #666; font-family: monospace; }
+    .team-rolle { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .rolle-admin { background: rgba(255,107,0,0.2); color: #ff6b00; }
+    .rolle-abtl { background: rgba(59,130,246,0.2); color: #66aaff; }
+    .rolle-team { background: rgba(34,197,94,0.2); color: #66cc88; }
+    .website-row { display: flex; gap: 10px; align-items: flex-start; }
+    .website-row input { flex: 1; margin-bottom: 0; }
+    .farben-laden-btn { padding: 12px 16px; background: #1a3a1a; border: 1px solid #2a5a2a; border-radius: 10px; color: #66cc88; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; transition: all 0.15s; margin-bottom: 18px; }
+    .farben-laden-btn:hover { background: #1a4a1a; }
+    .farben-laden-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .hidden { display: none; }
+    .divider { height: 1px; background: #2a2a2a; margin: 8px 0 20px; }
     @media (max-width: 480px) { .color-row { grid-template-columns: 1fr; } .container { padding: 20px 14px; } .form-card { padding: 20px; } .kat-why-row { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -84,6 +106,7 @@
   <div><h1>ONLANG Admin</h1><p>Vereins-App Verwaltung</p></div>
 </div>
 
+<!-- LOGIN -->
 <div class="container" id="loginSection">
   <div class="login-card">
     <h2>Willkommen</h2>
@@ -97,7 +120,9 @@
   </div>
 </div>
 
+<!-- ADMIN FORM -->
 <div class="container hidden" id="adminSection">
+
   <div class="form-card">
     <div class="verein-name-display" id="vereinNameDisplay">Laden...</div>
     <div class="kunden-id-badge" id="kundenIdBadge"></div>
@@ -111,10 +136,19 @@
     </div>
   </div>
 
+  <!-- VEREIN -->
   <div class="form-card">
     <h3>Verein</h3>
     <label>Vereinsname</label>
     <input type="text" id="fVereinName" placeholder="z.B. TG Neuss Basketball" oninput="updatePreview()" />
+
+    <label>Website — Farben automatisch laden</label>
+    <div class="website-row">
+      <input type="url" id="fWebsite" placeholder="https://www.meinverein.de" />
+    </div>
+    <button class="farben-laden-btn" id="btnFarbenLaden" onclick="ladenFarben()">🎨 Vereinsfarben automatisch laden</button>
+    <div id="farbenMsg" class="hidden" style="font-size:13px;color:#88cc88;margin-bottom:14px;"></div>
+
     <label>Logo URL</label>
     <div class="info-dropdown">
       <div class="info-dropdown-header" onclick="toggleDropdown('imgurInfo')">
@@ -132,7 +166,7 @@
         <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Lade dein Logo-Bild hoch — einfach reinziehen oder <strong>"Browse"</strong> klicken</div></div>
         <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text"><strong>Wichtig:</strong> Mach einen <strong>Rechtsklick</strong> direkt auf das Bild → <strong>"Bildadresse kopieren"</strong></div></div>
         <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Den kopierten Link hier einfügen. Er muss so aussehen: <strong>https://i.imgur.com/xxxxx.png</strong></div></div>
-        <div class="info-highlight">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button oben rechts verwenden — das gibt den falschen Link! Immer <strong>Rechtsklick direkt auf das Bild</strong> → Bildadresse kopieren.</div>
+        <div class="info-highlight">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button oben rechts verwenden — Immer <strong>Rechtsklick direkt auf das Bild</strong> → Bildadresse kopieren.</div>
       </div>
     </div>
     <input type="text" id="fLogoVerein" placeholder="https://i.imgur.com/..." oninput="updatePreview()" />
@@ -143,6 +177,7 @@
     <input type="text" id="fHeadlineText" placeholder="z.B. Vereinsnews App" />
   </div>
 
+  <!-- FARBEN -->
   <div class="form-card">
     <h3>Farben</h3>
     <div class="color-row">
@@ -195,6 +230,7 @@
     </div>
   </div>
 
+  <!-- KATEGORIEN -->
   <div class="form-card">
     <h3>Kategorien</h3>
     <div class="info-dropdown">
@@ -209,14 +245,14 @@
         <div class="info-dropdown-arrow" id="katInfoArrow">▼</div>
       </div>
       <div class="info-dropdown-body" id="katInfoBody">
-        <div class="info-step"><div class="info-step-num">💡</div><div class="info-step-text">Kategorien helfen deinen Mitgliedern, <strong>nur die Beiträge zu sehen die für sie relevant sind</strong>. Ein Jugendtrainer sieht nur Jugend-Beiträge, der Vorstand nur Vorstandsinfos.</div></div>
+        <div class="info-step"><div class="info-step-num">💡</div><div class="info-step-text">Kategorien helfen deinen Mitgliedern, <strong>nur die Beiträge zu sehen die für sie relevant sind</strong>.</div></div>
         <div class="kat-why-row">
-          <div class="kat-why-item"><div class="kat-why-title">📰 News</div><div class="kat-why-desc">Allgemeine Vereinsnachrichten für alle Mitglieder</div></div>
-          <div class="kat-why-item"><div class="kat-why-title">🏛️ Vorstand</div><div class="kat-why-desc">Interne Infos, Protokolle, Beschlüsse</div></div>
-          <div class="kat-why-item"><div class="kat-why-title">👴 Senioren</div><div class="kat-why-desc">Trainingszeiten, Spiele, Infos für Erwachsene</div></div>
-          <div class="kat-why-item"><div class="kat-why-title">🧒 Jugend</div><div class="kat-why-desc">U8 bis U18 — Termine, Turniere, Ergebnisse</div></div>
-          <div class="kat-why-item"><div class="kat-why-title">🏆 Mannschaften</div><div class="kat-why-desc">Spezifische Teams z.B. "1. Herren", "Damen 1"</div></div>
-          <div class="kat-why-item"><div class="kat-why-title">➕ Eigene</div><div class="kat-why-desc">Deine eigenen Kategorien für deinen Verein</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">📰 News</div><div class="kat-why-desc">Allgemeine Vereinsnachrichten für alle</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🏛️ Vorstand</div><div class="kat-why-desc">Interne Infos, Protokolle</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">👴 Senioren</div><div class="kat-why-desc">Trainingszeiten, Spiele</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🧒 Jugend</div><div class="kat-why-desc">U8 bis U18, Turniere</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">🏆 Mannschaften</div><div class="kat-why-desc">z.B. "1. Herren", "Damen 1"</div></div>
+          <div class="kat-why-item"><div class="kat-why-title">➕ Eigene</div><div class="kat-why-desc">Deine eigenen Kategorien</div></div>
         </div>
       </div>
     </div>
@@ -231,14 +267,61 @@
       <span class="kat-preset" onclick="addKatPreset('Mannschaften')">+ Mannschaften</span>
       <span class="kat-preset" onclick="addKatPreset('Termine')">+ Termine</span>
       <span class="kat-preset" onclick="addKatPreset('Ergebnisse')">+ Ergebnisse</span>
-      <span class="kat-preset" onclick="addKatPreset('Sponsoren')">+ Sponsoren</span>
     </div>
     <label>Eigene Kategorie</label>
     <div class="kat-input-row">
-      <input type="text" id="katInput" placeholder="z.B. U12, Damen 1, Vorstand..." />
+      <input type="text" id="katInput" placeholder="z.B. U12, Damen 1..." />
       <button class="btn-small btn-add" onclick="addKategorie()">Hinzufügen</button>
     </div>
     <div id="katError" class="error hidden" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- TEAM-ZUGÄNGE -->
+  <div class="form-card">
+    <h3>Team-Zugänge (optional)</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">Gib deinen Mannschaften eigene Zugänge — sie können dann direkt Beiträge für ihre Mannschaft posten.</p>
+
+    <div id="teamList" style="margin-bottom:16px;"></div>
+
+    <div class="info-dropdown">
+      <div class="info-dropdown-header" onclick="toggleDropdown('teamInfo')">
+        <div class="info-dropdown-header-left">
+          <div class="info-dropdown-icon orange">👥</div>
+          <div>
+            <div class="info-dropdown-title">Neuen Team-Zugang hinzufügen</div>
+            <div class="info-dropdown-sub">Mannschaft, Rolle und Passwort festlegen</div>
+          </div>
+        </div>
+        <div class="info-dropdown-arrow" id="teamInfoArrow">▼</div>
+      </div>
+      <div class="info-dropdown-body" id="teamInfoBody">
+        <div style="margin-top:14px;">
+          <label>Mannschaftsname</label>
+          <input type="text" id="tMannschaft" placeholder="z.B. 1. Herren, U16, Damen 1" style="margin-bottom:12px;" />
+          <label>Rolle</label>
+          <select id="tRolle" style="margin-bottom:12px;">
+            <option value="team">Team — kann Beiträge für eigene Mannschaft posten</option>
+            <option value="abtl">Abteilungsleiter — sieht und löscht alles</option>
+            <option value="admin">Admin — voller Zugriff</option>
+          </select>
+          <label>Passwort</label>
+          <input type="text" id="tPasswort" placeholder="z.B. herren-2024" style="margin-bottom:12px;" />
+          <button class="btn-small btn-add" onclick="addTeamZugang()" style="width:100%;padding:12px;">Team-Zugang hinzufügen</button>
+          <div id="teamAddMsg" style="margin-top:8px;font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSWORT ÄNDERN -->
+  <div class="form-card">
+    <h3>Passwort ändern</h3>
+    <label>Neues Passwort</label>
+    <input type="password" id="fNeuesPasswort" placeholder="Neues Passwort eingeben" />
+    <label>Passwort bestätigen</label>
+    <input type="password" id="fPasswortBestaetigen" placeholder="Passwort wiederholen" />
+    <button class="btn-small btn-blue" onclick="handlePasswortAendern()" style="width:100%;padding:12px;">Passwort ändern</button>
+    <div id="passwortMsg" style="margin-top:10px;font-size:13px;"></div>
   </div>
 
   <button class="btn btn-primary" id="btnSave" onclick="handleSave()">Speichern</button>
@@ -250,6 +333,7 @@
 const API = "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 let currentKundenId = '';
 let kategorien = [];
+let teamZugaenge = [];
 
 function $(id) { return document.getElementById(id); }
 
@@ -275,6 +359,7 @@ async function handleLogin() {
     if (data.success) {
       currentKundenId = kundenId;
       await loadBranding();
+      await loadTeamZugaenge();
       $('loginSection').classList.add('hidden');
       $('adminSection').classList.remove('hidden');
     } else { showMsg('loginError', 'Falsches Passwort oder unbekannte Kunden-ID.'); }
@@ -290,6 +375,14 @@ async function loadBranding() {
   } catch(e) { console.error(e); }
 }
 
+async function loadTeamZugaenge() {
+  try {
+    const res = await fetch(`${API}?action=get_team_zugaenge&kundenId=${currentKundenId}`);
+    const data = await res.json();
+    if (data.success) { teamZugaenge = data.zugaenge || []; renderTeamZugaenge(); }
+  } catch(e) { console.error(e); }
+}
+
 function fillForm(b) {
   $('vereinNameDisplay').textContent = b.Verein_Name || currentKundenId;
   $('kundenIdBadge').textContent = currentKundenId;
@@ -297,6 +390,7 @@ function fillForm(b) {
   $('fLogoVerein').value = b.Logo_Verein || b.Logo_verein || '';
   $('fLogoSponsor').value = b.Logo_Sponsor || '';
   $('fHeadlineText').value = b.Headline_Text || '';
+  $('fWebsite').value = b.Website || '';
   setColor('cThema', b.Thema_Farbe || '#111111');
   setColor('cAkzent', b.Akzent_Farbe || '#C8611A');
   setColor('cHeaderText', b.Header_Text_Farbe || '#FFFFFF');
@@ -325,6 +419,43 @@ function updatePreview() {
   }
 }
 
+async function ladenFarben() {
+  const website = $('fWebsite').value.trim();
+  if (!website) { alert('Bitte zuerst die Website-URL eingeben!'); return; }
+  const btn = $('btnFarbenLaden');
+  btn.disabled = true;
+  btn.textContent = '⏳ Farben werden geladen...';
+  try {
+    const res = await fetch(`${API}?action=get_website_farben&url=${encodeURIComponent(website)}`);
+    const data = await res.json();
+    if (data.success && data.farben) {
+      const f = data.farben;
+      if (f.thema)      { setColor('cThema', f.thema); }
+      if (f.akzent)     { setColor('cAkzent', f.akzent); }
+      if (f.headerText) { setColor('cHeaderText', f.headerText); }
+      updatePreview();
+      const msg = $('farbenMsg');
+      msg.textContent = '✓ Farben erfolgreich geladen!';
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 3000);
+    } else {
+      const msg = $('farbenMsg');
+      msg.textContent = '⚠ Farben konnten nicht automatisch geladen werden. Bitte manuell eingeben.';
+      msg.style.color = '#ffaa66';
+      msg.classList.remove('hidden');
+      setTimeout(() => { msg.classList.add('hidden'); msg.style.color = '#88cc88'; }, 4000);
+    }
+  } catch(e) {
+    const msg = $('farbenMsg');
+    msg.textContent = '⚠ Verbindungsfehler. Bitte manuell eingeben.';
+    msg.style.color = '#ffaa66';
+    msg.classList.remove('hidden');
+    setTimeout(() => { msg.classList.add('hidden'); msg.style.color = '#88cc88'; }, 4000);
+  }
+  btn.disabled = false;
+  btn.textContent = '🎨 Vereinsfarben automatisch laden';
+}
+
 function renderKategorien() {
   const list = $('katList');
   if (!kategorien.length) { list.innerHTML = '<span style="color:#666;font-size:13px;">Keine Kategorien vorhanden</span>'; return; }
@@ -333,19 +464,88 @@ function renderKategorien() {
   ).join('');
 }
 
-function addKatPreset(name) {
-  if (kategorien.includes(name)) return;
-  kategorien.push(name); renderKategorien();
-}
-
+function addKatPreset(name) { if (kategorien.includes(name)) return; kategorien.push(name); renderKategorien(); }
 function addKategorie() {
   const input = $('katInput'); const val = input.value.trim();
   if (!val) { showMsg('katError', 'Bitte eine Kategorie eingeben.'); return; }
   if (kategorien.includes(val)) { showMsg('katError', '"' + val + '" existiert bereits.'); return; }
   kategorien.push(val); input.value = ''; renderKategorien();
 }
-
 function removeKategorie(idx) { kategorien.splice(idx, 1); renderKategorien(); }
+
+function renderTeamZugaenge() {
+  const list = $('teamList');
+  if (!teamZugaenge.length) {
+    list.innerHTML = '<p style="color:#666;font-size:13px;margin-bottom:8px;">Noch keine Team-Zugänge vorhanden.</p>';
+    return;
+  }
+  list.innerHTML = teamZugaenge.map((t, i) => {
+    const rolleClass = t.rolle === 'admin' ? 'rolle-admin' : t.rolle === 'abtl' ? 'rolle-abtl' : 'rolle-team';
+    return `<div class="team-item">
+      <div class="team-item-info">
+        <div class="team-item-name">${t.mannschaft}</div>
+        <div class="team-item-meta">PW: ${t.passwort} &nbsp;|&nbsp; <span class="team-rolle ${rolleClass}">${t.rolle}</span></div>
+      </div>
+      <button class="btn-small btn-danger" onclick="removeTeamZugang(${i})">Löschen</button>
+    </div>`;
+  }).join('');
+}
+
+async function addTeamZugang() {
+  const mannschaft = $('tMannschaft').value.trim();
+  const rolle = $('tRolle').value;
+  const passwort = $('tPasswort').value.trim();
+  const msg = $('teamAddMsg');
+  if (!mannschaft || !passwort) { msg.textContent = 'Bitte Mannschaft und Passwort eingeben.'; msg.style.color = '#ff8888'; return; }
+  try {
+    const params = new URLSearchParams({
+      action: 'add_team_zugang', kundenId: currentKundenId,
+      mannschaft, rolle, passwort
+    });
+    const res = await fetch(`${API}?${params}`);
+    const data = await res.json();
+    if (data.success) {
+      teamZugaenge.push({ mannschaft, rolle, passwort });
+      renderTeamZugaenge();
+      $('tMannschaft').value = ''; $('tPasswort').value = '';
+      msg.textContent = '✓ Team-Zugang hinzugefügt!'; msg.style.color = '#88cc88';
+      setTimeout(() => msg.textContent = '', 3000);
+    } else { msg.textContent = data.error || 'Fehler.'; msg.style.color = '#ff8888'; }
+  } catch(e) { msg.textContent = 'Verbindungsfehler.'; msg.style.color = '#ff8888'; }
+}
+
+async function removeTeamZugang(idx) {
+  if (!confirm('Team-Zugang wirklich löschen?')) return;
+  const t = teamZugaenge[idx];
+  try {
+    const params = new URLSearchParams({
+      action: 'remove_team_zugang', kundenId: currentKundenId,
+      mannschaft: t.mannschaft
+    });
+    const res = await fetch(`${API}?${params}`);
+    const data = await res.json();
+    if (data.success) { teamZugaenge.splice(idx, 1); renderTeamZugaenge(); }
+  } catch(e) { alert('Verbindungsfehler.'); }
+}
+
+async function handlePasswortAendern() {
+  const neu = $('fNeuesPasswort').value.trim();
+  const best = $('fPasswortBestaetigen').value.trim();
+  const msg = $('passwortMsg');
+  if (!neu || !best) { msg.textContent = 'Bitte beide Felder ausfüllen.'; msg.style.color = '#ff8888'; return; }
+  if (neu !== best) { msg.textContent = 'Passwörter stimmen nicht überein.'; msg.style.color = '#ff8888'; return; }
+  if (neu.length < 6) { msg.textContent = 'Passwort muss mindestens 6 Zeichen haben.'; msg.style.color = '#ff8888'; return; }
+  try {
+    const params = new URLSearchParams({ action: 'update_passwort', kundenId: currentKundenId, passwort: neu });
+    const res = await fetch(`${API}?${params}`);
+    const data = await res.json();
+    if (data.success) {
+      msg.textContent = '✓ Passwort erfolgreich geändert!'; msg.style.color = '#88cc88';
+      $('fNeuesPasswort').value = ''; $('fPasswortBestaetigen').value = '';
+      setTimeout(() => msg.textContent = '', 4000);
+    } else { msg.textContent = data.error || 'Fehler.'; msg.style.color = '#ff8888'; }
+  } catch(e) { msg.textContent = 'Verbindungsfehler.'; msg.style.color = '#ff8888'; }
+}
 
 async function handleSave() {
   const btn = $('btnSave'); btn.innerHTML = '<span class="spinner"></span>Speichern...'; btn.disabled = true;
@@ -353,6 +553,7 @@ async function handleSave() {
     action: 'update_branding', kundenId: currentKundenId,
     Verein_Name: $('fVereinName').value, Logo_Verein: $('fLogoVerein').value,
     Logo_Sponsor: $('fLogoSponsor').value, Headline_Text: $('fHeadlineText').value,
+    Website: $('fWebsite').value,
     Thema_Farbe: $('cThema').value, Akzent_Farbe: $('cAkzent').value,
     Header_Text_Farbe: $('cHeaderText').value, Card_Hintergrund: $('cCard').value,
     Card_Rahmen: $('cRahmen').value, Tag_Farbe: $('cTag').value,
@@ -368,7 +569,8 @@ async function handleSave() {
 }
 
 function handleLogout() {
-  currentKundenId = ''; kategorien = []; $('inputPasswort').value = '';
+  currentKundenId = ''; kategorien = []; teamZugaenge = [];
+  $('inputPasswort').value = '';
   $('adminSection').classList.add('hidden'); $('loginSection').classList.remove('hidden');
 }
 
