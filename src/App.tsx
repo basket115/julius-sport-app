@@ -192,7 +192,6 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
       overflow: 'hidden',
       animation: visible ? 'none' : 'osterFadeOut 0.6s ease forwards',
     }}>
-      {/* Confetti */}
       {confetti.map((c, i) => (
         <div key={i} style={{
           position: 'absolute', top: 0,
@@ -204,8 +203,6 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
           pointerEvents: 'none',
         }} />
       ))}
-
-      {/* Card */}
       <div style={{
         background: 'rgba(255,255,255,0.95)',
         border: '2px solid #F5C842',
@@ -216,36 +213,27 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
         position: 'relative', zIndex: 10,
         animation: 'osterPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both',
       }}>
-        {/* Eggs */}
         <div style={{ fontSize: 48, marginBottom: 8, lineHeight: 1 }}>
           <span style={{ display: 'inline-block', animation: 'osterRock 1.5s ease-in-out infinite', transformOrigin: 'bottom center' }}>🥚</span>
           <span style={{ display: 'inline-block', fontSize: 64, animation: 'osterBounce 2s ease-in-out infinite', animationDelay: '0.1s' }}>🐣</span>
           <span style={{ display: 'inline-block', animation: 'osterRock 1.5s ease-in-out infinite', animationDelay: '0.3s', transformOrigin: 'bottom center' }}>🥚</span>
         </div>
-
-        {/* Frohe Ostern */}
         <div style={{
           fontSize: 12, fontWeight: 600, color: '#C4161C',
           letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4,
           animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.3s',
         }}>Frohe Ostern</div>
-
-        {/* Julius */}
         <div style={{
           fontSize: 42, fontWeight: 800, color: '#E8820A', lineHeight: 1.1,
           margin: '4px 0',
           animation: 'osterShimmer 2s ease-in-out infinite, osterFadeUp 0.8s ease both',
           animationDelay: '0s, 0.5s',
         }}>Julius! 🎉</div>
-
-        {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0' }}>
           <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to right, transparent, #F5C842)' }} />
           <span style={{ fontSize: 20 }}>🐇</span>
           <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to left, transparent, #F5C842)' }} />
         </div>
-
-        {/* Message */}
         <div style={{
           fontSize: 15, color: '#5a3a1a', lineHeight: 1.65, marginBottom: 14,
           animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.7s',
@@ -253,8 +241,6 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
           Der Osterhase hat etwas ganz Besonderes<br />
           für dich versteckt — schau mal nach! 🌟
         </div>
-
-        {/* Opa & Oma Box */}
         <div style={{
           background: '#FFF5E0', border: '1.5px solid #F5C842',
           borderRadius: 14, padding: '12px 14px', marginBottom: 14,
@@ -268,21 +254,15 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
             Du bist unser allergrößter Schatz. 🧡
           </div>
         </div>
-
-        {/* Colored circles */}
         <div style={{
           display: 'flex', justifyContent: 'center', gap: 8, fontSize: 26, marginBottom: 10,
           animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.2s',
         }}>
           🟡🟠🟣🟢🔴
         </div>
-
-        {/* Basketball touch */}
         <div style={{ fontSize: 12, color: '#bbb', animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.4s' }}>
           🏀 Dein Team freut sich auf dich!
         </div>
-
-        {/* Skip button */}
         <button
           onClick={() => { setVisible(false); setTimeout(onDone, 300); }}
           style={{
@@ -316,7 +296,6 @@ const App: React.FC = () => {
   const [teamError, setTeamError] = useState('');
   const [teamLoading, setTeamLoading] = useState(false);
 
-  // ── Oster-State ───────────────────────────────────────────────
   const [showOster, setShowOster] = useState(false);
   const [showOsterPalina, setShowOsterPalina] = useState(false);
 
@@ -382,30 +361,12 @@ const App: React.FC = () => {
           if (appleFavicon) appleFavicon.href = logoUrl;
         }
 
-        const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
-        if (manifestLink) {
-          const manifest = {
-            short_name: vereinName,
-            name: vereinName + ' App',
-            icons: [
-              { src: logoUrl || '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-              { src: logoUrl || '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-            ],
-            start_url: '/?kunde=' + kundenId,
-            display: 'standalone',
-            background_color: themaFarbe,
-            theme_color: themaFarbe
-          };
-          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-          const oldUrl = manifestLink.href;
-          manifestLink.href = URL.createObjectURL(blob);
-          if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
-        }
+        // ── Manifest wird jetzt von der Netlify Edge Function geliefert ──
+        // Kein Blob mehr nötig!
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId, kundenId);
 
-        // ── Oster-Screen nur für Julius (V003) & Palina (V003P) ──
         if (kundenId === 'V003') setShowOster(true);
         if (kundenId === 'V003P') setShowOsterPalina(true);
       }
