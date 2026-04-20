@@ -729,7 +729,7 @@
             if (!id || !pw) return;
             document.getElementById('loginError').style.display = 'none';
             try {
-                const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`);
+                const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&passwort=${encodeURIComponent(pw)}`);
                 const data = await res.json();
                 if (data.success) {
                     currentId = id; currentPw = pw;
@@ -831,7 +831,7 @@
             const st = document.getElementById('pwStatus');
             if (!p1 || p1 !== p2) { st.textContent = 'Passwörter stimmen nicht überein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
             try {
-                const res  = await fetch(`${GAS_URL}?action=changePassword&kundenId=${currentId}&oldPw=${encodeURIComponent(currentPw)}&newPw=${encodeURIComponent(p1)}`);
+                const res  = await fetch(`${GAS_URL}?action=changePassword&kundenId=${currentId}&altesPasswort=${encodeURIComponent(currentPw)}&neuesPasswort=${encodeURIComponent(p1)}`);
                 const data = await res.json();
                 if (data.success) { currentPw = p1; st.textContent = 'Passwort geändert ✓'; st.className = 'status-msg ok'; }
                 else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
@@ -841,7 +841,7 @@
 
         async function saveAll() {
             const payload = {
-                action: 'save', kundenId: currentId, pw: currentPw,
+                action: 'save', kundenId: currentId, passwort: currentPw,
                 vereinsname: document.getElementById('f_vereinsname').value.trim(),
                 website:     document.getElementById('f_website').value.trim(),
                 logo:        document.getElementById('f_logo').value.trim(),
