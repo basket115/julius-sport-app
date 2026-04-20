@@ -762,28 +762,32 @@
             ['sec_verein','sec_farben','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
                 document.getElementById(id).style.display = 'block';
             });
-            // Vereinsdaten — alle möglichen Key-Namen abdecken
-            const vname = data.vereinsname || data.Verein_Name || data.verein_name || '';
+            // Branding-Daten aus GAS laden (echte Key-Namen)
+            const b = data.branding || data;
+            const vname = b.Verein_Name || b.vereinsname || '';
             if (vname) document.getElementById('f_vereinsname').value = vname;
-            const website = data.website || data.Website || '';
+            const website = b.Website || b.website || '';
             if (website) document.getElementById('f_website').value = website;
-            const logo = data.logo || data.Logo || data.logoUrl || '';
+            const logo = b.Logo_Verein || b.logo || '';
             if (logo) { document.getElementById('f_logo').value = logo; previewLogo(); }
-            const logoSponsor = data.logoSponsor || data.Logo_Sponsor || '';
+            const logoSponsor = b.Logo_Sponsor || b.logoSponsor || '';
             if (logoSponsor) document.getElementById('f_logoSponsor').value = logoSponsor;
-            const headline = data.headline || data.Headline || data.headlineText || '';
+            const headline = b.Headline_Text || b.headline || '';
             if (headline) document.getElementById('f_headline').value = headline;
 
             const map = [
-                ['c_header','ct_header','headerBg'],['c_accent','ct_accent','accentColor'],
-                ['c_headerText','ct_headerText','headerText'],['c_cardBg','ct_cardBg','cardBg'],
-                ['c_cardBorder','ct_cardBorder','cardBorder'],['c_tag','ct_tag','tagColor']
+                ['c_header','ct_header','Thema_Farbe'],
+                ['c_accent','ct_accent','Akzent_Farbe'],
+                ['c_headerText','ct_headerText','Header_Text_Farbe'],
+                ['c_cardBg','ct_cardBg','Card_Hintergrund'],
+                ['c_cardBorder','ct_cardBorder','Card_Rahmen'],
+                ['c_tag','ct_tag','Tag_Farbe']
             ];
             map.forEach(([cId, tId, key]) => {
                 if (data[key]) { document.getElementById(cId).value = data[key]; document.getElementById(tId).value = data[key]; }
             });
-            categories = data.categories || [];
-            teams      = data.teams      || [];
+            categories = b.Kategorien || b.categories || [];
+            teams = b.teams || b.Team_Zugaenge || [];
             renderTags(); renderTeams();
         }
 
