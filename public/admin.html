@@ -736,7 +736,7 @@
                     document.getElementById('loginWrap').style.display = 'none';
                     document.getElementById('adminPanel').style.display = 'block';
                     document.getElementById('logoutBtn').style.display = 'block';
-                    loadData(data);
+                    loadBranding();
                 } else {
                     document.getElementById('loginError').style.display = 'block';
                 }
@@ -746,16 +746,33 @@
             }
         }
 
+        async function loadBranding() {
+            document.getElementById("loadingMsg").textContent = "Lade Daten...";
+            try {
+                const res  = await fetch(`${GAS_URL}?action=get_branding&kundenId=${encodeURIComponent(currentId)}`);
+                const data = await res.json();
+                loadData(data.success ? data : {});
+            } catch(e) {
+                loadData({});
+            }
+        }
+
         function loadData(data) {
             document.getElementById('loadingMsg').style.display = 'none';
             ['sec_verein','sec_farben','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
                 document.getElementById(id).style.display = 'block';
             });
-            if (data.vereinsname)  document.getElementById('f_vereinsname').value  = data.vereinsname;
-            if (data.website)      document.getElementById('f_website').value      = data.website;
-            if (data.logo)       { document.getElementById('f_logo').value = data.logo; previewLogo(); }
-            if (data.logoSponsor)  document.getElementById('f_logoSponsor').value  = data.logoSponsor;
-            if (data.headline)     document.getElementById('f_headline').value     = data.headline;
+            // Vereinsdaten — alle möglichen Key-Namen abdecken
+            const vname = data.vereinsname || data.Verein_Name || data.verein_name || '';
+            if (vname) document.getElementById('f_vereinsname').value = vname;
+            const website = data.website || data.Website || '';
+            if (website) document.getElementById('f_website').value = website;
+            const logo = data.logo || data.Logo || data.logoUrl || '';
+            if (logo) { document.getElementById('f_logo').value = logo; previewLogo(); }
+            const logoSponsor = data.logoSponsor || data.Logo_Sponsor || '';
+            if (logoSponsor) document.getElementById('f_logoSponsor').value = logoSponsor;
+            const headline = data.headline || data.Headline || data.headlineText || '';
+            if (headline) document.getElementById('f_headline').value = headline;
 
             const map = [
                 ['c_header','ct_header','headerBg'],['c_accent','ct_accent','accentColor'],
