@@ -729,7 +729,7 @@
             if (!id || !pw) return;
             document.getElementById('loginError').style.display = 'none';
             try {
-                const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&passwort=${encodeURIComponent(pw)}`);
+                const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`);
                 const data = await res.json();
                 if (data.success) {
                     currentId = id; currentPw = pw;
@@ -780,7 +780,7 @@
             const website = document.getElementById('f_website').value.trim();
             if (!website) { alert('Bitte zuerst eine Website-URL eingeben.'); return; }
             try {
-                const res  = await fetch(`${GAS_URL}?action=fetchColors&url=${encodeURIComponent(website)}`);
+                const res  = await fetch(`${GAS_URL}?action=get_website_farben&url=${encodeURIComponent(website)}`);
                 const data = await res.json();
                 if (data.primary) { document.getElementById('c_header').value = data.primary; document.getElementById('ct_header').value = data.primary; }
                 if (data.accent)  { document.getElementById('c_accent').value  = data.accent;  document.getElementById('ct_accent').value  = data.accent; }
@@ -831,7 +831,7 @@
             const st = document.getElementById('pwStatus');
             if (!p1 || p1 !== p2) { st.textContent = 'Passwörter stimmen nicht überein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
             try {
-                const res  = await fetch(`${GAS_URL}?action=changePassword&kundenId=${currentId}&altesPasswort=${encodeURIComponent(currentPw)}&neuesPasswort=${encodeURIComponent(p1)}`);
+                const res  = await fetch(`${GAS_URL}?action=update_passwort&kundenId=${currentId}&passwort=${encodeURIComponent(p1)}`);
                 const data = await res.json();
                 if (data.success) { currentPw = p1; st.textContent = 'Passwort geändert ✓'; st.className = 'status-msg ok'; }
                 else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
@@ -841,7 +841,7 @@
 
         async function saveAll() {
             const payload = {
-                action: 'save', kundenId: currentId, passwort: currentPw,
+                action: 'update_branding', kundenId: currentId, password: currentPw,
                 vereinsname: document.getElementById('f_vereinsname').value.trim(),
                 website:     document.getElementById('f_website').value.trim(),
                 logo:        document.getElementById('f_logo').value.trim(),
