@@ -862,20 +862,20 @@
 
         async function saveAll() {
             const payload = {
-                action: 'update_branding', kundenId: currentId, password: currentPw,
-                vereinsname: document.getElementById('f_vereinsname').value.trim(),
-                website:     document.getElementById('f_website').value.trim(),
-                logo:        document.getElementById('f_logo').value.trim(),
-                logoSponsor: document.getElementById('f_logoSponsor').value.trim(),
-                headline:    document.getElementById('f_headline').value.trim(),
-                headerBg:    document.getElementById('ct_header').value,
-                accentColor: document.getElementById('ct_accent').value,
-                headerText:  document.getElementById('ct_headerText').value,
-                cardBg:      document.getElementById('ct_cardBg').value,
-                cardBorder:  document.getElementById('ct_cardBorder').value,
-                tagColor:    document.getElementById('ct_tag').value,
-                categories:  JSON.stringify(categories),
-                teams:       JSON.stringify(teams)
+                action: 'update_branding', kundenId: currentId,
+                Verein_Name:        document.getElementById('f_vereinsname').value.trim(),
+                Website:            document.getElementById('f_website').value.trim(),
+                Logo_Verein:        document.getElementById('f_logo').value.trim(),
+                Logo_Sponsor:       document.getElementById('f_logoSponsor').value.trim(),
+                Headline_Text:      document.getElementById('f_headline').value.trim(),
+                Thema_Farbe:        document.getElementById('ct_header').value,
+                Akzent_Farbe:       document.getElementById('ct_accent').value,
+                Header_Text_Farbe:  document.getElementById('ct_headerText').value,
+                Card_Hintergrund:   document.getElementById('ct_cardBg').value,
+                Card_Rahmen:        document.getElementById('ct_cardBorder').value,
+                Tag_Farbe:          document.getElementById('ct_tag').value,
+                Kategorien:         JSON.stringify(categories),
+                Team_Zugaenge:      JSON.stringify(teams)
             };
             const st = document.getElementById('saveStatus');
             st.textContent = 'Wird gespeichert...'; st.className = 'status-msg'; st.style.display = 'block';
