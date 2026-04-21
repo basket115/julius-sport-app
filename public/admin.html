@@ -786,7 +786,8 @@
             map.forEach(([cId, tId, key]) => {
                 if (data[key]) { document.getElementById(cId).value = data[key]; document.getElementById(tId).value = data[key]; }
             });
-            categories = b.Kategorien || b.categories || [];
+            const rawKat = b.Kategorien || b.categories || '';
+            categories = Array.isArray(rawKat) ? rawKat : (rawKat ? rawKat.split(',').map(k => k.trim()).filter(k => k) : []);
             teams = b.teams || b.Team_Zugaenge || [];
             renderTags(); renderTeams();
         }
@@ -874,7 +875,7 @@
                 Card_Hintergrund:   document.getElementById('ct_cardBg').value,
                 Card_Rahmen:        document.getElementById('ct_cardBorder').value,
                 Tag_Farbe:          document.getElementById('ct_tag').value,
-                Kategorien:         JSON.stringify(categories),
+                Kategorien:         categories.join(','),
                 Team_Zugaenge:      JSON.stringify(teams)
             };
             const st = document.getElementById('saveStatus');
