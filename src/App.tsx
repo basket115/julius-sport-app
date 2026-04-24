@@ -23,10 +23,11 @@ const API_EXEC_URL =
 // ── Google Drive URL Auto-Konvertierung ───────────────────────
 export function fixGoogleDriveUrl(url: string): string {
   if (!url) return url;
-  return url.replace(
-    /https?:\/\/drive\.google\.com\/file\/d\/([^/?#]+)[^"]*/g,
-    'https://drive.google.com/file/d/$1/preview'
-  );
+  const match = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if (match) {
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  }
+  return url;
 }
 
 // ── OneSignal ─────────────────────────────────────────────────
