@@ -1,4 +1,4 @@
-// src/App.tsx — OneSignal mit kundenId-Tag
+// src/App.tsx — OneSignal mit kundenId-Tag + Passwort-Augen-Symbol
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -75,6 +75,69 @@ function initOneSignal(appId: string, kundenId: string) {
   `;
   document.head.appendChild(style);
 })();
+
+// ── Augen-Input Komponente ────────────────────────────────────
+const PasswordInput: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+  onEnter?: () => void;
+  placeholder?: string;
+}> = ({ value, onChange, onEnter, placeholder = 'Passwort eingeben' }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <input
+        type={show ? 'text' : 'password'}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e: any) => onChange(e.target.value)}
+        onKeyDown={(e: any) => e.key === 'Enter' && onEnter && onEnter()}
+        style={{
+          width: '100%',
+          padding: '13px 48px 13px 16px',
+          borderRadius: 10,
+          border: 'none',
+          fontSize: 16,
+          fontFamily: 'inherit',
+          boxSizing: 'border-box' as const,
+        }}
+      />
+      <button
+        onClick={() => setShow(s => !s)}
+        style={{
+          position: 'absolute',
+          right: 12,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: 20,
+          color: '#888',
+          padding: 4,
+          lineHeight: 1,
+        }}
+        tabIndex={-1}
+        type="button"
+      >
+        {show ? (
+          // Auge-zu Icon
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        ) : (
+          // Auge-auf Icon
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+};
 
 // ── Oster-Screen Palina ───────────────────────────────────────
 const OsterScreenPalina: React.FC<{ onDone: () => void }> = ({ onDone }) => {
@@ -157,15 +220,11 @@ const OsterScreenPalina: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   );
 };
 
-// ── Oster-Screen für Julius ────────────────────────────────────
+// ── Oster-Screen Julius ───────────────────────────────────────
 const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const [visible, setVisible] = useState(true);
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisible(false);
-      setTimeout(onDone, 600);
-    }, 8000);
+    const timer = setTimeout(() => { setVisible(false); setTimeout(onDone, 600); }, 8000);
     return () => clearTimeout(timer);
   }, [onDone]);
 
@@ -194,22 +253,16 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
     }}>
       {confetti.map((c, i) => (
         <div key={i} style={{
-          position: 'absolute', top: 0,
-          left: c.left, width: c.w, height: c.h,
-          background: c.bg,
-          borderRadius: c.round ? '50%' : '2px',
-          animation: `osterFall ${c.dur} linear infinite`,
-          animationDelay: c.delay,
+          position: 'absolute', top: 0, left: c.left, width: c.w, height: c.h,
+          background: c.bg, borderRadius: c.round ? '50%' : '2px',
+          animation: `osterFall ${c.dur} linear infinite`, animationDelay: c.delay,
           pointerEvents: 'none',
         }} />
       ))}
       <div style={{
-        background: 'rgba(255,255,255,0.95)',
-        border: '2px solid #F5C842',
-        borderRadius: 24,
-        padding: '2rem 2rem 1.5rem',
-        maxWidth: 340, width: '88%',
-        textAlign: 'center',
+        background: 'rgba(255,255,255,0.95)', border: '2px solid #F5C842',
+        borderRadius: 24, padding: '2rem 2rem 1.5rem',
+        maxWidth: 340, width: '88%', textAlign: 'center',
         position: 'relative', zIndex: 10,
         animation: 'osterPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both',
       }}>
@@ -218,58 +271,24 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
           <span style={{ display: 'inline-block', fontSize: 64, animation: 'osterBounce 2s ease-in-out infinite', animationDelay: '0.1s' }}>🐣</span>
           <span style={{ display: 'inline-block', animation: 'osterRock 1.5s ease-in-out infinite', animationDelay: '0.3s', transformOrigin: 'bottom center' }}>🥚</span>
         </div>
-        <div style={{
-          fontSize: 12, fontWeight: 600, color: '#C4161C',
-          letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4,
-          animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.3s',
-        }}>Frohe Ostern</div>
-        <div style={{
-          fontSize: 42, fontWeight: 800, color: '#E8820A', lineHeight: 1.1,
-          margin: '4px 0',
-          animation: 'osterShimmer 2s ease-in-out infinite, osterFadeUp 0.8s ease both',
-          animationDelay: '0s, 0.5s',
-        }}>Julius! 🎉</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#C4161C', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.3s' }}>Frohe Ostern</div>
+        <div style={{ fontSize: 42, fontWeight: 800, color: '#E8820A', lineHeight: 1.1, margin: '4px 0', animation: 'osterShimmer 2s ease-in-out infinite, osterFadeUp 0.8s ease both', animationDelay: '0s, 0.5s' }}>Julius! 🎉</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0' }}>
           <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to right, transparent, #F5C842)' }} />
           <span style={{ fontSize: 20 }}>🐇</span>
           <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(to left, transparent, #F5C842)' }} />
         </div>
-        <div style={{
-          fontSize: 15, color: '#5a3a1a', lineHeight: 1.65, marginBottom: 14,
-          animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.7s',
-        }}>
-          Der Osterhase hat etwas ganz Besonderes<br />
-          für dich versteckt — schau mal nach! 🌟
+        <div style={{ fontSize: 15, color: '#5a3a1a', lineHeight: 1.65, marginBottom: 14, animation: 'osterFadeUp 0.8s ease both', animationDelay: '0.7s' }}>
+          Der Osterhase hat etwas ganz Besonderes<br />für dich versteckt — schau mal nach! 🌟
         </div>
-        <div style={{
-          background: '#FFF5E0', border: '1.5px solid #F5C842',
-          borderRadius: 14, padding: '12px 14px', marginBottom: 14,
-          animation: 'osterFadeUp 0.8s ease both', animationDelay: '1s',
-        }}>
-          <div style={{ fontSize: 12, color: '#8B6914', fontWeight: 600, marginBottom: 4 }}>
-            💌 Von Opa &amp; Oma
-          </div>
-          <div style={{ fontSize: 14, color: '#5a3a1a', lineHeight: 1.6 }}>
-            Wir sind so stolz auf dich, Julius!<br />
-            Du bist unser allergrößter Schatz. 🧡
-          </div>
+        <div style={{ background: '#FFF5E0', border: '1.5px solid #F5C842', borderRadius: 14, padding: '12px 14px', marginBottom: 14, animation: 'osterFadeUp 0.8s ease both', animationDelay: '1s' }}>
+          <div style={{ fontSize: 12, color: '#8B6914', fontWeight: 600, marginBottom: 4 }}>💌 Von Opa &amp; Oma</div>
+          <div style={{ fontSize: 14, color: '#5a3a1a', lineHeight: 1.6 }}>Wir sind so stolz auf dich, Julius!<br />Du bist unser allergrößter Schatz. 🧡</div>
         </div>
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: 8, fontSize: 26, marginBottom: 10,
-          animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.2s',
-        }}>
-          🟡🟠🟣🟢🔴
-        </div>
-        <div style={{ fontSize: 12, color: '#bbb', animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.4s' }}>
-          🏀 Dein Team freut sich auf dich!
-        </div>
-        <button
-          onClick={() => { setVisible(false); setTimeout(onDone, 300); }}
-          style={{
-            marginTop: 16, background: 'transparent', border: '1px solid #ddd',
-            borderRadius: 8, padding: '6px 18px', fontSize: 12, color: '#aaa',
-            cursor: 'pointer', fontFamily: 'inherit',
-          }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, fontSize: 26, marginBottom: 10, animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.2s' }}>🟡🟠🟣🟢🔴</div>
+        <div style={{ fontSize: 12, color: '#bbb', animation: 'osterFadeUp 0.8s ease both', animationDelay: '1.4s' }}>🏀 Dein Team freut sich auf dich!</div>
+        <button onClick={() => { setVisible(false); setTimeout(onDone, 300); }}
+          style={{ marginTop: 16, background: 'transparent', border: '1px solid #ddd', borderRadius: 8, padding: '6px 18px', fontSize: 12, color: '#aaa', cursor: 'pointer', fontFamily: 'inherit' }}>
           Weiter →
         </button>
       </div>
@@ -320,8 +339,8 @@ const App: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setBranding(data.branding);
-        const vereinName = data.branding?.Verein_Name || 'Sport App';
-        const logoUrl = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
+        const vereinName      = data.branding?.Verein_Name || 'Sport App';
+        const logoUrl         = data.branding?.Logo_Verein || data.branding?.Logo_verein || '';
         const themaFarbe      = data.branding?.Thema_Farbe       || '#111111';
         const akzentFarbe     = data.branding?.Akzent_Farbe      || '#C8611A';
         const headerTextFarbe = data.branding?.Header_Text_Farbe || '#FFFFFF';
@@ -360,9 +379,6 @@ const App: React.FC = () => {
           if (favicon) favicon.href = logoUrl;
           if (appleFavicon) appleFavicon.href = logoUrl;
         }
-
-        // ── Manifest wird jetzt von der Netlify Edge Function geliefert ──
-        // Kein Blob mehr nötig!
 
         const osAppId = data.branding?.OneSignal_App_ID || '';
         if (osAppId) initOneSignal(osAppId, kundenId);
@@ -457,11 +473,6 @@ const App: React.FC = () => {
   const themaFarbe      = branding?.Thema_Farbe       || '#111111';
   const akzentFarbe     = branding?.Akzent_Farbe      || '#C8611A';
   const headerTextFarbe = branding?.Header_Text_Farbe || '#FFFFFF';
-  const cardHintergrund = branding?.Card_Hintergrund  || '#F4F0E8';
-  const cardRahmen      = branding?.Card_Rahmen       || themaFarbe;
-  const tagFarbe        = branding?.Tag_Farbe         || akzentFarbe;
-  const tagTextFarbe    = branding?.Tag_Text_Farbe    || '#FFFFFF';
-  const iconBarAktiv    = branding?.IconBar_Aktiv     || akzentFarbe;
   const logoUrl         = branding?.Logo_verein       || branding?.Logo_Verein || '';
 
   if (loading || !teamLoginChecked) {
@@ -472,6 +483,7 @@ const App: React.FC = () => {
     );
   }
 
+  // ── Team-Login Screen ─────────────────────────────────────
   if (hasTeamLogin && showTeamLogin && !teamLoginDone) {
     return (
       <IonApp>
@@ -480,10 +492,11 @@ const App: React.FC = () => {
             {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />}
             <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>{branding?.Verein_Name || 'Sport App'}</h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Bitte mit deinem Team-Passwort einloggen</p>
-            <input type="password" placeholder="Passwort eingeben" value={teamPassword}
-              onChange={(e: any) => setTeamPassword(e.target.value)}
-              onKeyDown={(e: any) => e.key === 'Enter' && handleTeamLogin()}
-              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+            <PasswordInput
+              value={teamPassword}
+              onChange={setTeamPassword}
+              onEnter={handleTeamLogin}
+            />
             {teamError && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{teamError}</p>}
             <button onClick={handleTeamLogin} disabled={teamLoading}
               style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit', opacity: teamLoading ? 0.7 : 1 }}>
@@ -495,6 +508,7 @@ const App: React.FC = () => {
     );
   }
 
+  // ── Admin-Login Screen ────────────────────────────────────
   if (isAdmin && showLogin && !isAuthenticated) {
     return (
       <IonApp>
@@ -503,10 +517,11 @@ const App: React.FC = () => {
             {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain', background: 'rgba(255,255,255,0.15)', padding: 8 }} />}
             <h2 style={{ color: headerTextFarbe, fontWeight: 900, fontSize: 28, margin: 0, textAlign: 'center' }}>{branding?.Verein_Name || 'Admin Login'}</h2>
             <p style={{ color: 'rgba(255,255,255,0.65)', margin: 0, fontSize: 14 }}>Admin Login</p>
-            <input type="password" placeholder="Passwort eingeben" value={password}
-              onChange={(e: any) => setPassword(e.target.value)}
-              onKeyDown={(e: any) => e.key === 'Enter' && handleLogin()}
-              style={{ width: '100%', padding: '13px 16px', borderRadius: 10, border: 'none', fontSize: 16, fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+            <PasswordInput
+              value={password}
+              onChange={setPassword}
+              onEnter={handleLogin}
+            />
             {error && <p style={{ color: '#ffcccc', margin: 0, fontSize: 14 }}>{error}</p>}
             <button onClick={handleLogin}
               style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: akzentFarbe, color: '#FFFFFF', fontWeight: 700, fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -526,7 +541,12 @@ const App: React.FC = () => {
     <BrandingContext.Provider value={{
       branding, loading, reload, isAuthenticated,
       teamRolle, teamMannschaft, teamId, teamLoginDone, handleTeamLogout,
-      themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, tagFarbe, tagTextFarbe, iconBarAktiv,
+      themaFarbe, akzentFarbe, headerTextFarbe,
+      cardHintergrund: branding?.Card_Hintergrund || '#F4F0E8',
+      cardRahmen: branding?.Card_Rahmen || branding?.Thema_Farbe || '#111111',
+      tagFarbe: branding?.Tag_Farbe || branding?.Akzent_Farbe || '#C8611A',
+      tagTextFarbe: branding?.Tag_Text_Farbe || '#FFFFFF',
+      iconBarAktiv: branding?.IconBar_Aktiv || branding?.Akzent_Farbe || '#C8611A',
     }}>
       <IonApp>
         {showOster && <OsterScreen onDone={() => setShowOster(false)} />}
