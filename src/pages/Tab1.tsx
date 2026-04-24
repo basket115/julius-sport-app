@@ -594,11 +594,11 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       <AppHeader title={b?.Verein_Name || 'Sport App'} logoUrl={logoUrl} sponsorLogoUrl={sponsorLogoUrl} themaFarbe={themaFarbe} onRefresh={reload} loading={loading} onAdminClick={onAdminClick} />
       {newsContent}
       <div style={{ background: themaFarbe, padding: '14px 16px', display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap' as const, flexShrink: 0 }}>
-        <a href="/nutzungsbedingungen" target="_blank" rel="noopener noreferrer"
+        <a href="https://app.onlang.de/nutzungsbedingungen" target="_blank" rel="noopener noreferrer"
           style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, textDecoration: 'none', fontWeight: 500 }}>
           📋 Nutzungsbedingungen
         </a>
-        <a href="/bildverwaltung" target="_blank" rel="noopener noreferrer"
+        <a href="https://app.onlang.de/bildverwaltung" target="_blank" rel="noopener noreferrer"
           style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, textDecoration: 'none', fontWeight: 500 }}>
           📸 Bildverwaltung
         </a>
