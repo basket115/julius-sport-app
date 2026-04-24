@@ -102,6 +102,17 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
   );
 };
 
+// ─── Cloudinary URL Optimierung ──────────────────────────────
+function optimizeImageUrl(url: string): string {
+  if (!url) return url;
+  // Cloudinary: automatisch 16:9 zentriert mit KI-Gesichtserkennung
+  if (url.includes('cloudinary.com')) {
+    return url.replace('/upload/', '/upload/c_fill,w_1200,h_675,g_auto,q_auto,f_auto/');
+  }
+  // Google Drive fix
+  return fixGoogleDriveUrl(url);
+}
+
 // ─── Cloudinary Upload ────────────────────────────────────────
 const CLOUDINARY_CLOUD = 'dhn90jugp';
 const CLOUDINARY_PRESET = 'onlang_upload';
@@ -547,7 +558,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               )}
               {beitrag.Bild_URL && (
                 <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
-                  <img src={beitrag.Bild_URL} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
+                  <img src={optimizeImageUrl(beitrag.Bild_URL)} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
                 </div>
               )}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
