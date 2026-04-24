@@ -102,6 +102,53 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
   );
 };
 
+// ─── Cloudinary Upload ────────────────────────────────────────
+const CLOUDINARY_CLOUD = 'dhn90jugp';
+const CLOUDINARY_PRESET = 'onlang_upload';
+
+async function uploadToCloudinary(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST', body: formData,
+  });
+  const data = await res.json();
+  if (data.secure_url) return data.secure_url;
+  throw new Error('Upload fehlgeschlagen');
+}
+
+const BildUploadButton: React.FC<{
+  onUploaded: (url: string) => void;
+  akzentFarbe: string;
+  cardRahmen: string;
+}> = ({ onUploaded, akzentFarbe, cardRahmen }) => {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const handleFile = async (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true); setError('');
+    try {
+      const url = await uploadToCloudinary(file);
+      onUploaded(url);
+    } catch {
+      setError('Upload fehlgeschlagen. Bitte nochmal versuchen.');
+    } finally { setUploading(false); }
+  };
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
+      <button onClick={() => inputRef.current?.click()} disabled={uploading}
+        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: `2px dashed ${cardRahmen}`, background: uploading ? '#f5f5f5' : 'white', color: uploading ? '#aaa' : akzentFarbe, fontWeight: 700, fontSize: 14, cursor: uploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        {uploading ? '⏳ Bild wird hochgeladen...' : '📁 Bild vom Computer hochladen'}
+      </button>
+      {error && <p style={{ color: 'red', fontSize: 13, margin: '4px 0 0' }}>{error}</p>}
+    </div>
+  );
+};
+
 // ─── Info Popup ───────────────────────────────────────────────
 const InfoPopup: React.FC<{ onClose: () => void; akzentFarbe: string }> = ({ onClose, akzentFarbe }) => (
   <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
@@ -239,6 +286,7 @@ const EditPopup: React.FC<{
             <textarea value={text} onChange={(e: any) => setText(e.target.value)} rows={5} style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111', resize: 'vertical' as const }} /></div>
           <div><label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Bild URL (Imgur oder Google Drive)</label>
             <input value={bildUrl} onChange={(e: any) => setBildUrl(e.target.value)} placeholder="https://i.imgur.com/... oder Google Drive Link" style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }} />
+            <BildUploadButton onUploaded={(url) => setBildUrl(url)} akzentFarbe={akzentFarbe} cardRahmen={cardRahmen} />
             {bildUrl && <img src={fixGoogleDriveUrl(bildUrl)} alt="Vorschau" style={{ marginTop: 8, width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }} />}</div>
           <div><label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>▶ YouTube URL</label>
             <input value={videoUrl} onChange={(e: any) => setVideoUrl(e.target.value)} placeholder="https://youtube.com/..." style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }} /></div>
@@ -453,6 +501,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               style={{ width: '100%', padding: 10, paddingRight: 44, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
             <button onClick={() => setShowBildInfo(true)} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 28, height: 28, borderRadius: '50%', border: `2px solid ${cardRahmen}`, background: 'white', color: '#888', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</button>
           </div>
+          <BildUploadButton onUploaded={(url) => setBildUrl(url)} akzentFarbe={akzentFarbe} cardRahmen={cardRahmen} />
           <input placeholder="▶ YouTube URL (optional)" value={videoUrl} onChange={(e: any) => setVideoUrl(e.target.value)}
             style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `1px solid ${cardRahmen}`, boxSizing: 'border-box' as const, color: '#111' }} />
           {isTeam && teamMannschaft ? (
