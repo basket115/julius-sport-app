@@ -1,4 +1,4 @@
-// src/App.tsx — v3: ReadOnly-Fix + Drive-URL-Fix + Augen-Symbol
+// src/App.tsx — v4: Zahnrad bei ALLEN Versionen (ReadOnly + Admin)
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -283,10 +283,6 @@ const App: React.FC = () => {
     } catch { setError('Login Fehler'); }
   };
 
-  // ── ReadOnly-Check: Zahnrad nur für Admin-IDs ─────────────
-  const isReadOnly = String(branding?.ReadOnly || '').toUpperCase() === 'TRUE';
-  const isAdmin = !isReadOnly;
-
   const themaFarbe      = branding?.Thema_Farbe       || '#111111';
   const akzentFarbe     = branding?.Akzent_Farbe      || '#C8611A';
   const headerTextFarbe = branding?.Header_Text_Farbe || '#FFFFFF';
@@ -321,8 +317,8 @@ const App: React.FC = () => {
     );
   }
 
-  // ── Admin-Login Screen ────────────────────────────────────
-  if (isAdmin && showLogin && !isAuthenticated) {
+  // ── Admin-Login Screen (bei ALLEN Versionen — auch ReadOnly) ──
+  if (showLogin && !isAuthenticated) {
     return (
       <IonApp>
         <div style={{ minHeight: '100vh', background: themaFarbe, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -360,7 +356,8 @@ const App: React.FC = () => {
       <IonApp>
         {showOster && <OsterScreen onDone={() => setShowOster(false)} />}
         {showOsterPalina && <OsterScreenPalina onDone={() => setShowOsterPalina(false)} />}
-        <Tab1 onAdminClick={isAdmin ? () => setShowLogin(true) : undefined} />
+        {/* ✅ NEU: Zahnrad bei ALLEN Versionen — auch ReadOnly (V055 etc.) */}
+        <Tab1 onAdminClick={() => setShowLogin(true)} />
       </IonApp>
     </BrandingContext.Provider>
   );
