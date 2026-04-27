@@ -5,18 +5,15 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRH
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
 
+  // kundenId aus URL-Parameter
   let kundenId = url.searchParams.get("kunde") || "";
 
-  if (!kundenId) {
-    const cookieHeader = request.headers.get("cookie") || "";
-    const cookieMatch = cookieHeader.match(/kundenId=([^;]+)/);
-    kundenId = cookieMatch?.[1] || "";
-  }
-
+  // Fallback: aus Referer
   if (!kundenId) {
     const referer = request.headers.get("referer") || "";
     try {
-      kundenId = new URL(referer).searchParams.get("kunde") || "";
+      const refMatch = new URL(referer).searchParams.get("kunde");
+      if (refMatch) kundenId = refMatch;
     } catch (e) {}
   }
 
@@ -31,31 +28,31 @@ export default async (request: Request, context: Context) => {
       const data = await res.json();
       if (data.success && data.branding) {
         const b = data.branding;
-        name = b.Verein_Name || "ONLANG";
-        logo = b.Logo_Verein || b.Logo_verein || "/logo.png";
-        farbe = b.Thema_Farbe || "#111111";
-        startUrl = "/?kunde=" + kundenId;
+        name     = b.Verein_Name  || "ONLANG";
+        logo     = b.Logo_Verein  || b.Logo_verein || "/logo.png";
+        farbe    = b.Thema_Farbe  || "#111111";
+        startUrl = `/?kunde=${kundenId}`;
       }
     } catch (e) {}
   }
 
   const manifest = {
     short_name: name,
-    name: name,
+    name: name + " App",
     icons: [
-      { src: logo, sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: logo, sizes: "512x512", type: "image/png", purpose: "maskable" }
+      { src: logo, sizes: "192x192", type: "image/png", purpose: "any"       },
+      { src: logo, sizes: "512x512", type: "image/png", purpose: "maskable"  }
     ],
-    start_url: startUrl,
-    display: "standalone",
+    start_url:        startUrl,
+    display:          "standalone",
     background_color: farbe,
-    theme_color: farbe
+    theme_color:      farbe
   };
 
   return new Response(JSON.stringify(manifest), {
     headers: {
-      "content-type": "application/manifest+json",
-      "cache-control": "no-cache, no-store"
+      "content-type":  "application/manifest+json",
+      "cache-control": "no-cache, no-store, must-revalidate"
     }
   });
 };
