@@ -25,7 +25,6 @@
             min-height: 100vh;
         }
 
-        /* NAV */
         nav {
             padding: 16px 40px;
             display: flex;
@@ -75,7 +74,6 @@
         }
         #logoutBtn:hover { background: rgba(255,255,255,0.18); }
 
-        /* LOGIN */
         .login-wrap {
             display: flex;
             align-items: center;
@@ -95,9 +93,7 @@
             text-align: center;
         }
 
-        .login-logo {
-            margin-bottom: 20px;
-        }
+        .login-logo { margin-bottom: 20px; }
         .login-logo img {
             height: 56px;
             width: 56px;
@@ -161,7 +157,6 @@
             display: none;
         }
 
-        /* ADMIN PANEL */
         #adminPanel {
             display: none;
             max-width: 780px;
@@ -176,7 +171,6 @@
             margin-bottom: 28px;
         }
 
-        /* SECTION CARDS */
         .section-card {
             background: var(--white);
             border: 1px solid var(--border);
@@ -196,9 +190,7 @@
             gap: 8px;
         }
 
-        .field {
-            margin-bottom: 16px;
-        }
+        .field { margin-bottom: 16px; }
 
         .field label {
             display: block;
@@ -228,7 +220,6 @@
             margin-top: 5px;
         }
 
-        /* Logo preview */
         #logoPreviewImg {
             max-height: 56px;
             max-width: 180px;
@@ -239,11 +230,7 @@
             margin-top: 8px;
         }
 
-        /* Website + fetch button */
-        .input-btn-row {
-            display: flex;
-            gap: 8px;
-        }
+        .input-btn-row { display: flex; gap: 8px; }
         .input-btn-row input { flex: 1; }
         .btn-fetch {
             background: var(--bg);
@@ -259,7 +246,6 @@
         }
         .btn-fetch:hover { border-color: var(--accent); }
 
-        /* IMGUR GUIDE */
         .collapsible-label {
             cursor: pointer;
             display: flex;
@@ -285,11 +271,7 @@
             font-size: 0.82rem;
             line-height: 1.7;
         }
-        .imgur-step {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 7px;
-        }
+        .imgur-step { display: flex; gap: 10px; margin-bottom: 7px; }
         .step-num {
             background: var(--dark);
             color: #fff;
@@ -311,7 +293,6 @@
             line-height: 1.5;
         }
 
-        /* COLOR GRID */
         .color-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -325,11 +306,7 @@
             display: block;
             margin-bottom: 6px;
         }
-        .color-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .color-row { display: flex; align-items: center; gap: 8px; }
         .color-row input[type="color"] {
             width: 38px; height: 36px;
             border: 1.5px solid var(--border);
@@ -351,7 +328,6 @@
         }
         .color-row input[type="text"]:focus { border-color: var(--accent); }
 
-        /* TAGS */
         .tag-list {
             display: flex;
             flex-wrap: wrap;
@@ -381,17 +357,9 @@
         }
         .tag-pill button:hover { color: #fff; }
 
-        .empty-tags {
-            font-size: 0.82rem;
-            color: var(--muted);
-        }
+        .empty-tags { font-size: 0.82rem; color: var(--muted); }
 
-        .quick-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            margin-bottom: 14px;
-        }
+        .quick-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
         .quick-chip {
             background: var(--bg);
             border: 1.5px solid var(--border);
@@ -404,10 +372,7 @@
         }
         .quick-chip:hover { border-color: var(--accent); color: var(--accent); }
 
-        .add-row {
-            display: flex;
-            gap: 8px;
-        }
+        .add-row { display: flex; gap: 8px; }
         .add-row input {
             flex: 1;
             padding: 9px 12px;
@@ -432,7 +397,6 @@
             cursor: pointer;
         }
 
-        /* TEAM */
         .team-list { margin-bottom: 14px; }
         .team-item {
             background: var(--bg);
@@ -457,7 +421,6 @@
             font-family: 'DM Sans', sans-serif;
         }
 
-        /* BUTTONS */
         .btn-primary {
             background: var(--dark);
             color: var(--white);
@@ -473,7 +436,6 @@
         .btn-primary:hover { background: #222; }
         .btn-full { width: 100%; }
 
-        /* STATUS */
         .status-msg {
             text-align: center;
             font-size: 0.82rem;
@@ -516,7 +478,6 @@
         <button id="logoutBtn" onclick="logout()">Abmelden</button>
     </nav>
 
-    <!-- LOGIN -->
     <div class="login-wrap" id="loginWrap">
         <div class="login-card">
             <div class="login-logo">
@@ -532,33 +493,28 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
     <div id="adminPanel">
         <div id="loadingMsg">Laden...</div>
 
-        <!-- VEREIN -->
         <div class="section-card" id="sec_verein" style="display:none">
             <h3>🏛️ Verein</h3>
-
             <div class="field">
                 <label>Vereinsname</label>
                 <input type="text" id="f_vereinsname" placeholder="z.B. Basketball Club Muster" />
             </div>
-
             <div class="field">
                 <label>Website — Farben automatisch laden</label>
                 <div class="input-btn-row">
                     <input type="url" id="f_website" placeholder="https://dein-verein.de" />
                     <button class="btn-fetch" onclick="fetchColors()">🎨 Laden</button>
                 </div>
+                <div class="hint" id="fetchStatus"></div>
             </div>
-
             <div class="field">
                 <label>Logo URL</label>
                 <input type="url" id="f_logo" placeholder="https://i.imgur.com/xxxxx.png" oninput="previewLogo()" />
                 <img id="logoPreviewImg" src="" alt="Logo Vorschau" />
             </div>
-
             <div class="collapsible-label" onclick="toggleCollapse('imgurGuide','imgurCaret')">
                 <span>📷 Wie bekomme ich einen Logo-Link?</span>
                 <span class="caret" id="imgurCaret">▼</span>
@@ -572,19 +528,16 @@
                     <div class="imgur-warning">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button verwenden — immer Rechtsklick direkt auf das Bild → Bildadresse kopieren.</div>
                 </div>
             </div>
-
             <div class="field" style="margin-top:14px">
                 <label>Logo Sponsor (optional)</label>
                 <input type="url" id="f_logoSponsor" placeholder="https://..." />
             </div>
-
             <div class="field">
                 <label>Headline Text (optional)</label>
                 <input type="text" id="f_headline" placeholder="z.B. Willkommen beim BC Muster!" />
             </div>
         </div>
 
-        <!-- FARBEN -->
         <div class="section-card" id="sec_farben" style="display:none">
             <h3>🎨 Farben</h3>
             <div class="color-grid">
@@ -633,29 +586,25 @@
             </div>
         </div>
 
-        <!-- KATEGORIEN -->
         <div class="section-card" id="sec_kat" style="display:none">
             <h3>📂 Kategorien</h3>
-
             <div class="collapsible-label" onclick="toggleCollapse('katInfo','katCaret')">
                 <span>Warum sind Kategorien wichtig?</span>
                 <span class="caret" id="katCaret">▼</span>
             </div>
             <div class="collapsible-content" id="katInfo">
                 <div class="imgur-guide" style="margin-top:8px">
-                    💡 Kategorien helfen deinen Mitgliedern, <strong>nur die Beiträge zu sehen die für sie relevant sind</strong>.<br/><br/>
-                    📰 <strong>News</strong> — Allgemeine Vereinsnachrichten<br/>
-                    🏛️ <strong>Vorstand</strong> — Interne Infos, Protokolle<br/>
-                    👴 <strong>Senioren</strong> — Trainingszeiten, Spiele<br/>
-                    🧒 <strong>Jugend</strong> — U8 bis U18, Turniere<br/>
-                    🏆 <strong>Mannschaften</strong> — z.B. "1. Herren", "Damen 1"
+                    Kategorien helfen deinen Mitgliedern, nur die Beitraege zu sehen die fuer sie relevant sind.<br/><br/>
+                    <strong>News</strong> — Allgemeine Vereinsnachrichten<br/>
+                    <strong>Vorstand</strong> — Interne Infos, Protokolle<br/>
+                    <strong>Senioren</strong> — Trainingszeiten, Spiele<br/>
+                    <strong>Jugend</strong> — U8 bis U18, Turniere<br/>
+                    <strong>Mannschaften</strong> — z.B. "1. Herren", "Damen 1"
                 </div>
             </div>
-
             <p style="font-size:0.8rem;color:var(--muted);margin:14px 0 8px">Aktuelle Kategorien</p>
             <div class="tag-list" id="tagList"></div>
-
-            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">Schnell hinzufügen</p>
+            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">Schnell hinzufuegen</p>
             <div class="quick-chips">
                 <span class="quick-chip" onclick="addQuickTag('News')">+ News</span>
                 <span class="quick-chip" onclick="addQuickTag('Vorstand')">+ Vorstand</span>
@@ -665,23 +614,19 @@
                 <span class="quick-chip" onclick="addQuickTag('Termine')">+ Termine</span>
                 <span class="quick-chip" onclick="addQuickTag('Ergebnisse')">+ Ergebnisse</span>
             </div>
-
             <p style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">Eigene Kategorie</p>
             <div class="add-row">
                 <input type="text" id="newCat" placeholder="Kategoriename..." onkeydown="if(event.key==='Enter')addCategory()" />
-                <button onclick="addCategory()">Hinzufügen</button>
+                <button onclick="addCategory()">Hinzufuegen</button>
             </div>
         </div>
 
-        <!-- TEAM -->
         <div class="section-card" id="sec_team" style="display:none">
-            <h3>👥 Team-Zugänge <span style="font-size:0.78rem;font-weight:400;color:var(--muted)">(optional)</span></h3>
-            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Gib deinen Mannschaften eigene Zugänge — sie können dann direkt Beiträge für ihre Mannschaft posten.</p>
-
+            <h3>👥 Team-Zugaenge <span style="font-size:0.78rem;font-weight:400;color:var(--muted)">(optional)</span></h3>
+            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Gib deinen Mannschaften eigene Zugaenge — sie koennen dann direkt Beitraege fuer ihre Mannschaft posten.</p>
             <div class="team-list" id="teamList"></div>
-
             <div class="collapsible-label" onclick="toggleCollapse('teamForm','teamCaret')">
-                <span>👥 Neuen Team-Zugang hinzufügen</span>
+                <span>👥 Neuen Team-Zugang hinzufuegen</span>
                 <span class="caret" id="teamCaret">▼</span>
             </div>
             <div class="collapsible-content" id="teamForm">
@@ -690,27 +635,25 @@
                     <div class="field">
                         <label>Rolle</label>
                         <select id="teamRole">
-                            <option value="team">Team — kann Beiträge für eigene Mannschaft posten</option>
-                            <option value="abteilung">Abteilungsleiter — sieht und löscht alles</option>
+                            <option value="team">Team — kann Beitraege fuer eigene Mannschaft posten</option>
+                            <option value="abteilung">Abteilungsleiter — sieht und loescht alles</option>
                             <option value="admin">Admin — voller Zugriff</option>
                         </select>
                     </div>
                     <div class="field"><label>Passwort</label><input type="password" id="teamPw" placeholder="Passwort" /></div>
-                    <button class="btn-primary btn-full" onclick="addTeam()">Team-Zugang hinzufügen</button>
+                    <button class="btn-primary btn-full" onclick="addTeam()">Team-Zugang hinzufuegen</button>
                 </div>
             </div>
         </div>
 
-        <!-- PASSWORT -->
         <div class="section-card" id="sec_pw" style="display:none">
-            <h3>🔑 Passwort ändern</h3>
+            <h3>🔑 Passwort aendern</h3>
             <div class="field"><label>Neues Passwort</label><input type="password" id="newPw1" placeholder="Neues Passwort" /></div>
-            <div class="field"><label>Passwort bestätigen</label><input type="password" id="newPw2" placeholder="Wiederholen" /></div>
-            <button class="btn-primary btn-full" onclick="changePassword()">Passwort ändern</button>
+            <div class="field"><label>Passwort bestaetigen</label><input type="password" id="newPw2" placeholder="Wiederholen" /></div>
+            <button class="btn-primary btn-full" onclick="changePassword()">Passwort aendern</button>
             <div class="status-msg" id="pwStatus"></div>
         </div>
 
-        <!-- SAVE -->
         <div id="sec_save" style="display:none">
             <button class="btn-primary btn-full" onclick="saveAll()">Speichern</button>
             <div class="status-msg" id="saveStatus"></div>
@@ -752,9 +695,7 @@
                 const res  = await fetch(`${GAS_URL}?action=get_branding&kundenId=${encodeURIComponent(currentId)}`);
                 const data = await res.json();
                 loadData(data.success ? data : {});
-            } catch(e) {
-                loadData({});
-            }
+            } catch(e) { loadData({}); }
         }
 
         function loadData(data) {
@@ -762,7 +703,6 @@
             ['sec_verein','sec_farben','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
                 document.getElementById(id).style.display = 'block';
             });
-            // Branding-Daten aus GAS laden (echte Key-Namen)
             const b = data.branding || data;
             const vname = b.Verein_Name || b.vereinsname || '';
             if (vname) document.getElementById('f_vereinsname').value = vname;
@@ -798,15 +738,40 @@
             if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
         }
 
+        // ── FIX: fetchColors verwendet jetzt data.farben.thema / .akzent / .headerText ──
         async function fetchColors() {
             const website = document.getElementById('f_website').value.trim();
             if (!website) { alert('Bitte zuerst eine Website-URL eingeben.'); return; }
+            const status = document.getElementById('fetchStatus');
+            status.textContent = 'Farben werden geladen...';
+            status.style.color = 'var(--muted)';
             try {
                 const res  = await fetch(`${GAS_URL}?action=get_website_farben&url=${encodeURIComponent(website)}`);
                 const data = await res.json();
-                if (data.primary) { document.getElementById('c_header').value = data.primary; document.getElementById('ct_header').value = data.primary; }
-                if (data.accent)  { document.getElementById('c_accent').value  = data.accent;  document.getElementById('ct_accent').value  = data.accent; }
-            } catch(e) { alert('Farben konnten nicht geladen werden.'); }
+                if (data.success && data.farben) {
+                    const f = data.farben;
+                    if (f.thema) {
+                        document.getElementById('c_header').value  = f.thema;
+                        document.getElementById('ct_header').value = f.thema;
+                    }
+                    if (f.akzent) {
+                        document.getElementById('c_accent').value  = f.akzent;
+                        document.getElementById('ct_accent').value = f.akzent;
+                    }
+                    if (f.headerText) {
+                        document.getElementById('c_headerText').value  = f.headerText;
+                        document.getElementById('ct_headerText').value = f.headerText;
+                    }
+                    status.textContent = 'Farben geladen! Bitte pruefen und bei Bedarf anpassen.';
+                    status.style.color = '#16a34a';
+                } else {
+                    status.textContent = 'Keine Farben gefunden – bitte manuell einstellen.';
+                    status.style.color = '#dc2626';
+                }
+            } catch(e) {
+                status.textContent = 'Verbindungsfehler beim Laden der Farben.';
+                status.style.color = '#dc2626';
+            }
         }
 
         function syncColor(cId, tId)     { document.getElementById(tId).value = document.getElementById(cId).value; }
@@ -815,7 +780,7 @@
         function renderTags() {
             const list = document.getElementById('tagList');
             if (!categories.length) { list.innerHTML = '<span class="empty-tags">Keine Kategorien vorhanden</span>'; return; }
-            list.innerHTML = categories.map((c,i) => `<div class="tag-pill">${c}<button onclick="removeCategory(${i})">✕</button></div>`).join('');
+            list.innerHTML = categories.map((c,i) => `<div class="tag-pill">${c}<button onclick="removeCategory(${i})">x</button></div>`).join('');
         }
         function addQuickTag(name) { if (!categories.includes(name)) { categories.push(name); renderTags(); } }
         function addCategory() {
@@ -851,11 +816,11 @@
             const p1 = document.getElementById('newPw1').value;
             const p2 = document.getElementById('newPw2').value;
             const st = document.getElementById('pwStatus');
-            if (!p1 || p1 !== p2) { st.textContent = 'Passwörter stimmen nicht überein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
+            if (!p1 || p1 !== p2) { st.textContent = 'Passwoerter stimmen nicht ueberein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
             try {
                 const res  = await fetch(`${GAS_URL}?action=update_passwort&kundenId=${currentId}&passwort=${encodeURIComponent(p1)}`);
                 const data = await res.json();
-                if (data.success) { currentPw = p1; st.textContent = 'Passwort geändert ✓'; st.className = 'status-msg ok'; }
+                if (data.success) { currentPw = p1; st.textContent = 'Passwort geaendert!'; st.className = 'status-msg ok'; }
                 else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
                 st.style.display = 'block';
             } catch(e) { st.textContent = 'Verbindungsfehler'; st.style.display = 'block'; }
@@ -883,7 +848,7 @@
             try {
                 const res  = await fetch(`${GAS_URL}?${new URLSearchParams(payload)}`);
                 const data = await res.json();
-                if (data.success) { st.textContent = 'Gespeichert ✓'; st.className = 'status-msg ok'; }
+                if (data.success) { st.textContent = 'Gespeichert!'; st.className = 'status-msg ok'; }
                 else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
             } catch(e) { st.textContent = 'Verbindungsfehler'; st.className = 'status-msg err'; }
         }
