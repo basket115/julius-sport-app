@@ -438,7 +438,7 @@
             spinner.style.display = 'block';
 
             try {
-                const params = new URLSearchParams({ action: 'register', vereinsname, ansprechpartner, email, telefon, website });
+                const params = new URLSearchParams({ action: 'registriereKunde', Verein_Name: vereinsname, Ansprechpartner: ansprechpartner, Email: email, Telefon: telefon, Website: website });
                 const res  = await fetch(`${GAS_URL}?${params}`);
                 const data = await res.json();
 
