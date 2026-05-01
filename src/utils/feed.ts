@@ -37,6 +37,7 @@ export type FeedRow = {
   instagramUrl?: string;
   youtubeUrl?: string;
   tiktokUrl?: string;
+  whatsappUrl?: string; // ★ NEU
 };
 
 const FEED_URL =
@@ -175,6 +176,7 @@ function normalizeRow(row: any): FeedRow {
     instagramUrl: cleanStr(row?.Instagram_URL ?? row?.Instragram_URL),
     youtubeUrl: cleanStr(row?.Youtube_URL),
     tiktokUrl: cleanStr(row?.TikTok_URL),
+    whatsappUrl: cleanStr(row?.WhatsApp_URL ?? row?.Whatsapp_URL ?? row?.whatsappUrl), // ★ NEU
   };
 }
 
