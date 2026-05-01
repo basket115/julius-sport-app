@@ -293,6 +293,32 @@
             line-height: 1.5;
         }
 
+        /* ── Cloudinary Upload Button ─────────────────────────────── */
+        .upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 11px 16px;
+            border: 2px dashed var(--accent);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: #fff8f4;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .upload-label:hover { background: #ffe8d6; }
+        .upload-status {
+            font-size: 0.78rem;
+            margin-top: 5px;
+            min-height: 18px;
+        }
+        /* ─────────────────────────────────────────────────────────── */
+
         .color-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -496,6 +522,7 @@
     <div id="adminPanel">
         <div id="loadingMsg">Laden...</div>
 
+        <!-- ── Verein ─────────────────────────────────────────────── -->
         <div class="section-card" id="sec_verein" style="display:none">
             <h3>🏛️ Verein</h3>
             <div class="field">
@@ -510,11 +537,21 @@
                 </div>
                 <div class="hint" id="fetchStatus"></div>
             </div>
+
+            <!-- Logo URL + Cloudinary Upload -->
             <div class="field">
                 <label>Logo URL</label>
                 <input type="url" id="f_logo" placeholder="https://i.imgur.com/xxxxx.png" oninput="previewLogo()" />
                 <img id="logoPreviewImg" src="" alt="Logo Vorschau" />
+
+                <!-- ★ NEU: Cloudinary Logo-Upload -->
+                <label class="upload-label" title="Bild direkt vom Computer hochladen">
+                    📁 Logo direkt hochladen (JPG / PNG / SVG)
+                    <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(this)" />
+                </label>
+                <div class="upload-status" id="logoUploadStatus"></div>
             </div>
+
             <div class="collapsible-label" onclick="toggleCollapse('imgurGuide','imgurCaret')">
                 <span>📷 Wie bekomme ich einen Logo-Link?</span>
                 <span class="caret" id="imgurCaret">▼</span>
@@ -528,6 +565,7 @@
                     <div class="imgur-warning">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button verwenden — immer Rechtsklick direkt auf das Bild → Bildadresse kopieren.</div>
                 </div>
             </div>
+
             <div class="field" style="margin-top:14px">
                 <label>Logo Sponsor (optional)</label>
                 <input type="url" id="f_logoSponsor" placeholder="https://..." />
@@ -538,6 +576,7 @@
             </div>
         </div>
 
+        <!-- ── Farben ─────────────────────────────────────────────── -->
         <div class="section-card" id="sec_farben" style="display:none">
             <h3>🎨 Farben</h3>
             <div class="color-grid">
@@ -586,6 +625,7 @@
             </div>
         </div>
 
+        <!-- ── Kategorien ─────────────────────────────────────────── -->
         <div class="section-card" id="sec_kat" style="display:none">
             <h3>📂 Kategorien</h3>
             <div class="collapsible-label" onclick="toggleCollapse('katInfo','katCaret')">
@@ -621,6 +661,7 @@
             </div>
         </div>
 
+        <!-- ── Team-Zugänge ───────────────────────────────────────── -->
         <div class="section-card" id="sec_team" style="display:none">
             <h3>👥 Team-Zugaenge <span style="font-size:0.78rem;font-weight:400;color:var(--muted)">(optional)</span></h3>
             <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Gib deinen Mannschaften eigene Zugaenge — sie koennen dann direkt Beitraege fuer ihre Mannschaft posten.</p>
@@ -646,6 +687,7 @@
             </div>
         </div>
 
+        <!-- ── Passwort ───────────────────────────────────────────── -->
         <div class="section-card" id="sec_pw" style="display:none">
             <h3>🔑 Passwort aendern</h3>
             <div class="field"><label>Neues Passwort</label><input type="password" id="newPw1" placeholder="Neues Passwort" /></div>
@@ -654,6 +696,7 @@
             <div class="status-msg" id="pwStatus"></div>
         </div>
 
+        <!-- ── Speichern ──────────────────────────────────────────── -->
         <div id="sec_save" style="display:none">
             <button class="btn-primary btn-full" onclick="saveAll()">Speichern</button>
             <div class="status-msg" id="saveStatus"></div>
@@ -663,6 +706,55 @@
     <footer>ONLANG — Vereins-App Platform</footer>
 
     <script>
+        // ══════════════════════════════════════════════════════════════
+        //  CLOUDINARY KONFIGURATION
+        // ══════════════════════════════════════════════════════════════
+        const CLOUDINARY_CLOUD_NAME    = "dnw5rjysb";
+        const CLOUDINARY_UPLOAD_PRESET = "julius_upload";
+
+        /**
+         * Lädt eine Bilddatei direkt zu Cloudinary hoch (unsigned).
+         * Gibt die sichere HTTPS-URL zurück.
+         */
+        async function uploadToCloudinary(file, statusEl) {
+            statusEl.style.color = "#ff6b00";
+            statusEl.textContent = "⏳ Wird hochgeladen...";
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            fd.append("folder", "onlang");
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: fd }
+            );
+            if (!res.ok) throw new Error("Upload fehlgeschlagen: " + res.status);
+            return (await res.json()).secure_url;
+        }
+
+        /** Logo-Upload Handler */
+        async function handleLogoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById("logoUploadStatus");
+            try {
+                const url = await uploadToCloudinary(file, statusEl);
+                document.getElementById("f_logo").value = url;
+                const prev = document.getElementById("logoPreviewImg");
+                prev.src = url;
+                prev.style.display = "block";
+                statusEl.style.color = "#16a34a";
+                statusEl.textContent = "✓ Logo hochgeladen und eingetragen!";
+            } catch (e) {
+                statusEl.style.color = "#dc2626";
+                statusEl.textContent = "✗ Fehler beim Hochladen – bitte nochmal versuchen.";
+                console.error(e);
+            }
+            input.value = ""; // Reset damit gleiche Datei nochmal wählbar
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  APP LOGIK (unverändert)
+        // ══════════════════════════════════════════════════════════════
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec';
         let currentId = '', currentPw = '', categories = [], teams = [];
 
@@ -738,7 +830,6 @@
             if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
         }
 
-        // ── FIX: fetchColors verwendet jetzt data.farben.thema / .akzent / .headerText ──
         async function fetchColors() {
             const website = document.getElementById('f_website').value.trim();
             if (!website) { alert('Bitte zuerst eine Website-URL eingeben.'); return; }
@@ -750,18 +841,9 @@
                 const data = await res.json();
                 if (data.success && data.farben) {
                     const f = data.farben;
-                    if (f.thema) {
-                        document.getElementById('c_header').value  = f.thema;
-                        document.getElementById('ct_header').value = f.thema;
-                    }
-                    if (f.akzent) {
-                        document.getElementById('c_accent').value  = f.akzent;
-                        document.getElementById('ct_accent').value = f.akzent;
-                    }
-                    if (f.headerText) {
-                        document.getElementById('c_headerText').value  = f.headerText;
-                        document.getElementById('ct_headerText').value = f.headerText;
-                    }
+                    if (f.thema)      { document.getElementById('c_header').value  = f.thema;      document.getElementById('ct_header').value = f.thema; }
+                    if (f.akzent)     { document.getElementById('c_accent').value  = f.akzent;     document.getElementById('ct_accent').value = f.akzent; }
+                    if (f.headerText) { document.getElementById('c_headerText').value  = f.headerText; document.getElementById('ct_headerText').value = f.headerText; }
                     status.textContent = 'Farben geladen! Bitte pruefen und bei Bedarf anpassen.';
                     status.style.color = '#16a34a';
                 } else {
