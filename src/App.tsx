@@ -3,15 +3,25 @@ import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
 
+// @ts-ignore
 import '@ionic/react/css/core.css';
+// @ts-ignore
 import '@ionic/react/css/normalize.css';
+// @ts-ignore
 import '@ionic/react/css/structure.css';
+// @ts-ignore
 import '@ionic/react/css/typography.css';
+// @ts-ignore
 import '@ionic/react/css/padding.css';
+// @ts-ignore
 import '@ionic/react/css/float-elements.css';
+// @ts-ignore
 import '@ionic/react/css/text-alignment.css';
+// @ts-ignore
 import '@ionic/react/css/text-transformation.css';
+// @ts-ignore
 import '@ionic/react/css/flex-utils.css';
+// @ts-ignore
 import '@ionic/react/css/display.css';
 import './theme/variables.css';
 
@@ -296,7 +306,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ── Team-Login Screen ─────────────────────────────────────
   if (hasTeamLogin && showTeamLogin && !teamLoginDone) {
     return (
       <IonApp>
@@ -317,7 +326,6 @@ const App: React.FC = () => {
     );
   }
 
-  // ── Admin-Login Screen (bei ALLEN Versionen — auch ReadOnly) ──
   if (showLogin && !isAuthenticated) {
     return (
       <IonApp>
@@ -356,7 +364,6 @@ const App: React.FC = () => {
       <IonApp>
         {showOster && <OsterScreen onDone={() => setShowOster(false)} />}
         {showOsterPalina && <OsterScreenPalina onDone={() => setShowOsterPalina(false)} />}
-        {/* ✅ NEU: Zahnrad bei ALLEN Versionen — auch ReadOnly (V055 etc.) */}
         <Tab1 onAdminClick={() => setShowLogin(true)} />
       </IonApp>
     </BrandingContext.Provider>
