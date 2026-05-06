@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v19 — Google Drive Auto-Konvertierung + Drive Option im InfoPopup
+// src/pages/Tab1.tsx v20 — Weiterlesen_Link als klickbarer Button
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -105,11 +105,9 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
 // ─── Cloudinary URL Optimierung ──────────────────────────────
 function optimizeImageUrl(url: string): string {
   if (!url) return url;
-  // Cloudinary: automatisch 16:9 zentriert mit KI-Gesichtserkennung
   if (url.includes('cloudinary.com')) {
     return url.replace('/upload/', '/upload/c_fill,w_1200,h_675,g_auto,q_auto,f_auto/');
   }
-  // Google Drive fix
   return fixGoogleDriveUrl(url);
 }
 
@@ -314,22 +312,6 @@ const EditPopup: React.FC<{
   );
 };
 
-// ─── Icon Bar ─────────────────────────────────────────────────
-type IconTabDef = { id: string; label: string; icon: React.ReactNode };
-const IconBar: React.FC<{ tabs: IconTabDef[]; activeId: string; onSelect: (id: string) => void; themaFarbe: string; iconBarAktiv: string }> = ({ tabs, activeId, onSelect, themaFarbe, iconBarAktiv }) => (
-  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-around', backgroundColor: themaFarbe, borderTop: 'none', height: 62, flexShrink: 0, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-    {tabs.map(tab => {
-      const isActive = tab.id === activeId;
-      return (
-        <button key={tab.id} onClick={() => onSelect(tab.id)} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', borderTop: isActive ? `3px solid ${iconBarAktiv}` : '3px solid transparent', cursor: 'pointer', padding: '6px 0 4px', color: isActive ? iconBarAktiv : 'rgba(255,255,255,0.4)', transition: 'color 0.15s, border-color 0.15s' }}>
-          <span style={{ fontSize: 21, lineHeight: 1, color: 'inherit' }}>{tab.icon}</span>
-          <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 500, color: 'inherit' }}>{tab.label}</span>
-        </button>
-      );
-    })}
-  </div>
-);
-
 // ─── Hauptkomponente ──────────────────────────────────────────
 type Props = { onAdminClick?: () => void };
 
@@ -424,7 +406,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     if (!titel || !text) return;
     setSaving(true);
     const postKategorie = isTeam && teamMannschaft ? teamMannschaft : (kategorie || kategorienFinal[0] || 'News');
-    // ── Google Drive URLs automatisch konvertieren ────────────
     const fixedBildUrl  = fixGoogleDriveUrl(bildUrl);
     const fixedVideoUrl = fixGoogleDriveUrl(videoUrl);
     try {
@@ -539,11 +520,13 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       ) : (
         gefilterteBeitraege.map((beitrag, i) => {
           const embedUrl = getYouTubeEmbedUrl(beitrag.Video_URL || beitrag.videoUrl || beitrag.youtubeUrl || '');
-          const buttonLabel = beitrag.linkLabel || beitrag.LinkLabel || '';
-          const buttonUrl = beitrag.youtubeUrl || beitrag.Video_URL || beitrag.videoUrl || beitrag.Bild_URL || '';
           const bId = String(beitrag.id || beitrag.Id || '');
           const isDeleting = deletingId === bId;
           const darfLoeschen = canDelete(beitrag);
+
+          // ── NEU v20: Weiterlesen_Link auslesen ──────────────
+          const weiterlesenLink = beitrag.Weiterlesen_Link || beitrag.weiterlesen_link || '';
+
           return (
             <div key={bId || i} style={{ background: cardHintergrund, borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', border: `1px solid ${cardRahmen}`, position: 'relative' }}>
               {darfLoeschen && (
@@ -567,13 +550,19 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               </div>
               <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: darfLoeschen ? 90 : 0 }}>{beitrag.Titel}</h3>
               <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
+
+              {/* ── NEU v20: Weiterlesen Button ── */}
+              {weiterlesenLink && (
+                <a href={weiterlesenLink} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: akzentFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+                  🔗 Weiterlesen →
+                </a>
+              )}
+
               {embedUrl && (
                 <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
                   <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
                 </div>
-              )}
-              {buttonLabel && buttonUrl && (
-                <a href={buttonUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: akzentFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>{buttonLabel}</a>
               )}
               <SocialBar b={b} />
               {kundenId && <SponsorBanner kundenId={kundenId} />}
