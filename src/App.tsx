@@ -30,6 +30,10 @@ export const BrandingContext = createContext<any>(null);
 const API_EXEC_URL =
   "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
 
+// ── Fetch-Hilfsfunktion mit CORS-Fix ─────────────────────────
+const apiFetch = (url: string) =>
+  fetch(url, { redirect: 'follow', cache: 'no-store' });
+
 // ── Google Drive URL Auto-Konvertierung ───────────────────────
 export function fixGoogleDriveUrl(url: string): string {
   if (!url) return url;
@@ -190,7 +194,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!kundenId) { setTeamLoginChecked(true); return; }
-    fetch(`${API_EXEC_URL}?action=checkTeamLogin&kundenId=${kundenId}`)
+    // FIX 1: redirect follow + cache no-store
+    apiFetch(`${API_EXEC_URL}?action=checkTeamLogin&kundenId=${kundenId}`)
       .then(r => r.json())
       .then(d => { setHasTeamLogin(d.hasTeamLogin || false); setTeamLoginChecked(true); })
       .catch(() => setTeamLoginChecked(true));
@@ -199,7 +204,8 @@ const App: React.FC = () => {
   const loadBranding = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`);
+      // FIX 2: redirect follow + cache no-store
+      const res = await apiFetch(`${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`);
       const data = await res.json();
       if (data.success) {
         setBranding(data.branding);
@@ -265,7 +271,8 @@ const App: React.FC = () => {
     if (!teamPassword.trim()) return;
     setTeamLoading(true); setTeamError('');
     try {
-      const res = await fetch(`${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}&kundenId=${encodeURIComponent(kundenId)}`);
+      // FIX 3: redirect follow + cache no-store
+      const res = await apiFetch(`${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}&kundenId=${encodeURIComponent(kundenId)}`);
       const data = await res.json();
       if (data.success) {
         setTeamRolle(data.rolle); setTeamMannschaft(data.mannschaft); setTeamId(data.team_id);
@@ -286,7 +293,8 @@ const App: React.FC = () => {
   const handleLogin = async () => {
     try {
       setError('');
-      const res = await fetch(`${API_EXEC_URL}?kundenId=${encodeURIComponent(kundenId)}&password=${encodeURIComponent(password)}`);
+      // FIX 4: redirect follow + cache no-store
+      const res = await apiFetch(`${API_EXEC_URL}?kundenId=${encodeURIComponent(kundenId)}&password=${encodeURIComponent(password)}`);
       const data = await res.json();
       if (data.success) { setIsAuthenticated(true); setShowLogin(false); setPassword(''); }
       else { setError(data.error || 'Falsches Passwort!'); }
