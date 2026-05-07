@@ -636,6 +636,10 @@
                     <input type="url" id="s_youtube" placeholder="https://www.youtube.com/..." />
                 </div>
                 <div class="social-field">
+                    <label><span class="social-icon">🎵</span> TikTok</label>
+                    <input type="url" id="s_tiktok" placeholder="https://www.tiktok.com/@..." />
+                </div>
+                <div class="social-field">
                     <label><span class="social-icon">🐦</span> X / Twitter</label>
                     <input type="url" id="s_twitter" placeholder="https://x.com/..." />
                 </div>
@@ -868,12 +872,14 @@
             if (headline) document.getElementById('f_headline').value = headline;
 
             // Soziale Medien laden
-            if (b.Social_Website)  document.getElementById('s_website').value  = b.Social_Website;
-            if (b.Social_Facebook) document.getElementById('s_facebook').value = b.Social_Facebook;
-            if (b.Social_Instagram) document.getElementById('s_instagram').value = b.Social_Instagram;
-            if (b.Social_YouTube)  document.getElementById('s_youtube').value  = b.Social_YouTube;
-            if (b.Social_Twitter)  document.getElementById('s_twitter').value  = b.Social_Twitter;
-            if (b.Social_WhatsApp) document.getElementById('s_whatsapp').value = b.Social_WhatsApp;
+            if (b.WEB_URL)         document.getElementById("s_website").value  = b.WEB_URL;
+            if (b.Facebook_URL)    document.getElementById("s_facebook").value = b.Facebook_URL;
+            if (b.Instragram_URL)  document.getElementById("s_instagram").value = b.Instragram_URL;
+            if (b.Youtube_URL)     document.getElementById("s_youtube").value  = b.Youtube_URL;
+            if (b.TikTok_URL)     document.getElementById('s_tiktok').value   = b.TikTok_URL;
+            if (b['X / Twitter'])  document.getElementById('s_twitter').value  = b['X / Twitter'];
+            if (b.WhatsApp_URL)    document.getElementById("s_whatsapp").value = b.WhatsApp_URL;
+            
 
             const map = [
                 ['c_header','ct_header','Thema_Farbe'],
@@ -993,12 +999,13 @@
                 Kategorien:         categories.join(','),
                 Team_Zugaenge:      JSON.stringify(teams),
                 // NEU: Soziale Medien
-                Social_Website:     document.getElementById('s_website').value.trim(),
-                Social_Facebook:    document.getElementById('s_facebook').value.trim(),
-                Social_Instagram:   document.getElementById('s_instagram').value.trim(),
-                Social_YouTube:     document.getElementById('s_youtube').value.trim(),
-                Social_Twitter:     document.getElementById('s_twitter').value.trim(),
-                Social_WhatsApp:    document.getElementById('s_whatsapp').value.trim(),
+                WEB_URL:          document.getElementById('s_website').value.trim(),
+                Facebook_URL:     document.getElementById('s_facebook').value.trim(),
+                Instragram_URL:   document.getElementById('s_instagram').value.trim(),
+                Youtube_URL:      document.getElementById('s_youtube').value.trim(),
+                TikTok_URL:       document.getElementById('s_tiktok').value.trim(),
+                'X / Twitter':    document.getElementById('s_twitter').value.trim(),
+                WhatsApp_URL:     document.getElementById('s_whatsapp').value.trim(),
             };
             const st = document.getElementById('saveStatus');
             st.textContent = 'Wird gespeichert...'; st.className = 'status-msg'; st.style.display = 'block';
