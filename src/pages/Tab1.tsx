@@ -1,5 +1,5 @@
-// src/pages/Tab1.tsx v21 — Ergebnisse Widget + Spielplan Tab integriert
-import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
+// src/pages/Tab1.tsx v22 — Fix: club_id für Sieg/Niederlage Berechnung
+mport React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
 import { BrandingContext, fixGoogleDriveUrl } from '../App';
@@ -756,6 +756,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const logoUrl        = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
   const kundenId: string = String(branding?.Kunden_ID || '').trim();
+  const clubId: string = String(b?.club_id || '').trim() || kundenId;
 
   const kategorienFinal: string[] = useMemo(() => {
     const kat = b?.Kategorien;
@@ -862,7 +863,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {/* ── NEU v21: Ergebnisse Widget ── */}
       {kundenId && (
         <ErgebnisseWidget
-          kundenId={kundenId}
+          kundenId={clubId}
           themaFarbe={themaFarbe}
           akzentFarbe={akzentFarbe}
           headerTextFarbe={headerTextFarbe}
@@ -993,7 +994,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {/* ── NEU v21: Spielplan Vollansicht ── */}
       {zeigeSpielplan && (
         <SpielplanVollansicht
-          kundenId={kundenId}
+          kundenId={clubId}
           themaFarbe={themaFarbe}
           akzentFarbe={akzentFarbe}
           headerTextFarbe={headerTextFarbe}
