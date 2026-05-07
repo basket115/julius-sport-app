@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v20 — Weiterlesen_Link als klickbarer Button
+// src/pages/Tab1.tsx v21 — Ergebnisse Widget + Spielplan Tab integriert
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -261,26 +261,21 @@ const EditPopup: React.FC<{
   const [videoUrl, setVideoUrl] = useState(beitrag.Video_URL || beitrag.videoUrl || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
   const handleSave = async () => {
     setSaving(true); setError('');
     try {
       const bId = String(beitrag.id || beitrag.Id || '').trim();
       const params = new URLSearchParams({
         action: 'update_beitrag', kundenId, id: bId, titel, text,
-        bildUrl: fixGoogleDriveUrl(bildUrl),
-        videoUrl: fixGoogleDriveUrl(videoUrl),
+        bildUrl: fixGoogleDriveUrl(bildUrl), videoUrl: fixGoogleDriveUrl(videoUrl),
       });
       const res = await fetch(`${API_EXEC_URL}?${params}`);
       const data = await res.json();
-      if (data.success) {
-        onSaved({ ...beitrag, Titel: titel, Text: text, Bild_URL: bildUrl, Video_URL: videoUrl });
-        onClose();
-      } else { setError('Fehler: ' + (data.error || 'Unbekannt')); }
+      if (data.success) { onSaved({ ...beitrag, Titel: titel, Text: text, Bild_URL: bildUrl, Video_URL: videoUrl }); onClose(); }
+      else { setError('Fehler: ' + (data.error || 'Unbekannt')); }
     } catch { setError('Verbindungsfehler'); }
     finally { setSaving(false); }
   };
-
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
       <div style={{ background: 'white', borderRadius: 16, padding: 24, maxWidth: 480, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
@@ -293,7 +288,7 @@ const EditPopup: React.FC<{
             <input value={titel} onChange={(e: any) => setTitel(e.target.value)} style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }} /></div>
           <div><label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Text</label>
             <textarea value={text} onChange={(e: any) => setText(e.target.value)} rows={5} style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111', resize: 'vertical' as const }} /></div>
-          <div><label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Bild URL (Imgur oder Google Drive)</label>
+          <div><label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Bild URL</label>
             <input value={bildUrl} onChange={(e: any) => setBildUrl(e.target.value)} placeholder="https://i.imgur.com/... oder Google Drive Link" style={{ width: '100%', padding: 10, borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, boxSizing: 'border-box' as const, color: '#111' }} />
             <BildUploadButton onUploaded={(url) => setBildUrl(url)} akzentFarbe={akzentFarbe} cardRahmen={cardRahmen} />
             {bildUrl && <img src={fixGoogleDriveUrl(bildUrl)} alt="Vorschau" style={{ marginTop: 8, width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }} />}</div>
@@ -312,6 +307,401 @@ const EditPopup: React.FC<{
   );
 };
 
+// ============================================================
+// NEU v21 – ERGEBNISSE & SPIELPLAN TYPEN
+// ============================================================
+interface Match {
+  match_uid: string;
+  kickoff_at: string;
+  status: string;
+  league: string;
+  league_short: string;
+  age_group: string;
+  gender: string;
+  round_name: string;
+  home_name: string;
+  home_points: number;
+  away_name: string;
+  away_points: number;
+  home_club_id: string;
+  away_club_id: string;
+  venue?: string;
+}
+
+interface TeamApi {
+  team_id: string;
+  team_name: string;
+  age_group: string;
+  gender: string;
+  league: string;
+}
+
+type Scope = 'all' | 'played' | 'upcoming';
+
+function formatMatchDatum(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+}
+
+function formatMatchDatumLang(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function formatUhrzeit(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+
+// ============================================================
+// NEU v21 – ERGEBNISSE WIDGET (Startseite)
+// ============================================================
+const ErgebnisseWidget: React.FC<{
+  kundenId: string;
+  themaFarbe: string;
+  akzentFarbe: string;
+  headerTextFarbe: string;
+  cardHintergrund: string;
+  cardRahmen: string;
+  onAlleAnzeigen: () => void;
+}> = ({ kundenId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen, onAlleAnzeigen }) => {
+  const [gespielt, setGespielt]   = useState<Match[]>([]);
+  const [anstehend, setAnstehend] = useState<Match[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [fehler, setFehler]       = useState('');
+
+  useEffect(() => {
+    if (!kundenId) return;
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=played&limit=3`, { redirect: 'follow' }).then(r => r.json()),
+      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=upcoming&limit=2`, { redirect: 'follow' }).then(r => r.json()),
+    ]).then(([dG, dA]) => {
+      if (dG.success)  setGespielt(dG.items   || []);
+      if (dA.success)  setAnstehend(dA.items  || []);
+      if (!dG.success && !dA.success) setFehler('Spielplandaten nicht verfügbar');
+    }).catch(() => setFehler('Verbindungsfehler'))
+      .finally(() => setLoading(false));
+  }, [kundenId]); // eslint-disable-line
+
+  if (!loading && !fehler && gespielt.length === 0 && anstehend.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 18 }}>🏀</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: themaFarbe }}>Ergebnisse & Spielplan</span>
+        </div>
+        <button onClick={onAlleAnzeigen}
+          style={{ background: 'none', border: 'none', color: akzentFarbe, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          Alle →
+        </button>
+      </div>
+
+      {loading && (
+        <div style={{ background: cardHintergrund, borderRadius: 12, padding: 20, border: `1px solid ${cardRahmen}`, textAlign: 'center', color: '#999', fontSize: 14 }}>
+          ⏳ Lade Spielplandaten...
+        </div>
+      )}
+
+      {!loading && fehler && (
+        <div style={{ background: '#fff5f5', borderRadius: 12, padding: 14, border: '1px solid #ffcccc', color: '#cc0000', fontSize: 13, textAlign: 'center' }}>
+          {fehler}
+        </div>
+      )}
+
+      {!loading && gespielt.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Letzte Ergebnisse</div>
+          {gespielt.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={kundenId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={true} />)}
+        </div>
+      )}
+
+      {!loading && anstehend.length > 0 && (
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Nächste Spiele</div>
+          {anstehend.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={kundenId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={false} />)}
+        </div>
+      )}
+
+      {!loading && (gespielt.length > 0 || anstehend.length > 0) && (
+        <button onClick={onAlleAnzeigen}
+          style={{ width: '100%', marginTop: 10, padding: '11px 0', borderRadius: 10, border: `2px solid ${themaFarbe}`, background: 'white', color: themaFarbe, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+          Kompletter Spielplan →
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ─── Kleine Match-Karte (Widget) ──────────────────────────────
+const MatchKarteKlein: React.FC<{
+  match: Match; kundenId: string; themaFarbe: string; akzentFarbe: string;
+  cardHintergrund: string; cardRahmen: string; gespielt: boolean;
+}> = ({ match, kundenId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen, gespielt }) => {
+  const heimIstEigen  = match.home_club_id === kundenId;
+  const gastIstEigen  = match.away_club_id === kundenId;
+  const eigenePunkte  = heimIstEigen ? match.home_points : match.away_points;
+  const gegnerPunkte  = heimIstEigen ? match.away_points : match.home_points;
+  const gewonnen      = gespielt && eigenePunkte > gegnerPunkte;
+  const unentschieden = gespielt && eigenePunkte === gegnerPunkte;
+  const statusFarbe   = !gespielt ? akzentFarbe : gewonnen ? '#22a85a' : unentschieden ? '#888' : '#e53935';
+  const statusText    = !gespielt ? formatUhrzeit(match.kickoff_at) : gewonnen ? 'Sieg' : unentschieden ? 'Unentschieden' : 'Niederlage';
+
+  return (
+    <div style={{ background: cardHintergrund, borderRadius: 10, padding: '10px 12px', marginBottom: 8, border: `1px solid ${cardRahmen}`, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 11, color: '#999', fontWeight: 600 }}>{match.age_group} {match.gender === 'weiblich' ? '♀' : '♂'} · {match.league_short}</span>
+        <span style={{ fontSize: 11, color: '#999' }}>{formatMatchDatum(match.kickoff_at)}</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: heimIstEigen ? 800 : 500, color: heimIstEigen ? themaFarbe : '#333', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {match.home_name}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
+          {gespielt ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: themaFarbe }}>{match.home_points}</span>
+              <span style={{ fontSize: 13, color: '#bbb' }}>:</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: themaFarbe }}>{match.away_points}</span>
+            </div>
+          ) : (
+            <span style={{ fontSize: 13, fontWeight: 700, color: akzentFarbe }}>vs</span>
+          )}
+          <div style={{ fontSize: 10, fontWeight: 700, color: statusFarbe, textAlign: 'center' as const, marginTop: 2 }}>{statusText}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0, textAlign: 'right' as const }}>
+          <div style={{ fontSize: 13, fontWeight: gastIstEigen ? 800 : 500, color: gastIstEigen ? themaFarbe : '#333', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {match.away_name}
+          </div>
+        </div>
+      </div>
+      <div style={{ marginTop: 4, fontSize: 10, color: '#bbb', textAlign: 'center' as const }}>{match.round_name}</div>
+    </div>
+  );
+};
+
+// ============================================================
+// NEU v21 – SPIELPLAN TAB (Vollansicht)
+// ============================================================
+const SpielplanVollansicht: React.FC<{
+  kundenId: string; themaFarbe: string; akzentFarbe: string;
+  headerTextFarbe: string; cardHintergrund: string; cardRahmen: string;
+  onZurueck: () => void;
+}> = ({ kundenId, themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, onZurueck }) => {
+  const [matches, setMatches]         = useState<Match[]>([]);
+  const [teams, setTeams]             = useState<TeamApi[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [fehler, setFehler]           = useState('');
+  const [scope, setScope]             = useState<Scope>('all');
+  const [gewaehltesTeam, setGewaehltesTeam] = useState('');
+  const [seite, setSeite]             = useState(1);
+  const [gesamtSeiten, setGesamtSeiten] = useState(1);
+  const [gesamt, setGesamt]           = useState(0);
+  const LIMIT = 15;
+
+  useEffect(() => {
+    if (!kundenId) return;
+    fetch(`${API_EXEC_URL}?action=get_teams_api&kundenId=${kundenId}`, { redirect: 'follow' })
+      .then(r => r.json())
+      .then(d => { if (d.success) setTeams(d.teams || []); })
+      .catch(() => {});
+  }, [kundenId]);
+
+  const ladeMatches = useCallback(async (neueSeite = 1) => {
+    if (!kundenId) return;
+    setLoading(true); setFehler('');
+    try {
+      let url = `${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=${scope}&limit=${LIMIT}&page=${neueSeite}`;
+      if (gewaehltesTeam) {
+        const team = teams.find(t => t.team_id === gewaehltesTeam);
+        if (team) url += `&age_group=${encodeURIComponent(team.age_group)}&gender=${encodeURIComponent(team.gender)}`;
+      }
+      const res  = await fetch(url, { redirect: 'follow' });
+      const data = await res.json();
+      if (data.success) {
+        setMatches(data.items || []);
+        setSeite(data.page || 1);
+        setGesamtSeiten(data.pages || 1);
+        setGesamt(data.total || 0);
+      } else { setFehler(data.error || 'Fehler beim Laden'); }
+    } catch { setFehler('Verbindungsfehler'); }
+    finally { setLoading(false); }
+  }, [kundenId, scope, gewaehltesTeam, teams]);
+
+  useEffect(() => { ladeMatches(1); }, [scope, gewaehltesTeam]); // eslint-disable-line
+
+  const scopeLabel = (s: Scope) => s === 'played' ? 'Ergebnisse' : s === 'upcoming' ? 'Anstehend' : 'Alle';
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999, display: 'flex', flexDirection: 'column', background: '#f0f0f0' }}>
+      {/* Header */}
+      <div style={{ background: themaFarbe, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <button onClick={onZurueck}
+          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, padding: '6px 12px', color: headerTextFarbe, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+          ← Zurück
+        </button>
+        <span style={{ color: headerTextFarbe, fontWeight: 800, fontSize: 16 }}>🏀 Spielplan & Ergebnisse</span>
+      </div>
+
+      {/* Inhalt */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+        {/* Scope Filter */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+          {(['all', 'played', 'upcoming'] as Scope[]).map(s => (
+            <button key={s} onClick={() => setScope(s)}
+              style={{ flex: 1, padding: '9px 4px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: scope === s ? themaFarbe : 'white', color: scope === s ? headerTextFarbe : '#555', boxShadow: scope === s ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' }}>
+              {scopeLabel(s)}
+            </button>
+          ))}
+        </div>
+
+        {/* Mannschaftsfilter */}
+        {teams.length > 0 && (
+          <select value={gewaehltesTeam} onChange={(e: any) => setGewaehltesTeam(e.target.value)}
+            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, color: '#111', background: 'white', fontFamily: 'inherit', marginBottom: 12 }}>
+            <option value="">Alle Mannschaften</option>
+            {teams.map(t => (
+              <option key={t.team_id} value={t.team_id}>
+                {t.age_group} {t.gender === 'weiblich' ? '♀' : '♂'} — {t.league}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Info */}
+        {!loading && !fehler && gesamt > 0 && (
+          <div style={{ fontSize: 12, color: '#999', marginBottom: 10, textAlign: 'right' as const }}>
+            {gesamt} Spiele · Seite {seite} / {gesamtSeiten}
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
+            <div>Lade Spielplan...</div>
+          </div>
+        )}
+
+        {/* Fehler */}
+        {!loading && fehler && (
+          <div style={{ background: '#fff5f5', borderRadius: 12, padding: 16, border: '1px solid #ffcccc', textAlign: 'center' as const }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
+            <div style={{ color: '#cc0000', fontSize: 14, marginBottom: 12 }}>{fehler}</div>
+            <button onClick={() => ladeMatches(seite)}
+              style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: akzentFarbe, color: 'white', fontWeight: 700, cursor: 'pointer' }}>
+              Erneut versuchen
+            </button>
+          </div>
+        )}
+
+        {/* Keine Daten */}
+        {!loading && !fehler && matches.length === 0 && (
+          <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
+            <div>Keine Spiele gefunden</div>
+          </div>
+        )}
+
+        {/* Spielliste */}
+        {!loading && !fehler && matches.map(m => (
+          <MatchKarteGross key={m.match_uid} match={m} kundenId={kundenId}
+            themaFarbe={themaFarbe} akzentFarbe={akzentFarbe}
+            cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} />
+        ))}
+
+        {/* Pagination */}
+        {!loading && gesamtSeiten > 1 && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'center' }}>
+            <button onClick={() => ladeMatches(seite - 1)} disabled={seite <= 1}
+              style={{ padding: '10px 18px', borderRadius: 8, border: `1px solid ${cardRahmen}`, background: seite <= 1 ? '#f5f5f5' : 'white', color: seite <= 1 ? '#bbb' : themaFarbe, fontWeight: 700, fontSize: 14, cursor: seite <= 1 ? 'default' : 'pointer' }}>
+              ← Zurück
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: 13, color: '#666' }}>
+              {seite} / {gesamtSeiten}
+            </div>
+            <button onClick={() => ladeMatches(seite + 1)} disabled={seite >= gesamtSeiten}
+              style={{ padding: '10px 18px', borderRadius: 8, border: `1px solid ${cardRahmen}`, background: seite >= gesamtSeiten ? '#f5f5f5' : 'white', color: seite >= gesamtSeiten ? '#bbb' : themaFarbe, fontWeight: 700, fontSize: 14, cursor: seite >= gesamtSeiten ? 'default' : 'pointer' }}>
+              Weiter →
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── Große Match-Karte (Vollansicht) ─────────────────────────
+const MatchKarteGross: React.FC<{
+  match: Match; kundenId: string; themaFarbe: string; akzentFarbe: string;
+  cardHintergrund: string; cardRahmen: string;
+}> = ({ match, kundenId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen }) => {
+  const gespielt      = match.status === 'played' || match.status === 'result';
+  const heimIstEigen  = match.home_club_id === kundenId;
+  const gastIstEigen  = match.away_club_id === kundenId;
+  const eigenePunkte  = heimIstEigen ? match.home_points : match.away_points;
+  const gegnerPunkte  = heimIstEigen ? match.away_points : match.home_points;
+  const gewonnen      = gespielt && eigenePunkte > gegnerPunkte;
+  const unentschieden = gespielt && eigenePunkte === gegnerPunkte;
+  const ergebnisColor = !gespielt ? '#888' : gewonnen ? '#22a85a' : unentschieden ? '#888' : '#e53935';
+  const ergebnisLabel = !gespielt ? '' : gewonnen ? '✓ Sieg' : unentschieden ? '– Unentschieden' : '✗ Niederlage';
+
+  return (
+    <div style={{ background: cardHintergrund, borderRadius: 12, padding: '14px 14px 12px', marginBottom: 10, border: `1px solid ${cardRahmen}`, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: akzentFarbe }}>{match.age_group} {match.gender === 'weiblich' ? '♀' : '♂'}</div>
+          <div style={{ fontSize: 11, color: '#aaa', marginTop: 1 }}>{match.league}</div>
+        </div>
+        <div style={{ textAlign: 'right' as const }}>
+          <div style={{ fontSize: 12, color: '#555', fontWeight: 600 }}>{formatMatchDatumLang(match.kickoff_at)}</div>
+          {!gespielt && <div style={{ fontSize: 11, color: akzentFarbe, fontWeight: 700 }}>{formatUhrzeit(match.kickoff_at)}</div>}
+          <div style={{ fontSize: 11, color: '#bbb', marginTop: 1 }}>{match.round_name}</div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: heimIstEigen ? 900 : 500, color: heimIstEigen ? themaFarbe : '#222', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{match.home_name}</div>
+          {heimIstEigen && <div style={{ fontSize: 10, color: akzentFarbe, fontWeight: 700, marginTop: 2 }}>Heim</div>}
+        </div>
+        <div style={{ textAlign: 'center' as const, flexShrink: 0, minWidth: 70 }}>
+          {gespielt ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <span style={{ fontSize: 22, fontWeight: 900, color: themaFarbe }}>{match.home_points}</span>
+                <span style={{ fontSize: 14, color: '#ccc' }}>:</span>
+                <span style={{ fontSize: 22, fontWeight: 900, color: themaFarbe }}>{match.away_points}</span>
+              </div>
+              {ergebnisLabel && <div style={{ fontSize: 11, fontWeight: 700, color: ergebnisColor, marginTop: 2 }}>{ergebnisLabel}</div>}
+            </>
+          ) : (
+            <div style={{ background: themaFarbe, color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 700 }}>vs</div>
+          )}
+        </div>
+        <div style={{ flex: 1, minWidth: 0, textAlign: 'right' as const }}>
+          <div style={{ fontSize: 14, fontWeight: gastIstEigen ? 900 : 500, color: gastIstEigen ? themaFarbe : '#222', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{match.away_name}</div>
+          {gastIstEigen && <div style={{ fontSize: 10, color: akzentFarbe, fontWeight: 700, marginTop: 2, textAlign: 'right' as const }}>Gast</div>}
+        </div>
+      </div>
+      {match.venue && (
+        <div style={{ marginTop: 8, fontSize: 11, color: '#bbb', display: 'flex', alignItems: 'center', gap: 4 }}>
+          📍 {match.venue}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Hauptkomponente ──────────────────────────────────────────
 type Props = { onAdminClick?: () => void };
 
@@ -324,21 +714,23 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     tagFarbe: ctxTagFarbe, tagTextFarbe: ctxTagText, iconBarAktiv: ctxIconAktiv,
   } = useContext(BrandingContext);
 
-  const [beitraege, setBeitraege] = useState<any[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const [beitraege, setBeitraege]         = useState<any[]>([]);
+  const [showForm, setShowForm]           = useState(false);
   const [showSponsorForm, setShowSponsorForm] = useState(false);
-  const [titel, setTitel] = useState('');
-  const [text, setText] = useState('');
-  const [bildUrl, setBildUrl] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [kategorie, setKategorie] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showBildInfo, setShowBildInfo] = useState(false);
+  const [titel, setTitel]                 = useState('');
+  const [text, setText]                   = useState('');
+  const [bildUrl, setBildUrl]             = useState('');
+  const [videoUrl, setVideoUrl]           = useState('');
+  const [kategorie, setKategorie]         = useState('');
+  const [saving, setSaving]               = useState(false);
+  const [success, setSuccess]             = useState('');
+  const [deletingId, setDeletingId]       = useState<string | null>(null);
+  const [showBildInfo, setShowBildInfo]   = useState(false);
   const [activeKategorie, setActiveKategorie] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('news');
-  const [editBeitrag, setEditBeitrag] = useState<any | null>(null);
+  const [editBeitrag, setEditBeitrag]     = useState<any | null>(null);
+
+  // NEU v21
+  const [zeigeSpielplan, setZeigeSpielplan] = useState(false);
 
   const b = branding as any;
   const themaFarbe      = ctxThema      || b?.Thema_Farbe       || '#111111';
@@ -348,7 +740,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const cardRahmen      = ctxCardRahmen || b?.Card_Rahmen       || '#E5E5E5';
   const tagFarbe        = ctxTagFarbe   || b?.Tag_Farbe         || akzentFarbe;
   const tagTextFarbe    = ctxTagText    || b?.Tag_Text_Farbe    || '#FFFFFF';
-  const iconBarAktiv    = ctxIconAktiv  || akzentFarbe;
 
   const isAdmin     = !!b?.Passwort && isAuthenticated;
   const isTeamAdmin = teamRolle === 'admin';
@@ -461,14 +852,31 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           <button onClick={handleTeamLogout} style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', color: headerTextFarbe, borderRadius: 8, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}>Abmelden</button>
         </div>
       )}
+
       {demoTage && (
         <div style={{ backgroundColor: akzentFarbe, borderRadius: 10, padding: '12px 16px', marginBottom: 12, textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: 15 }}>
           ⏱ Demo läuft noch {demoTage} Tage
         </div>
       )}
+
+      {/* ── NEU v21: Ergebnisse Widget ── */}
+      {kundenId && (
+        <ErgebnisseWidget
+          kundenId={kundenId}
+          themaFarbe={themaFarbe}
+          akzentFarbe={akzentFarbe}
+          headerTextFarbe={headerTextFarbe}
+          cardHintergrund={cardHintergrund}
+          cardRahmen={cardRahmen}
+          onAlleAnzeigen={() => setZeigeSpielplan(true)}
+        />
+      )}
+      {/* ── Ende Ergebnisse Widget ── */}
+
       {sichtbareKategorien.length > 0 && (
         <CategoriesComponent categories={sichtbareKategorien} selectedCategory={activeKategorie} onSelect={setActiveKategorie} themaFarbe={themaFarbe} />
       )}
+
       {canPost && !showForm && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           <button onClick={() => setShowForm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, backgroundColor: themaFarbe, border: 'none', color: headerTextFarbe, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
@@ -481,6 +889,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           )}
         </div>
       )}
+
       {canPost && showForm && (
         <div style={{ background: cardHintergrund, borderRadius: 12, padding: 16, marginBottom: 20, border: `1px solid ${cardRahmen}` }}>
           <h3 style={{ marginTop: 0, color: themaFarbe }}>📝 Neuer Beitrag</h3>
@@ -515,6 +924,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           </div>
         </div>
       )}
+
       {gefilterteBeitraege.length === 0 ? (
         <p style={{ color: '#999', textAlign: 'center', marginTop: 32 }}>{activeKategorie ? `Keine Beiträge in "${activeKategorie}".` : 'Noch keine Beiträge.'}</p>
       ) : (
@@ -523,8 +933,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           const bId = String(beitrag.id || beitrag.Id || '');
           const isDeleting = deletingId === bId;
           const darfLoeschen = canDelete(beitrag);
-
-          // ── NEU v20: Weiterlesen_Link auslesen ──────────────
           const weiterlesenLink = beitrag.Weiterlesen_Link || beitrag.weiterlesen_link || '';
 
           return (
@@ -550,15 +958,12 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
               </div>
               <h3 style={{ margin: '0 0 10px 0', fontSize: 24, lineHeight: 1.25, color: '#222', paddingRight: darfLoeschen ? 90 : 0 }}>{beitrag.Titel}</h3>
               <p style={{ margin: 0, color: '#555', fontSize: 16, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{beitrag.Text}</p>
-
-              {/* ── NEU v20: Weiterlesen Button ── */}
               {weiterlesenLink && (
                 <a href={weiterlesenLink} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'block', marginTop: 14, padding: '12px 16px', backgroundColor: akzentFarbe, color: 'white', borderRadius: 10, textAlign: 'center' as const, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
                   🔗 Weiterlesen →
                 </a>
               )}
-
               {embedUrl && (
                 <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
                   <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={beitrag.Titel} />
@@ -580,8 +985,25 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {editBeitrag && (
         <EditPopup beitrag={editBeitrag} akzentFarbe={akzentFarbe} cardRahmen={cardRahmen} kundenId={kundenId} onClose={() => setEditBeitrag(null)} onSaved={handleEditSaved} />
       )}
+
       <AppHeader title={b?.Verein_Name || 'Sport App'} logoUrl={logoUrl} sponsorLogoUrl={sponsorLogoUrl} themaFarbe={themaFarbe} onRefresh={reload} loading={loading} onAdminClick={onAdminClick} />
+
       {newsContent}
+
+      {/* ── NEU v21: Spielplan Vollansicht ── */}
+      {zeigeSpielplan && (
+        <SpielplanVollansicht
+          kundenId={kundenId}
+          themaFarbe={themaFarbe}
+          akzentFarbe={akzentFarbe}
+          headerTextFarbe={headerTextFarbe}
+          cardHintergrund={cardHintergrund}
+          cardRahmen={cardRahmen}
+          onZurueck={() => setZeigeSpielplan(false)}
+        />
+      )}
+      {/* ── Ende Spielplan Vollansicht ── */}
+
       <div style={{ background: themaFarbe, padding: '14px 16px', display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap' as const, flexShrink: 0 }}>
         <a href="https://app.onlang.de/nutzungsbedingungen" target="_blank" rel="noopener noreferrer"
           style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, textDecoration: 'none', fontWeight: 500 }}>
