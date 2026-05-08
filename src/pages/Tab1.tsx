@@ -1,5 +1,5 @@
 // src/pages/Tab1.tsx v24 — Fix: MatchKarte benutzt clubId für Sieg/Niederlage
-mport React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
 import { BrandingContext, fixGoogleDriveUrl } from '../App';
