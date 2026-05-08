@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v24 — Fix: MatchKarte benutzt clubId für Sieg/Niederlage
+// src/pages/Tab1.tsx v25 — Fix: Nächste Spiele nur zukünftige Termine anzeigen
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -380,12 +380,20 @@ const ErgebnisseWidget: React.FC<{
   useEffect(() => {
     if (!kundenId) return;
     setLoading(true);
+    const jetzt = new Date();
     Promise.all([
       fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=played&limit=3`, { redirect: 'follow' }).then(r => r.json()),
-      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=upcoming&limit=2`, { redirect: 'follow' }).then(r => r.json()),
+      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=upcoming&limit=10`, { redirect: 'follow' }).then(r => r.json()),
     ]).then(([dG, dA]) => {
-      if (dG.success)  setGespielt(dG.items   || []);
-      if (dA.success)  setAnstehend(dA.items  || []);
+      if (dG.success)  setGespielt(dG.items || []);
+      if (dA.success) {
+        // Nur echte zukünftige Spiele anzeigen (kickoff_at > jetzt)
+        const echteZukunft = (dA.items || []).filter((m: Match) => {
+          const kickoff = new Date(m.kickoff_at);
+          return kickoff > jetzt;
+        }).slice(0, 2);
+        setAnstehend(echteZukunft);
+      }
       if (!dG.success && !dA.success) setFehler('Spielplandaten nicht verfügbar');
     }).catch(() => setFehler('Verbindungsfehler'))
       .finally(() => setLoading(false));
@@ -530,10 +538,16 @@ const SpielplanVollansicht: React.FC<{
       const res  = await fetch(url, { redirect: 'follow' });
       const data = await res.json();
       if (data.success) {
-        setMatches(data.items || []);
+        let items = data.items || [];
+        // Bei upcoming: nur echte zukünftige Spiele anzeigen
+        if (scope === 'upcoming') {
+          const jetzt = new Date();
+          items = items.filter((m: Match) => new Date(m.kickoff_at) > jetzt);
+        }
+        setMatches(items);
         setSeite(data.page || 1);
         setGesamtSeiten(data.pages || 1);
-        setGesamt(data.total || 0);
+        setGesamt(scope === 'upcoming' ? items.length : (data.total || 0));
       } else { setFehler(data.error || 'Fehler beim Laden'); }
     } catch { setFehler('Verbindungsfehler'); }
     finally { setLoading(false); }
