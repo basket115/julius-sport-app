@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v22 — Fix: club_id für Sieg/Niederlage Berechnung
+// src/pages/Tab1.tsx v23 — Fix: Widget nutzt kundenId, club_id aus API-Antwort
 mport React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -364,13 +364,14 @@ function formatUhrzeit(dateStr: string): string {
 // ============================================================
 const ErgebnisseWidget: React.FC<{
   kundenId: string;
+  clubId: string;
   themaFarbe: string;
   akzentFarbe: string;
   headerTextFarbe: string;
   cardHintergrund: string;
   cardRahmen: string;
   onAlleAnzeigen: () => void;
-}> = ({ kundenId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen, onAlleAnzeigen }) => {
+}> = ({ kundenId, clubId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen, onAlleAnzeigen }) => {
   const [gespielt, setGespielt]   = useState<Match[]>([]);
   const [anstehend, setAnstehend] = useState<Match[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -494,10 +495,10 @@ const MatchKarteKlein: React.FC<{
 // NEU v21 – SPIELPLAN TAB (Vollansicht)
 // ============================================================
 const SpielplanVollansicht: React.FC<{
-  kundenId: string; themaFarbe: string; akzentFarbe: string;
+  kundenId: string; clubId: string; themaFarbe: string; akzentFarbe: string;
   headerTextFarbe: string; cardHintergrund: string; cardRahmen: string;
   onZurueck: () => void;
-}> = ({ kundenId, themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, onZurueck }) => {
+}> = ({ kundenId, clubId, themaFarbe, akzentFarbe, headerTextFarbe, cardHintergrund, cardRahmen, onZurueck }) => {
   const [matches, setMatches]         = useState<Match[]>([]);
   const [teams, setTeams]             = useState<TeamApi[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -756,7 +757,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const logoUrl        = b?.Logo_verein || b?.Logo_Verein || '';
   const sponsorLogoUrl = b?.Logo_Sponsor || b?.Logo_sponsor || '';
   const kundenId: string = String(branding?.Kunden_ID || '').trim();
-  const clubId: string = String(b?.club_id || '').trim() || kundenId;
+  const clubId: string = String(branding?.club_id || b?.club_id || '').trim() || kundenId;
 
   const kategorienFinal: string[] = useMemo(() => {
     const kat = b?.Kategorien;
@@ -863,7 +864,8 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {/* ── NEU v21: Ergebnisse Widget ── */}
       {kundenId && (
         <ErgebnisseWidget
-          kundenId={clubId}
+          kundenId={kundenId}
+          clubId={clubId}
           themaFarbe={themaFarbe}
           akzentFarbe={akzentFarbe}
           headerTextFarbe={headerTextFarbe}
@@ -994,7 +996,8 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       {/* ── NEU v21: Spielplan Vollansicht ── */}
       {zeigeSpielplan && (
         <SpielplanVollansicht
-          kundenId={clubId}
+          kundenId={kundenId}
+          clubId={clubId}
           themaFarbe={themaFarbe}
           akzentFarbe={akzentFarbe}
           headerTextFarbe={headerTextFarbe}
