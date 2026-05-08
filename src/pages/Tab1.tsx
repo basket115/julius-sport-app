@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v23 — Fix: Widget nutzt kundenId, club_id aus API-Antwort
+// src/pages/Tab1.tsx v24 — Fix: MatchKarte benutzt clubId für Sieg/Niederlage
 mport React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -421,14 +421,14 @@ const ErgebnisseWidget: React.FC<{
       {!loading && gespielt.length > 0 && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Letzte Ergebnisse</div>
-          {gespielt.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={kundenId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={true} />)}
+          {gespielt.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={clubId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={true} />)}
         </div>
       )}
 
       {!loading && anstehend.length > 0 && (
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Nächste Spiele</div>
-          {anstehend.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={kundenId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={false} />)}
+          {anstehend.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={clubId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={false} />)}
         </div>
       )}
 
@@ -616,7 +616,7 @@ const SpielplanVollansicht: React.FC<{
 
         {/* Spielliste */}
         {!loading && !fehler && matches.map(m => (
-          <MatchKarteGross key={m.match_uid} match={m} kundenId={kundenId}
+          <MatchKarteGross key={m.match_uid} match={m} kundenId={clubId}
             themaFarbe={themaFarbe} akzentFarbe={akzentFarbe}
             cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} />
         ))}
