@@ -17,6 +17,8 @@
             --success-bg: #f0fdf4;
             --success-border: #86efac;
             --success-text: #166534;
+            --info-bg: #fffbeb;
+            --info-border: #fcd34d;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* NAV */
         nav {
             padding: 20px 40px;
             display: flex;
@@ -72,7 +73,6 @@
         }
         .nav-cta:hover { background: #333; }
 
-        /* HERO */
         .hero {
             max-width: 900px;
             margin: 0 auto;
@@ -108,9 +108,7 @@
             margin-bottom: 20px;
         }
 
-        .hero h1 .highlight {
-            color: var(--accent);
-        }
+        .hero h1 .highlight { color: var(--accent); }
 
         .hero p {
             font-size: 1.1rem;
@@ -140,10 +138,7 @@
             align-items: center;
             gap: 6px;
         }
-        .feature-chip .check {
-            color: var(--accent);
-            font-size: 0.75rem;
-        }
+        .feature-chip .check { color: var(--accent); font-size: 0.75rem; }
 
         .trust-row {
             display: flex;
@@ -152,12 +147,8 @@
             margin-top: 20px;
             flex-wrap: wrap;
         }
-        .trust-item {
-            font-size: 0.82rem;
-            color: var(--muted);
-        }
+        .trust-item { font-size: 0.82rem; color: var(--muted); }
 
-        /* FORM */
         .form-wrap {
             max-width: 540px;
             margin: 0 auto;
@@ -186,9 +177,7 @@
             line-height: 1.5;
         }
 
-        .field {
-            margin-bottom: 18px;
-        }
+        .field { margin-bottom: 18px; }
 
         .field label {
             display: block;
@@ -199,6 +188,7 @@
         }
 
         .field label .req { color: var(--accent); }
+        .field label .opt { color: var(--muted); font-weight: 400; font-size: 0.75rem; }
 
         .field input {
             width: 100%;
@@ -220,6 +210,69 @@
             color: var(--muted);
             margin-top: 5px;
             line-height: 1.4;
+        }
+
+        /* NEU: Club-ID Info Box */
+        .club-id-info {
+            background: var(--info-bg);
+            border: 1.5px solid var(--info-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        .club-id-info strong {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+        }
+
+        .club-id-info ol {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .club-id-info ol li { margin-bottom: 2px; }
+
+        .club-id-info .club-id-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.78rem;
+        }
+        .club-id-info .club-id-link:hover { text-decoration: underline; }
+
+        .club-id-info .url-example {
+            background: rgba(0,0,0,0.06);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            display: block;
+            word-break: break-all;
+        }
+
+        /* Trennlinie */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
         }
 
         .btn-submit {
@@ -261,7 +314,6 @@
             margin-top: 12px;
         }
 
-        /* SUCCESS */
         .success-card {
             display: none;
             background: var(--success-bg);
@@ -297,10 +349,7 @@
             line-height: 1.6;
         }
 
-        .success-email {
-            font-weight: 700;
-            color: var(--dark);
-        }
+        .success-email { font-weight: 700; color: var(--dark); }
 
         .next-step-box {
             background: var(--white);
@@ -314,7 +363,6 @@
             color: var(--dark);
         }
 
-        /* FOOTER */
         footer {
             text-align: center;
             padding: 28px;
@@ -351,7 +399,7 @@
         <p>ONLANG bringt deinen Sportverein ins digitale Zeitalter — mit einer eigenen App, deinen Farben, deinem Logo. Keine technischen Kenntnisse nötig.</p>
         <div class="feature-grid">
             <span class="feature-chip"><span class="check">✓</span> Eigenes Branding — Logo, Farben, Name</span>
-            <span class="feature-chip"><span class="check">✓</span> News, Termine, Ergebnisse</span>
+            <span class="feature-chip"><span class="check">✓</span> News, Termine, Ergebnisse automatisch</span>
             <span class="feature-chip"><span class="check">✓</span> Kategorien für Jugend, Senioren, Vorstand</span>
             <span class="feature-chip"><span class="check">✓</span> Push-Benachrichtigungen</span>
             <span class="feature-chip"><span class="check">✓</span> Kostenlose Demo — sofort startklar</span>
@@ -367,6 +415,9 @@
         <div class="form-card" id="formCard">
             <h2>Kostenlose Demo anfragen</h2>
             <p class="form-sub">Füll das Formular aus — du erhältst innerhalb weniger Minuten Zugangsdaten per E-Mail.</p>
+
+            <!-- Vereinsdaten -->
+            <div class="section-label">Vereinsdaten</div>
 
             <div class="field">
                 <label>Vereinsname <span class="req">*</span></label>
@@ -389,6 +440,35 @@
                 <label>Website deines Vereins</label>
                 <input type="url" id="website" placeholder="https://dein-verein.de" />
                 <div class="hint">Wir lesen automatisch deine Vereinsfarben aus — spart dir Zeit beim Einrichten</div>
+            </div>
+
+            <hr class="divider" />
+
+            <!-- NEU: Club-ID -->
+            <div class="section-label">Spielplan & Ergebnisse</div>
+
+            <div class="field">
+                <label>
+                    Club-ID (Deutscher Basketball Bund)
+                    <span class="opt">— optional, kann später nachgereicht werden</span>
+                </label>
+                <input type="text" id="clubId" placeholder="z.B. 1415" />
+
+                <div class="club-id-info">
+                    <strong>🏀 Wozu brauchen wir die Club-ID?</strong>
+                    Mit deiner Club-ID erscheinen Spielergebnisse und Spielpläne automatisch in deiner App — ohne manuelle Eingabe!
+                    <br/><br/>
+                    <strong>So findest du sie (2 Minuten):</strong>
+                    <ol>
+                        <li>Einloggen auf <strong>basketball-bund.net</strong></li>
+                        <li>Menü: <strong>Verwaltung → Postfach</strong></li>
+                        <li>Die Zahl in der Adresszeile des Browsers:</li>
+                    </ol>
+                    <span class="url-example">basketball-bund.net/app.do?app=/postfach/verein/<strong>XXXX</strong>/edit</span>
+                    <a href="https://results2social.de/clubid.html" target="_blank" class="club-id-link">
+                        📖 Schritt-für-Schritt Anleitung →
+                    </a>
+                </div>
             </div>
 
             <button class="btn-submit" id="submitBtn" onclick="submitForm()">
@@ -419,11 +499,12 @@
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec';
 
         async function submitForm() {
-            const vereinsname    = document.getElementById('vereinsname').value.trim();
+            const vereinsname     = document.getElementById('vereinsname').value.trim();
             const ansprechpartner = document.getElementById('ansprechpartner').value.trim();
-            const email          = document.getElementById('email').value.trim();
-            const telefon        = document.getElementById('telefon').value.trim();
-            const website        = document.getElementById('website').value.trim();
+            const email           = document.getElementById('email').value.trim();
+            const telefon         = document.getElementById('telefon').value.trim();
+            const website         = document.getElementById('website').value.trim();
+            const clubId          = document.getElementById('clubId').value.trim();
 
             if (!vereinsname || !ansprechpartner || !email) {
                 alert('Bitte fülle alle Pflichtfelder aus.');
@@ -438,7 +519,15 @@
             spinner.style.display = 'block';
 
             try {
-                const params = new URLSearchParams({ action: 'registriereKunde', Verein_Name: vereinsname, Ansprechpartner: ansprechpartner, Email: email, Telefon: telefon, Website: website });
+                const params = new URLSearchParams({
+                    action: 'registriereKunde',
+                    Verein_Name: vereinsname,
+                    Ansprechpartner: ansprechpartner,
+                    Email: email,
+                    Telefon: telefon,
+                    Website: website,
+                    club_id: clubId  // NEU: Club-ID mitschicken
+                });
                 const res  = await fetch(`${GAS_URL}?${params}`);
                 const data = await res.json();
 
