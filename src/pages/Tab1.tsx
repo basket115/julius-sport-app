@@ -5,7 +5,7 @@ import CategoriesComponent from '../components/CategoriesComponent';
 import { BrandingContext, fixGoogleDriveUrl } from '../App';
 
 const API_EXEC_URL =
-  "https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec";
+  "/api/proxy";
 
 // ─── YouTube Embed ────────────────────────────────────────────
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -20,7 +20,7 @@ const sponsorCache: Record<string, SponsorData | null> = {};
 
 async function loadSponsorsForKunde(kundenId: string): Promise<any[]> {
   try {
-    const res = await fetch(`${API_EXEC_URL}?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`, { redirect: 'follow' });
+    const res = await fetch(`${/api/proxy}?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`, { redirect: 'follow' });
     const d = await res.json();
     return d?.sponsors || [];
   } catch { return []; }
