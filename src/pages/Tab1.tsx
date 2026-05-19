@@ -20,7 +20,7 @@ const sponsorCache: Record<string, SponsorData | null> = {};
 
 async function loadSponsorsForKunde(kundenId: string): Promise<any[]> {
   try {
-    const res = await fetch(`${/api/proxy}?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`, { redirect: 'follow' });
+    const res = await fetch(`/api/proxy?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`, { redirect: 'follow' })
     const d = await res.json();
     return d?.sponsors || [];
   } catch { return []; }
