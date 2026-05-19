@@ -189,7 +189,7 @@ const App: React.FC = () => {
   const kundenId = (() => {
     const fromUrl = new URLSearchParams(window.location.search).get('kunde');
     if (fromUrl) { localStorage.setItem('kundenId', fromUrl); return fromUrl; }
-    return localStorage.getItem('kundenId') || '';
+    return localStorage.getItem('kundenId') || 'V068';
   })();
 
   useEffect(() => {
