@@ -1,4 +1,10 @@
 [[redirects]]
+  from = "/julius-welt.html"
+  to = "/julius-welt.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "https://anmeldung.onlang.de/*"
   to = "/anmeldung.html"
   status = 200
