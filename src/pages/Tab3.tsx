@@ -1,6 +1,7 @@
 import React from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
+// @ts-ignore
 import './Tab3.css';
 
 const Tab3: React.FC = () => {
