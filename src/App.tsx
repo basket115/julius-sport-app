@@ -23,6 +23,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 // @ts-ignore
 import '@ionic/react/css/display.css';
+// @ts-ignore
 import './theme/variables.css';
 
 export const BrandingContext = createContext<any>(null);
