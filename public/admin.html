@@ -520,10 +520,11 @@
                 <strong style="font-size:0.9rem">📰 Pressebericht</strong>
                 <div id="bericht_presse" style="background:var(--bg);border-radius:8px;padding:12px;margin-top:8px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;"></div>
             </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">
+                <button class="btn-primary btn-full" onclick="naechstesSpiel()" style="background:var(--dark)">➕ Nächstes Spiel eingeben</button>
+            </div>
         </div>
     </div>
-
-    <!-- SPEICHERN -->
     <div id="sec_save" style="display:none">
         <button class="btn-primary btn-full" onclick="saveAll()">💾 Speichern</button>
         <div class="status-msg" id="saveStatus"></div>
@@ -895,6 +896,17 @@ async function berichtVeroeffentlichen() {
       alert('Fehler: ' + data.error);
     }
   } catch(e) { alert('Fehler: ' + e.message); }
+}
+
+function naechstesSpiel() {
+  ['sp_abteilung','sp_gegner','sp_eigen','sp_gegner_p','sp_liga'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sp_datum').value = '';
+  document.getElementById('sp_ort').value = 'heim';
+  document.getElementById('spielBerichtBox').style.display = 'none';
+  document.getElementById('spielStatus').textContent = '';
+  _letzterBericht = null;
+  document.getElementById('sp_abteilung').focus();
+  window.scrollTo({ top: document.getElementById('sec_spiel').offsetTop - 20, behavior: 'smooth' });
 }
 
 // ── Speichern ───────────────────────────────────────────────
