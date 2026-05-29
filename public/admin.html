@@ -11,518 +11,261 @@
             --white: #ffffff;
             --dark: #111111;
             --accent: #ff6b00;
-            --accent2: #ff8c00;
             --border: #e0ddd6;
             --muted: #888880;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--dark);
-            min-height: 100vh;
+        nav { padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; background: var(--dark); }
+        .nav-left { display: flex; align-items: center; gap: 10px; }
+        .nav-logo-img { height: 36px; width: 36px; object-fit: contain; border-radius: 8px; }
+        .nav-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--white); }
+        .nav-subtitle { color: rgba(255,255,255,0.45); font-size: 0.82rem; }
+        #logoutBtn { display: none; background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 7px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
+
+        .login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 68px); padding: 24px; }
+        .login-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 44px 40px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); text-align: center; }
+        .login-logo { margin-bottom: 20px; }
+        .login-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
+        .login-card h1 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+        .login-card .login-sub { font-size: 0.875rem; color: var(--muted); margin-bottom: 24px; }
+        .login-card input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--bg); color: var(--dark); outline: none; margin-bottom: 10px; transition: border-color 0.15s; }
+        .login-card input:focus { border-color: var(--accent); }
+        .login-card button { width: 100%; background: var(--dark); color: var(--white); border: none; border-radius: 10px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; }
+        #loginError { color: #dc2626; font-size: 0.82rem; margin-top: 10px; display: none; }
+
+        #adminPanel { display: none; max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+
+        .section-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .section-card h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 6px; color: var(--dark); }
+        .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--bg); color: var(--dark); outline: none; transition: border-color 0.15s; }
+        .field input:focus, .field select:focus { border-color: var(--accent); }
+        .field .hint { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
+
+        #logoPreviewImg { max-height: 56px; max-width: 180px; border-radius: 8px; display: none; border: 1px solid var(--border); padding: 4px; margin-top: 8px; }
+
+        .upload-label { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; padding: 11px 16px; border: 2px dashed var(--accent); border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--accent); background: #fff8f4; transition: background 0.2s; }
+        .upload-label:hover { background: #ffe8d6; }
+        .upload-status { font-size: 0.78rem; margin-top: 5px; min-height: 18px; }
+
+        /* ── NEUER COLORPICKER BEREICH ── */
+        .color-section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
         }
 
-        nav {
-            padding: 16px 40px;
+        /* Hauptfarbe – groß und prominent */
+        .main-color-picker {
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .main-color-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .main-color-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: var(--dark);
+            gap: 12px;
         }
+        .main-color-swatch {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .main-color-hex {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--white);
+            color: var(--dark);
+            outline: none;
+            text-transform: uppercase;
+        }
+        .main-color-hex:focus { border-color: var(--accent); }
 
-        .nav-left {
+        /* Vorschau */
+        .color-preview {
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .preview-header {
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: background 0.2s;
         }
-
-        .nav-logo-img {
-            height: 36px;
-            width: 36px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .nav-title {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: var(--white);
-            letter-spacing: -0.01em;
-        }
-
-        .nav-subtitle {
-            color: rgba(255,255,255,0.45);
-            font-size: 0.82rem;
-            font-weight: 400;
-        }
-
-        #logoutBtn {
-            display: none;
-            background: rgba(255,255,255,0.1);
-            color: var(--white);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 7px 16px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        #logoutBtn:hover { background: rgba(255,255,255,0.18); }
-
-        .login-wrap {
+        .preview-header-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 68px);
-            padding: 24px;
+            font-size: 14px;
+            flex-shrink: 0;
+            overflow: hidden;
         }
-
-        .login-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 44px 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-            text-align: center;
-        }
-
-        .login-logo { margin-bottom: 20px; }
-        .login-logo img {
-            height: 56px;
-            width: 56px;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .login-card h1 {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-
-        .login-card .login-sub {
-            font-size: 0.875rem;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-
-        .login-card .login-desc {
-            font-size: 0.82rem;
-            color: var(--muted);
-            margin-bottom: 24px;
-        }
-
-        .login-card input {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            background: var(--bg);
-            color: var(--dark);
-            outline: none;
-            margin-bottom: 10px;
-            transition: border-color 0.15s;
-        }
-        .login-card input:focus { border-color: var(--accent); }
-
-        .login-card button {
-            width: 100%;
-            background: var(--dark);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .login-card button:hover { background: #222; }
-
-        #loginError {
-            color: #dc2626;
-            font-size: 0.82rem;
-            margin-top: 10px;
-            display: none;
-        }
-
-        #adminPanel {
-            display: none;
-            max-width: 780px;
-            margin: 0 auto;
-            padding: 36px 24px 80px;
-        }
-
-        .panel-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 28px;
-        }
-
-        .section-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px 32px;
-            margin-bottom: 18px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-        }
-
-        .section-card h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 0.95rem;
+        .preview-header-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .preview-header-name {
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 20px;
+            color: white;
+        }
+        .preview-body {
+            background: white;
+            padding: 12px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 8px;
         }
-
-        .field { margin-bottom: 16px; }
-
-        .field label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--dark);
-        }
-
-        .field input, .field select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.88rem;
-            background: var(--bg);
-            color: var(--dark);
-            outline: none;
-            transition: border-color 0.15s;
-        }
-        .field input:focus, .field select:focus { border-color: var(--accent); }
-
-        .field .hint {
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-top: 5px;
-        }
-
-        #logoPreviewImg {
-            max-height: 56px;
-            max-width: 180px;
+        .preview-card {
+            background: #f4f0e8;
             border-radius: 8px;
-            display: none;
-            border: 1px solid var(--border);
-            padding: 4px;
-            margin-top: 8px;
-        }
-
-        .input-btn-row { display: flex; gap: 8px; }
-        .input-btn-row input { flex: 1; }
-        .btn-fetch {
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: border-color 0.15s;
-        }
-        .btn-fetch:hover { border-color: var(--accent); }
-
-        .collapsible-label {
-            cursor: pointer;
+            padding: 10px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.82rem;
-            font-weight: 500;
-            color: var(--muted);
-            padding: 8px 0;
-            border-top: 1px solid var(--border);
-            margin-top: 4px;
-            user-select: none;
         }
+        .preview-card-title { font-size: 12px; font-weight: 600; color: #111; }
+        .preview-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: white;
+            transition: background 0.2s;
+        }
+        .preview-btn {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        /* Farbpalette Vorschläge */
+        .color-suggestions {
+            margin-bottom: 16px;
+        }
+        .color-suggestions-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .color-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .color-swatch-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s;
+            position: relative;
+        }
+        .color-swatch-btn:hover { transform: scale(1.15); }
+        .color-swatch-btn.active { border-color: var(--dark); }
+        .color-swatch-btn .swatch-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: var(--muted);
+            white-space: nowrap;
+            display: none;
+        }
+        .color-swatch-btn:hover .swatch-label { display: block; }
+
+        /* Weitere Farben – klein */
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .color-field label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 6px; }
+        .color-row { display: flex; align-items: center; gap: 8px; }
+        .color-row input[type="color"] { width: 36px; height: 34px; border: 1.5px solid var(--border); border-radius: 8px; padding: 2px; cursor: pointer; background: var(--bg); flex-shrink: 0; }
+        .color-row input[type="text"] { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: monospace; font-size: 0.82rem; background: var(--bg); color: var(--dark); outline: none; }
+        .color-row input[type="text"]:focus { border-color: var(--accent); }
+
+        /* Social */
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .social-field { display: flex; flex-direction: column; gap: 6px; }
+        .social-field label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .social-field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; background: var(--bg); color: var(--dark); outline: none; }
+        .social-hint { font-size: 0.75rem; color: var(--muted); background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 8px 12px; margin-bottom: 16px; }
+
+        /* Tags */
+        .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; min-height: 28px; }
+        .tag-pill { background: var(--dark); color: var(--white); border-radius: 100px; padding: 5px 12px; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .tag-pill button { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem; padding: 0; }
+        .empty-tags { font-size: 0.82rem; color: var(--muted); }
+        .quick-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+        .quick-chip { background: var(--bg); border: 1.5px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: border-color 0.15s; }
+        .quick-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .add-row { display: flex; gap: 8px; }
+        .add-row input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--bg); color: var(--dark); outline: none; }
+        .add-row button { background: var(--dark); color: var(--white); border: none; border-radius: 10px; padding: 9px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; }
+
+        /* Teams */
+        .team-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.875rem; }
+        .team-info { display: flex; flex-direction: column; gap: 2px; }
+        .team-name { font-weight: 500; }
+        .team-role { font-size: 0.76rem; color: var(--muted); }
+        .btn-remove { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; }
+
+        .collapsible-label { cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; font-weight: 500; color: var(--muted); padding: 8px 0; border-top: 1px solid var(--border); margin-top: 4px; user-select: none; }
         .caret { transition: transform 0.2s; }
         .caret.open { transform: rotate(180deg); }
         .collapsible-content { display: none; padding-top: 12px; }
         .collapsible-content.open { display: block; }
 
-        .imgur-guide {
-            background: var(--bg);
-            border-radius: 10px;
-            padding: 16px;
-            font-size: 0.82rem;
-            line-height: 1.7;
-        }
+        .imgur-guide { background: var(--bg); border-radius: 10px; padding: 16px; font-size: 0.82rem; line-height: 1.7; }
         .imgur-step { display: flex; gap: 10px; margin-bottom: 7px; }
-        .step-num {
-            background: var(--dark);
-            color: #fff;
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .imgur-warning {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            font-size: 0.79rem;
-            line-height: 1.5;
-        }
+        .step-num { background: var(--dark); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
 
-        .upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 11px 16px;
-            border: 2px dashed var(--accent);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--accent);
-            background: #fff8f4;
-            transition: background 0.2s;
-            user-select: none;
-        }
-        .upload-label:hover { background: #ffe8d6; }
-        .upload-status {
-            font-size: 0.78rem;
-            margin-top: 5px;
-            min-height: 18px;
-        }
-
-        .color-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .color-field label {
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--muted);
-            display: block;
-            margin-bottom: 6px;
-        }
-        .color-row { display: flex; align-items: center; gap: 8px; }
-        .color-row input[type="color"] {
-            width: 38px; height: 36px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            padding: 2px;
-            cursor: pointer;
-            background: var(--bg);
-        }
-        .color-row input[type="text"] {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            background: var(--bg);
-            color: var(--dark);
-            outline: none;
-        }
-        .color-row input[type="text"]:focus { border-color: var(--accent); }
-
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 14px;
-            min-height: 28px;
-        }
-        .tag-pill {
-            background: var(--dark);
-            color: var(--white);
-            border-radius: 100px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .tag-pill button {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.6);
-            cursor: pointer;
-            font-size: 0.85rem;
-            line-height: 1;
-            padding: 0;
-        }
-        .tag-pill button:hover { color: #fff; }
-
-        .empty-tags { font-size: 0.82rem; color: var(--muted); }
-
-        .quick-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-        .quick-chip {
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            border-radius: 100px;
-            padding: 5px 14px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: border-color 0.15s;
-        }
-        .quick-chip:hover { border-color: var(--accent); color: var(--accent); }
-
-        .add-row { display: flex; gap: 8px; }
-        .add-row input {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.88rem;
-            background: var(--bg);
-            color: var(--dark);
-            outline: none;
-        }
-        .add-row input:focus { border-color: var(--accent); }
-        .add-row button {
-            background: var(--dark);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            padding: 9px 16px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.88rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .team-list { margin-bottom: 14px; }
-        .team-item {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.875rem;
-        }
-        .team-info { display: flex; flex-direction: column; gap: 2px; }
-        .team-name { font-weight: 500; }
-        .team-role { font-size: 0.76rem; color: var(--muted); }
-        .team-item .btn-remove {
-            background: none;
-            border: none;
-            color: #dc2626;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        /* ── Soziale Medien ────────────────────────────────────────── */
-        .social-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-        .social-field { display: flex; flex-direction: column; gap: 6px; }
-        .social-field label {
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .social-icon { font-size: 1rem; }
-        .social-field input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            background: var(--bg);
-            color: var(--dark);
-            outline: none;
-            transition: border-color 0.15s;
-        }
-        .social-field input:focus { border-color: var(--accent); }
-        .social-hint {
-            font-size: 0.75rem;
-            color: var(--muted);
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 16px;
-        }
-        /* ─────────────────────────────────────────────────────────── */
-
-        .btn-primary {
-            background: var(--dark);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
+        .btn-primary { background: var(--dark); color: var(--white); border: none; border-radius: 10px; padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.15s; }
         .btn-primary:hover { background: #222; }
         .btn-full { width: 100%; }
-
-        .status-msg {
-            text-align: center;
-            font-size: 0.82rem;
-            margin-top: 10px;
-            display: none;
-        }
+        .status-msg { text-align: center; font-size: 0.82rem; margin-top: 10px; display: none; }
         .status-msg.ok { color: #16a34a; }
         .status-msg.err { color: #dc2626; }
+        #loadingMsg { text-align: center; padding: 24px; color: var(--muted); font-size: 0.9rem; }
 
-        #loadingMsg {
-            text-align: center;
-            padding: 24px;
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 24px;
-            font-size: 0.78rem;
-            color: var(--muted);
-            border-top: 1px solid var(--border);
-        }
+        footer { text-align: center; padding: 24px; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--border); }
 
         @media (max-width: 560px) {
             .color-grid { grid-template-columns: 1fr; }
@@ -535,501 +278,528 @@
 </head>
 <body>
 
-    <nav>
-        <div class="nav-left">
-            <img class="nav-logo-img" src="https://i.imgur.com/dcz2Nwi.png" alt="ONLANG Logo" />
-            <span class="nav-title">ONLANG <span class="nav-subtitle">Admin</span></span>
-        </div>
-        <button id="logoutBtn" onclick="logout()">Abmelden</button>
-    </nav>
-
-    <div class="login-wrap" id="loginWrap">
-        <div class="login-card">
-            <div class="login-logo">
-                <img src="https://i.imgur.com/dcz2Nwi.png" alt="ONLANG Logo" />
-            </div>
-            <h1>ONLANG Admin</h1>
-            <p class="login-sub">Vereins-App Verwaltung</p>
-            <p class="login-desc">Melde dich mit deiner Kunden-ID und deinem Passwort an.</p>
-            <input type="text" id="loginId" placeholder="Kunden-ID" />
-            <input type="password" id="loginPw" placeholder="Passwort" onkeydown="if(event.key==='Enter')doLogin()" />
-            <button onclick="doLogin()">Anmelden</button>
-            <div id="loginError">Ungültige ID oder Passwort</div>
-        </div>
+<nav>
+    <div class="nav-left">
+        <img class="nav-logo-img" src="https://i.imgur.com/dcz2Nwi.png" alt="ONLANG" />
+        <span class="nav-title">ONLANG <span class="nav-subtitle">Admin</span></span>
     </div>
+    <button id="logoutBtn" onclick="logout()">Abmelden</button>
+</nav>
 
-    <div id="adminPanel">
-        <div id="loadingMsg">Laden...</div>
+<div class="login-wrap" id="loginWrap">
+    <div class="login-card">
+        <div class="login-logo"><img src="https://i.imgur.com/dcz2Nwi.png" alt="ONLANG" /></div>
+        <h1>ONLANG Admin</h1>
+        <p class="login-sub">Melde dich mit deiner Kunden-ID an</p>
+        <input type="text" id="loginId" placeholder="Kunden-ID (z.B. V002)" />
+        <input type="password" id="loginPw" placeholder="Passwort" onkeydown="if(event.key==='Enter')doLogin()" />
+        <button onclick="doLogin()">Anmelden</button>
+        <div id="loginError">Ungültige ID oder Passwort</div>
+    </div>
+</div>
 
-        <!-- ── Verein ─────────────────────────────────────────────── -->
-        <div class="section-card" id="sec_verein" style="display:none">
-            <h3>🏛️ Verein</h3>
-            <div class="field">
-                <label>Vereinsname</label>
-                <input type="text" id="f_vereinsname" placeholder="z.B. Basketball Club Muster" />
-            </div>
-            <div class="field">
-                <label>Website — Farben automatisch laden</label>
-                <div class="input-btn-row">
-                    <input type="url" id="f_website" placeholder="https://dein-verein.de" />
-                    <button class="btn-fetch" onclick="fetchColors()">🎨 Laden</button>
-                </div>
-                <div class="hint" id="fetchStatus"></div>
-            </div>
+<div id="adminPanel">
+    <div id="loadingMsg">Laden...</div>
 
-            <div class="field">
-                <label>Logo URL</label>
+    <!-- VEREIN -->
+    <div class="section-card" id="sec_verein" style="display:none">
+        <h3>🏛️ Verein</h3>
+        <div class="field">
+            <label>Vereinsname</label>
+            <input type="text" id="f_vereinsname" placeholder="z.B. Basketball Club Muster" />
+        </div>
+        <div class="field">
+            <label>Logo</label>
+            <img id="logoPreviewImg" src="" alt="Logo Vorschau" />
+            <label class="upload-label">
+                📁 Logo hochladen (JPG / PNG / SVG)
+                <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(this)" />
+            </label>
+            <div class="upload-status" id="logoUploadStatus"></div>
+            <div class="field" style="margin-top:10px">
+                <label>Oder Logo-URL direkt eingeben</label>
                 <input type="url" id="f_logo" placeholder="https://i.imgur.com/xxxxx.png" oninput="previewLogo()" />
-                <img id="logoPreviewImg" src="" alt="Logo Vorschau" />
-                <label class="upload-label" title="Bild direkt vom Computer hochladen">
-                    📁 Logo direkt hochladen (JPG / PNG / SVG)
-                    <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(this)" />
-                </label>
-                <div class="upload-status" id="logoUploadStatus"></div>
-            </div>
-
-            <div class="collapsible-label" onclick="toggleCollapse('imgurGuide','imgurCaret')">
-                <span>📷 Wie bekomme ich einen Logo-Link?</span>
-                <span class="caret" id="imgurCaret">▼</span>
-            </div>
-            <div class="collapsible-content" id="imgurGuide">
-                <div class="imgur-guide">
-                    <div class="imgur-step"><div class="step-num">1</div><div>Gehe zu <strong>imgur.com</strong> und klick auf <strong>"New Post"</strong></div></div>
-                    <div class="imgur-step"><div class="step-num">2</div><div>Lade dein Logo-Bild hoch</div></div>
-                    <div class="imgur-step"><div class="step-num">3</div><div><strong>Wichtig:</strong> Rechtsklick direkt auf das Bild → <strong>"Bildadresse kopieren"</strong></div></div>
-                    <div class="imgur-step"><div class="step-num">4</div><div>Den Link hier einfügen: <strong>https://i.imgur.com/xxxxx.png</strong></div></div>
-                    <div class="imgur-warning">⚠️ <strong>Achtung:</strong> Nicht den "Copy"-Button verwenden — immer Rechtsklick direkt auf das Bild → Bildadresse kopieren.</div>
-                </div>
-            </div>
-
-            <div class="field" style="margin-top:14px">
-                <label>Logo Sponsor (optional)</label>
-                <input type="url" id="f_logoSponsor" placeholder="https://..." />
-            </div>
-            <div class="field">
-                <label>Headline Text (optional)</label>
-                <input type="text" id="f_headline" placeholder="z.B. Willkommen beim BC Muster!" />
             </div>
         </div>
-
-        <!-- ── NEU: Soziale Medien ────────────────────────────────── -->
-        <div class="section-card" id="sec_social" style="display:none">
-            <h3>📱 Soziale Medien</h3>
-            <div class="social-hint">
-                ⚠️ Bitte immer die vollständige URL mit <strong>https://</strong> eingeben — z.B. <strong>https://www.facebook.com/euerverein</strong>
-            </div>
-            <div class="social-grid">
-                <div class="social-field">
-                    <label><span class="social-icon">🌐</span> Website</label>
-                    <input type="url" id="s_website" placeholder="https://euer-verein.de" />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">📘</span> Facebook</label>
-                    <input type="url" id="s_facebook" placeholder="https://www.facebook.com/..." />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">📸</span> Instagram</label>
-                    <input type="url" id="s_instagram" placeholder="https://www.instagram.com/..." />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">▶️</span> YouTube</label>
-                    <input type="url" id="s_youtube" placeholder="https://www.youtube.com/..." />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">🎵</span> TikTok</label>
-                    <input type="url" id="s_tiktok" placeholder="https://www.tiktok.com/@..." />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">🐦</span> X / Twitter</label>
-                    <input type="url" id="s_twitter" placeholder="https://x.com/..." />
-                </div>
-                <div class="social-field">
-                    <label><span class="social-icon">💬</span> WhatsApp Gruppe</label>
-                    <input type="url" id="s_whatsapp" placeholder="https://chat.whatsapp.com/..." />
-                </div>
-            </div>
+        <div class="field">
+            <label>Logo Sponsor (optional)</label>
+            <input type="url" id="f_logoSponsor" placeholder="https://..." />
         </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ── Farben ─────────────────────────────────────────────── -->
-        <div class="section-card" id="sec_farben" style="display:none">
-            <h3>🎨 Farben</h3>
-            <div class="color-grid">
-                <div class="color-field">
-                    <label>Header Hintergrund</label>
-                    <div class="color-row">
-                        <input type="color" id="c_header" value="#111111" oninput="syncColor('c_header','ct_header')" />
-                        <input type="text" id="ct_header" value="#111111" oninput="syncColorText('ct_header','c_header')" maxlength="7" />
-                    </div>
-                </div>
-                <div class="color-field">
-                    <label>Buttons &amp; Tags</label>
-                    <div class="color-row">
-                        <input type="color" id="c_accent" value="#ff6b00" oninput="syncColor('c_accent','ct_accent')" />
-                        <input type="text" id="ct_accent" value="#ff6b00" oninput="syncColorText('ct_accent','c_accent')" maxlength="7" />
-                    </div>
-                </div>
-                <div class="color-field">
-                    <label>Header Text</label>
-                    <div class="color-row">
-                        <input type="color" id="c_headerText" value="#ffffff" oninput="syncColor('c_headerText','ct_headerText')" />
-                        <input type="text" id="ct_headerText" value="#ffffff" oninput="syncColorText('ct_headerText','c_headerText')" maxlength="7" />
-                    </div>
-                </div>
-                <div class="color-field">
-                    <label>Card Hintergrund</label>
-                    <div class="color-row">
-                        <input type="color" id="c_cardBg" value="#f4f0e8" oninput="syncColor('c_cardBg','ct_cardBg')" />
-                        <input type="text" id="ct_cardBg" value="#f4f0e8" oninput="syncColorText('ct_cardBg','c_cardBg')" maxlength="7" />
-                    </div>
-                </div>
-                <div class="color-field">
-                    <label>Card Rahmen</label>
-                    <div class="color-row">
-                        <input type="color" id="c_cardBorder" value="#111111" oninput="syncColor('c_cardBorder','ct_cardBorder')" />
-                        <input type="text" id="ct_cardBorder" value="#111111" oninput="syncColorText('ct_cardBorder','c_cardBorder')" maxlength="7" />
-                    </div>
-                </div>
-                <div class="color-field">
-                    <label>Tag Farbe</label>
-                    <div class="color-row">
-                        <input type="color" id="c_tag" value="#ff6b00" oninput="syncColor('c_tag','ct_tag')" />
-                        <input type="text" id="ct_tag" value="#ff6b00" oninput="syncColorText('ct_tag','c_tag')" maxlength="7" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── Kategorien ─────────────────────────────────────────── -->
-        <div class="section-card" id="sec_kat" style="display:none">
-            <h3>📂 Kategorien</h3>
-            <div class="collapsible-label" onclick="toggleCollapse('katInfo','katCaret')">
-                <span>Warum sind Kategorien wichtig?</span>
-                <span class="caret" id="katCaret">▼</span>
-            </div>
-            <div class="collapsible-content" id="katInfo">
-                <div class="imgur-guide" style="margin-top:8px">
-                    Kategorien helfen deinen Mitgliedern, nur die Beitraege zu sehen die fuer sie relevant sind.<br/><br/>
-                    <strong>News</strong> — Allgemeine Vereinsnachrichten<br/>
-                    <strong>Vorstand</strong> — Interne Infos, Protokolle<br/>
-                    <strong>Senioren</strong> — Trainingszeiten, Spiele<br/>
-                    <strong>Jugend</strong> — U8 bis U18, Turniere<br/>
-                    <strong>Mannschaften</strong> — z.B. "1. Herren", "Damen 1"
-                </div>
-            </div>
-            <p style="font-size:0.8rem;color:var(--muted);margin:14px 0 8px">Aktuelle Kategorien</p>
-            <div class="tag-list" id="tagList"></div>
-            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">Schnell hinzufuegen</p>
-            <div class="quick-chips">
-                <span class="quick-chip" onclick="addQuickTag('News')">+ News</span>
-                <span class="quick-chip" onclick="addQuickTag('Vorstand')">+ Vorstand</span>
-                <span class="quick-chip" onclick="addQuickTag('Senioren')">+ Senioren</span>
-                <span class="quick-chip" onclick="addQuickTag('Jugend')">+ Jugend</span>
-                <span class="quick-chip" onclick="addQuickTag('Mannschaften')">+ Mannschaften</span>
-                <span class="quick-chip" onclick="addQuickTag('Termine')">+ Termine</span>
-                <span class="quick-chip" onclick="addQuickTag('Ergebnisse')">+ Ergebnisse</span>
-            </div>
-            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">Eigene Kategorie</p>
-            <div class="add-row">
-                <input type="text" id="newCat" placeholder="Kategoriename..." onkeydown="if(event.key==='Enter')addCategory()" />
-                <button onclick="addCategory()">Hinzufuegen</button>
-            </div>
-        </div>
-
-        <!-- ── Team-Zugänge ───────────────────────────────────────── -->
-        <div class="section-card" id="sec_team" style="display:none">
-            <h3>👥 Team-Zugaenge <span style="font-size:0.78rem;font-weight:400;color:var(--muted)">(optional)</span></h3>
-            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Gib deinen Mannschaften eigene Zugaenge — sie koennen dann direkt Beitraege fuer ihre Mannschaft posten.</p>
-            <div class="team-list" id="teamList"></div>
-            <div class="collapsible-label" onclick="toggleCollapse('teamForm','teamCaret')">
-                <span>👥 Neuen Team-Zugang hinzufuegen</span>
-                <span class="caret" id="teamCaret">▼</span>
-            </div>
-            <div class="collapsible-content" id="teamForm">
-                <div style="margin-top:12px">
-                    <div class="field"><label>Mannschaftsname</label><input type="text" id="teamName" placeholder="z.B. 1. Herren" /></div>
-                    <div class="field">
-                        <label>Rolle</label>
-                        <select id="teamRole">
-                            <option value="team">Team — kann Beitraege fuer eigene Mannschaft posten</option>
-                            <option value="abteilung">Abteilungsleiter — sieht und loescht alles</option>
-                            <option value="admin">Admin — voller Zugriff</option>
-                        </select>
-                    </div>
-                    <div class="field"><label>Passwort</label><input type="password" id="teamPw" placeholder="Passwort" /></div>
-                    <button class="btn-primary btn-full" onclick="addTeam()">Team-Zugang hinzufuegen</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── Passwort ───────────────────────────────────────────── -->
-        <div class="section-card" id="sec_pw" style="display:none">
-            <h3>🔑 Passwort aendern</h3>
-            <div class="field"><label>Neues Passwort</label><input type="password" id="newPw1" placeholder="Neues Passwort" /></div>
-            <div class="field"><label>Passwort bestaetigen</label><input type="password" id="newPw2" placeholder="Wiederholen" /></div>
-            <button class="btn-primary btn-full" onclick="changePassword()">Passwort aendern</button>
-            <div class="status-msg" id="pwStatus"></div>
-        </div>
-
-        <!-- ── Speichern ──────────────────────────────────────────── -->
-        <div id="sec_save" style="display:none">
-            <button class="btn-primary btn-full" onclick="saveAll()">Speichern</button>
-            <div class="status-msg" id="saveStatus"></div>
+        <div class="field">
+            <label>Headline Text (optional)</label>
+            <input type="text" id="f_headline" placeholder="z.B. Willkommen beim BC Muster!" />
         </div>
     </div>
 
-    <footer>ONLANG — Vereins-App Platform</footer>
+    <!-- FARBEN – NEU mit Colorpicker + Vorschau -->
+    <div class="section-card" id="sec_farben" style="display:none">
+        <h3>🎨 Farben & Vorschau</h3>
 
-    <script>
-        const CLOUDINARY_CLOUD_NAME    = "dnw5rjysb";
-        const CLOUDINARY_UPLOAD_PRESET = "julius_upload";
+        <!-- Hauptfarbe -->
+        <div class="main-color-picker">
+            <span class="main-color-label">Vereinsfarbe (Hauptfarbe)</span>
+            <div class="main-color-row">
+                <input type="color" class="main-color-swatch" id="c_main" value="#111111"
+                    oninput="onMainColorChange(this.value)" />
+                <input type="text" class="main-color-hex" id="ct_main" value="#111111" maxlength="7"
+                    oninput="onMainColorTextChange(this.value)" placeholder="#CC0000" />
+            </div>
+        </div>
 
-        async function uploadToCloudinary(file, statusEl) {
-            statusEl.style.color = "#ff6b00";
-            statusEl.textContent = "⏳ Wird hochgeladen...";
-            const fd = new FormData();
-            fd.append("file", file);
-            fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            fd.append("folder", "onlang");
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                { method: "POST", body: fd }
-            );
-            if (!res.ok) throw new Error("Upload fehlgeschlagen: " + res.status);
-            return (await res.json()).secure_url;
+        <!-- Vorschläge -->
+        <div class="color-suggestions">
+            <span class="color-suggestions-label">Beliebte Vereinsfarben – einfach antippen:</span>
+            <div class="color-swatches" id="colorSwatches"></div>
+        </div>
+
+        <!-- Live-Vorschau -->
+        <div class="color-section-title">Live-Vorschau deiner App</div>
+        <div class="color-preview">
+            <div class="preview-header" id="previewHeader">
+                <div class="preview-header-logo" id="previewLogoWrap">
+                    <span id="previewLogoFallback">🏀</span>
+                </div>
+                <span class="preview-header-name" id="previewName">Dein Verein</span>
+            </div>
+            <div class="preview-body">
+                <div class="preview-card">
+                    <span class="preview-card-title">Spielbericht: Sieg gegen Köln</span>
+                    <span class="preview-tag" id="previewTag">News</span>
+                </div>
+                <div class="preview-card">
+                    <span class="preview-card-title">Training fällt heute aus</span>
+                    <span class="preview-tag" id="previewTag2">Info</span>
+                </div>
+                <div style="text-align:center;padding:4px 0">
+                    <span class="preview-btn" id="previewBtn">Mehr lesen</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weitere Farben -->
+        <div class="color-section-title">Weitere Farben (optional – werden automatisch gesetzt)</div>
+        <div class="color-grid">
+            <div class="color-field">
+                <label>Akzentfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="c_accent" value="#ff6b00" oninput="syncColor('c_accent','ct_accent')" />
+                    <input type="text" id="ct_accent" value="#ff6b00" oninput="syncColorText('ct_accent','c_accent')" maxlength="7" />
+                </div>
+            </div>
+            <div class="color-field">
+                <label>Header Text</label>
+                <div class="color-row">
+                    <input type="color" id="c_headerText" value="#ffffff" oninput="syncColor('c_headerText','ct_headerText')" />
+                    <input type="text" id="ct_headerText" value="#ffffff" oninput="syncColorText('ct_headerText','c_headerText')" maxlength="7" />
+                </div>
+            </div>
+            <div class="color-field">
+                <label>Card Hintergrund</label>
+                <div class="color-row">
+                    <input type="color" id="c_cardBg" value="#f4f0e8" oninput="syncColor('c_cardBg','ct_cardBg')" />
+                    <input type="text" id="ct_cardBg" value="#f4f0e8" oninput="syncColorText('ct_cardBg','c_cardBg')" maxlength="7" />
+                </div>
+            </div>
+            <div class="color-field">
+                <label>Card Rahmen</label>
+                <div class="color-row">
+                    <input type="color" id="c_cardBorder" value="#111111" oninput="syncColor('c_cardBorder','ct_cardBorder')" />
+                    <input type="text" id="ct_cardBorder" value="#111111" oninput="syncColorText('ct_cardBorder','c_cardBorder')" maxlength="7" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOZIALE MEDIEN -->
+    <div class="section-card" id="sec_social" style="display:none">
+        <h3>📱 Soziale Medien</h3>
+        <div class="social-hint">⚠️ Vollständige URL mit <strong>https://</strong> eingeben</div>
+        <div class="social-grid">
+            <div class="social-field"><label>🌐 Website</label><input type="url" id="s_website" placeholder="https://euer-verein.de" /></div>
+            <div class="social-field"><label>📘 Facebook</label><input type="url" id="s_facebook" placeholder="https://www.facebook.com/..." /></div>
+            <div class="social-field"><label>📸 Instagram</label><input type="url" id="s_instagram" placeholder="https://www.instagram.com/..." /></div>
+            <div class="social-field"><label>▶️ YouTube</label><input type="url" id="s_youtube" placeholder="https://www.youtube.com/..." /></div>
+            <div class="social-field"><label>🎵 TikTok</label><input type="url" id="s_tiktok" placeholder="https://www.tiktok.com/@..." /></div>
+            <div class="social-field"><label>💬 WhatsApp</label><input type="url" id="s_whatsapp" placeholder="https://chat.whatsapp.com/..." /></div>
+        </div>
+    </div>
+
+    <!-- KATEGORIEN -->
+    <div class="section-card" id="sec_kat" style="display:none">
+        <h3>📂 Kategorien</h3>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px">Welche Bereiche hat dein Verein? Mitglieder sehen nur ihre relevanten Beiträge.</p>
+        <div class="tag-list" id="tagList"></div>
+        <div class="quick-chips">
+            <span class="quick-chip" onclick="addQuickTag('News')">+ News</span>
+            <span class="quick-chip" onclick="addQuickTag('Vorstand')">+ Vorstand</span>
+            <span class="quick-chip" onclick="addQuickTag('Senioren')">+ Senioren</span>
+            <span class="quick-chip" onclick="addQuickTag('Jugend')">+ Jugend</span>
+            <span class="quick-chip" onclick="addQuickTag('Damen')">+ Damen</span>
+            <span class="quick-chip" onclick="addQuickTag('Herren')">+ Herren</span>
+            <span class="quick-chip" onclick="addQuickTag('Termine')">+ Termine</span>
+            <span class="quick-chip" onclick="addQuickTag('Ergebnisse')">+ Ergebnisse</span>
+        </div>
+        <div class="add-row">
+            <input type="text" id="newCat" placeholder="Eigene Kategorie..." onkeydown="if(event.key==='Enter')addCategory()" />
+            <button onclick="addCategory()">Hinzufügen</button>
+        </div>
+    </div>
+
+    <!-- TEAM-ZUGÄNGE -->
+    <div class="section-card" id="sec_team" style="display:none">
+        <h3>👥 Team-Zugänge <span style="font-size:0.78rem;font-weight:400;color:var(--muted)">(optional)</span></h3>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Gib Mannschaften eigene Zugänge zum Posten ihrer Beiträge.</p>
+        <div id="teamList"></div>
+        <div class="collapsible-label" onclick="toggleCollapse('teamForm','teamCaret')">
+            <span>+ Neuen Team-Zugang</span><span class="caret" id="teamCaret">▼</span>
+        </div>
+        <div class="collapsible-content" id="teamForm">
+            <div style="margin-top:12px">
+                <div class="field"><label>Mannschaft</label><input type="text" id="teamName" placeholder="z.B. 1. Herren" /></div>
+                <div class="field"><label>Rolle</label>
+                    <select id="teamRole">
+                        <option value="team">Team – postet für eigene Mannschaft</option>
+                        <option value="abteilung">Abteilungsleiter – sieht alles</option>
+                        <option value="admin">Admin – voller Zugriff</option>
+                    </select>
+                </div>
+                <div class="field"><label>Passwort</label><input type="password" id="teamPw" placeholder="Passwort" /></div>
+                <button class="btn-primary btn-full" onclick="addTeam()">Zugang hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSWORT -->
+    <div class="section-card" id="sec_pw" style="display:none">
+        <h3>🔑 Passwort ändern</h3>
+        <div class="field"><label>Neues Passwort</label><input type="password" id="newPw1" placeholder="Neues Passwort" /></div>
+        <div class="field"><label>Bestätigen</label><input type="password" id="newPw2" placeholder="Wiederholen" /></div>
+        <button class="btn-primary btn-full" onclick="changePassword()">Passwort ändern</button>
+        <div class="status-msg" id="pwStatus"></div>
+    </div>
+
+    <!-- SPEICHERN -->
+    <div id="sec_save" style="display:none">
+        <button class="btn-primary btn-full" onclick="saveAll()">💾 Speichern</button>
+        <div class="status-msg" id="saveStatus"></div>
+    </div>
+</div>
+
+<footer>ONLANG — Vereins-App Platform</footer>
+
+<script>
+const CLOUDINARY_CLOUD_NAME    = "dnw5rjysb";
+const CLOUDINARY_UPLOAD_PRESET = "julius_upload";
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec';
+
+let currentId = '', currentPw = '', categories = [], teams = [];
+
+// ── Farbvorschläge ──────────────────────────────────────────
+const COLOR_SUGGESTIONS = [
+    { hex: '#CC0000', name: 'Rot' },
+    { hex: '#003366', name: 'Dunkelblau' },
+    { hex: '#FF6600', name: 'Orange' },
+    { hex: '#006633', name: 'Grün' },
+    { hex: '#111111', name: 'Schwarz' },
+    { hex: '#1a1a2e', name: 'Navy' },
+    { hex: '#8B0000', name: 'Weinrot' },
+    { hex: '#004080', name: 'Blau' },
+    { hex: '#FFD700', name: 'Gold' },
+    { hex: '#6A0DAD', name: 'Lila' },
+    { hex: '#C0392B', name: 'Scharlach' },
+    { hex: '#2E86AB', name: 'Hellblau' },
+    { hex: '#1B5E20', name: 'Dunkelgrün' },
+    { hex: '#E65100', name: 'Dunkelorange' },
+    { hex: '#4A148C', name: 'Violett' },
+    { hex: '#BF360C', name: 'Ziegel' },
+];
+
+function initColorSwatches() {
+    const wrap = document.getElementById('colorSwatches');
+    COLOR_SUGGESTIONS.forEach(c => {
+        const btn = document.createElement('div');
+        btn.className = 'color-swatch-btn';
+        btn.style.background = c.hex;
+        btn.title = c.name + ' (' + c.hex + ')';
+        btn.innerHTML = '<span class="swatch-label">' + c.name + '</span>';
+        btn.onclick = () => applyMainColor(c.hex);
+        wrap.appendChild(btn);
+    });
+}
+
+function applyMainColor(hex) {
+    hex = hex.toUpperCase();
+    document.getElementById('c_main').value = hex;
+    document.getElementById('ct_main').value = hex;
+    // Auch in die anderen Farbfelder übertragen
+    document.getElementById('c_header') && (document.getElementById('c_header').value = hex);
+    document.getElementById('ct_header') && (document.getElementById('ct_header').value = hex);
+    // Swatch aktiv markieren
+    document.querySelectorAll('.color-swatch-btn').forEach(b => {
+        b.classList.toggle('active', b.style.background.toLowerCase() === hexToRgbStyle(hex));
+    });
+    updatePreview(hex);
+    // Akzent etwas heller/dunkler
+    const accent = adjustColor(hex, 20);
+    document.getElementById('c_accent').value = accent;
+    document.getElementById('ct_accent').value = accent;
+}
+
+function hexToRgbStyle(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+}
+
+function adjustColor(hex, amount) {
+    let r = parseInt(hex.slice(1,3),16);
+    let g = parseInt(hex.slice(3,5),16);
+    let b = parseInt(hex.slice(5,7),16);
+    r = Math.max(0, Math.min(255, r + amount));
+    g = Math.max(0, Math.min(255, g + amount));
+    b = Math.max(0, Math.min(255, b + amount));
+    return '#' + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
+}
+
+function onMainColorChange(hex) {
+    document.getElementById('ct_main').value = hex.toUpperCase();
+    updatePreview(hex);
+}
+
+function onMainColorTextChange(val) {
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        document.getElementById('c_main').value = val;
+        updatePreview(val);
+    }
+}
+
+function updatePreview(hex) {
+    document.getElementById('previewHeader').style.background = hex;
+    document.getElementById('previewTag').style.background = hex;
+    document.getElementById('previewTag2').style.background = hex;
+    document.getElementById('previewBtn').style.background = hex;
+    // Vereinsname + Logo in Vorschau
+    const vname = document.getElementById('f_vereinsname').value || 'Dein Verein';
+    document.getElementById('previewName').textContent = vname;
+    const logoUrl = document.getElementById('f_logo').value;
+    if (logoUrl) {
+        document.getElementById('previewLogoWrap').innerHTML = '<img src="' + logoUrl + '" alt="Logo" />';
+    } else {
+        document.getElementById('previewLogoWrap').innerHTML = '<span id="previewLogoFallback">🏀</span>';
+    }
+}
+
+// ── Cloudinary Upload ───────────────────────────────────────
+async function uploadToCloudinary(file, statusEl) {
+    statusEl.style.color = "#ff6b00";
+    statusEl.textContent = "⏳ Wird hochgeladen...";
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    fd.append("folder", "onlang");
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
+    if (!res.ok) throw new Error("Upload fehlgeschlagen");
+    return (await res.json()).secure_url;
+}
+
+async function handleLogoUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById("logoUploadStatus");
+    try {
+        const url = await uploadToCloudinary(file, statusEl);
+        document.getElementById("f_logo").value = url;
+        const prev = document.getElementById("logoPreviewImg");
+        prev.src = url; prev.style.display = "block";
+        statusEl.style.color = "#16a34a";
+        statusEl.textContent = "✓ Logo erfolgreich hochgeladen!";
+        updatePreview(document.getElementById('ct_main').value || '#111111');
+    } catch(e) {
+        statusEl.style.color = "#dc2626";
+        statusEl.textContent = "✗ Fehler – bitte nochmal versuchen";
+    }
+    input.value = "";
+}
+
+// ── Login ───────────────────────────────────────────────────
+async function doLogin() {
+    const id = document.getElementById('loginId').value.trim();
+    const pw = document.getElementById('loginPw').value.trim();
+    if (!id || !pw) return;
+    document.getElementById('loginError').style.display = 'none';
+    try {
+        const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`);
+        const data = await res.json();
+        if (data.success) {
+            currentId = id; currentPw = pw;
+            document.getElementById('loginWrap').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            loadBranding();
+        } else {
+            document.getElementById('loginError').style.display = 'block';
         }
+    } catch(e) {
+        document.getElementById('loginError').textContent = 'Verbindungsfehler';
+        document.getElementById('loginError').style.display = 'block';
+    }
+}
 
-        async function handleLogoUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById("logoUploadStatus");
-            try {
-                const url = await uploadToCloudinary(file, statusEl);
-                document.getElementById("f_logo").value = url;
-                const prev = document.getElementById("logoPreviewImg");
-                prev.src = url;
-                prev.style.display = "block";
-                statusEl.style.color = "#16a34a";
-                statusEl.textContent = "✓ Logo hochgeladen und eingetragen!";
-            } catch (e) {
-                statusEl.style.color = "#dc2626";
-                statusEl.textContent = "✗ Fehler beim Hochladen – bitte nochmal versuchen.";
-                console.error(e);
-            }
-            input.value = "";
-        }
+async function loadBranding() {
+    document.getElementById("loadingMsg").textContent = "Lade Daten...";
+    try {
+        const res  = await fetch(`${GAS_URL}?action=get_branding&kundenId=${encodeURIComponent(currentId)}`);
+        const data = await res.json();
+        loadData(data.success ? data : {});
+    } catch(e) { loadData({}); }
+}
 
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec';
-        let currentId = '', currentPw = '', categories = [], teams = [];
+function loadData(data) {
+    document.getElementById('loadingMsg').style.display = 'none';
+    ['sec_verein','sec_farben','sec_social','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
+        document.getElementById(id).style.display = 'block';
+    });
+    const b = data.branding || data;
+    if (b.Verein_Name)     document.getElementById('f_vereinsname').value  = b.Verein_Name;
+    if (b.Logo_Verein)     { document.getElementById('f_logo').value = b.Logo_Verein; previewLogo(); }
+    if (b.Logo_Sponsor)    document.getElementById('f_logoSponsor') && (document.getElementById('f_logoSponsor').value = b.Logo_Sponsor);
+    if (b.Headline_Text)   document.getElementById('f_headline') && (document.getElementById('f_headline').value = b.Headline_Text);
+    if (b.WEB_URL)         document.getElementById('s_website').value   = b.WEB_URL;
+    if (b.Facebook_URL)    document.getElementById('s_facebook').value  = b.Facebook_URL;
+    if (b.Instragram_URL)  document.getElementById('s_instagram').value = b.Instragram_URL;
+    if (b.Youtube_URL)     document.getElementById('s_youtube').value   = b.Youtube_URL;
+    if (b.TikTok_URL)      document.getElementById('s_tiktok').value    = b.TikTok_URL;
+    if (b.WhatsApp_URL)    document.getElementById('s_whatsapp').value  = b.WhatsApp_URL;
 
-        async function doLogin() {
-            const id = document.getElementById('loginId').value.trim();
-            const pw = document.getElementById('loginPw').value.trim();
-            if (!id || !pw) return;
-            document.getElementById('loginError').style.display = 'none';
-            try {
-                const res  = await fetch(`${GAS_URL}?action=login&kundenId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`);
-                const data = await res.json();
-                if (data.success) {
-                    currentId = id; currentPw = pw;
-                    document.getElementById('loginWrap').style.display = 'none';
-                    document.getElementById('adminPanel').style.display = 'block';
-                    document.getElementById('logoutBtn').style.display = 'block';
-                    loadBranding();
-                } else {
-                    document.getElementById('loginError').style.display = 'block';
-                }
-            } catch(e) {
-                document.getElementById('loginError').textContent = 'Verbindungsfehler';
-                document.getElementById('loginError').style.display = 'block';
-            }
-        }
+    // Hauptfarbe laden und Vorschau aktualisieren
+    const hauptfarbe = b.Thema_Farbe || '#111111';
+    document.getElementById('c_main').value  = hauptfarbe;
+    document.getElementById('ct_main').value = hauptfarbe;
+    updatePreview(hauptfarbe);
 
-        async function loadBranding() {
-            document.getElementById("loadingMsg").textContent = "Lade Daten...";
-            try {
-                const res  = await fetch(`${GAS_URL}?action=get_branding&kundenId=${encodeURIComponent(currentId)}`);
-                const data = await res.json();
-                loadData(data.success ? data : {});
-            } catch(e) { loadData({}); }
-        }
+    if (b.Akzent_Farbe)        { document.getElementById('c_accent').value = b.Akzent_Farbe; document.getElementById('ct_accent').value = b.Akzent_Farbe; }
+    if (b.Header_Text_Farbe)   { document.getElementById('c_headerText').value = b.Header_Text_Farbe; document.getElementById('ct_headerText').value = b.Header_Text_Farbe; }
+    if (b.Card_Hintergrund)    { document.getElementById('c_cardBg').value = b.Card_Hintergrund; document.getElementById('ct_cardBg').value = b.Card_Hintergrund; }
+    if (b.Card_Rahmen)         { document.getElementById('c_cardBorder').value = b.Card_Rahmen; document.getElementById('ct_cardBorder').value = b.Card_Rahmen; }
 
-        function loadData(data) {
-            document.getElementById('loadingMsg').style.display = 'none';
-            ['sec_verein','sec_social','sec_farben','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
-                document.getElementById(id).style.display = 'block';
-            });
-            const b = data.branding || data;
-            const vname = b.Verein_Name || b.vereinsname || '';
-            if (vname) document.getElementById('f_vereinsname').value = vname;
-            const website = b.Website || b.website || '';
-            if (website) document.getElementById('f_website').value = website;
-            const logo = b.Logo_Verein || b.logo || '';
-            if (logo) { document.getElementById('f_logo').value = logo; previewLogo(); }
-            const logoSponsor = b.Logo_Sponsor || b.logoSponsor || '';
-            if (logoSponsor) document.getElementById('f_logoSponsor').value = logoSponsor;
-            const headline = b.Headline_Text || b.headline || '';
-            if (headline) document.getElementById('f_headline').value = headline;
+    const rawKat = b.Kategorien || '';
+    categories = Array.isArray(rawKat) ? rawKat : (rawKat ? rawKat.split(',').map(k => k.trim()).filter(k => k) : []);
+    teams = [];
+    renderTags(); renderTeams();
+}
 
-            // Soziale Medien laden
-            if (b.WEB_URL)         document.getElementById("s_website").value  = b.WEB_URL;
-            if (b.Facebook_URL)    document.getElementById("s_facebook").value = b.Facebook_URL;
-            if (b.Instragram_URL)  document.getElementById("s_instagram").value = b.Instragram_URL;
-            if (b.Youtube_URL)     document.getElementById("s_youtube").value  = b.Youtube_URL;
-            if (b.TikTok_URL)     document.getElementById('s_tiktok').value   = b.TikTok_URL;
-            if (b['X / Twitter'])  document.getElementById('s_twitter').value  = b['X / Twitter'];
-            if (b.WhatsApp_URL)    document.getElementById("s_whatsapp").value = b.WhatsApp_URL;
-            
+function previewLogo() {
+    const url = document.getElementById('f_logo').value.trim();
+    const img = document.getElementById('logoPreviewImg');
+    if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+    updatePreview(document.getElementById('ct_main').value || '#111111');
+}
 
-            const map = [
-                ['c_header','ct_header','Thema_Farbe'],
-                ['c_accent','ct_accent','Akzent_Farbe'],
-                ['c_headerText','ct_headerText','Header_Text_Farbe'],
-                ['c_cardBg','ct_cardBg','Card_Hintergrund'],
-                ['c_cardBorder','ct_cardBorder','Card_Rahmen'],
-                ['c_tag','ct_tag','Tag_Farbe']
-            ];
-            map.forEach(([cId, tId, key]) => {
-                if (data[key]) { document.getElementById(cId).value = data[key]; document.getElementById(tId).value = data[key]; }
-            });
-            const rawKat = b.Kategorien || b.categories || '';
-            categories = Array.isArray(rawKat) ? rawKat : (rawKat ? rawKat.split(',').map(k => k.trim()).filter(k => k) : []);
-            teams = b.teams || b.Team_Zugaenge || [];
-            renderTags(); renderTeams();
-        }
+function syncColor(cId, tId)     { document.getElementById(tId).value = document.getElementById(cId).value.toUpperCase(); }
+function syncColorText(tId, cId) { const v = document.getElementById(tId).value; if (/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById(cId).value = v; }
 
-        function previewLogo() {
-            const url = document.getElementById('f_logo').value.trim();
-            const img = document.getElementById('logoPreviewImg');
-            if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
-        }
+// ── Kategorien ──────────────────────────────────────────────
+function renderTags() {
+    const list = document.getElementById('tagList');
+    if (!categories.length) { list.innerHTML = '<span class="empty-tags">Noch keine Kategorien</span>'; return; }
+    list.innerHTML = categories.map((c,i) => `<div class="tag-pill">${c}<button onclick="removeCategory(${i})">✕</button></div>`).join('');
+}
+function addQuickTag(name) { if (!categories.includes(name)) { categories.push(name); renderTags(); } }
+function addCategory() {
+    const v = document.getElementById('newCat').value.trim();
+    if (v && !categories.includes(v)) { categories.push(v); renderTags(); document.getElementById('newCat').value = ''; }
+}
+function removeCategory(i) { categories.splice(i,1); renderTags(); }
 
-        async function fetchColors() {
-            const website = document.getElementById('f_website').value.trim();
-            if (!website) { alert('Bitte zuerst eine Website-URL eingeben.'); return; }
-            const status = document.getElementById('fetchStatus');
-            status.textContent = 'Farben werden geladen...';
-            status.style.color = 'var(--muted)';
-            try {
-                const res  = await fetch(`${GAS_URL}?action=get_website_farben&url=${encodeURIComponent(website)}`);
-                const data = await res.json();
-                if (data.success && data.farben) {
-                    const f = data.farben;
-                    if (f.thema)      { document.getElementById('c_header').value  = f.thema;      document.getElementById('ct_header').value = f.thema; }
-                    if (f.akzent)     { document.getElementById('c_accent').value  = f.akzent;     document.getElementById('ct_accent').value = f.akzent; }
-                    if (f.headerText) { document.getElementById('c_headerText').value  = f.headerText; document.getElementById('ct_headerText').value = f.headerText; }
-                    status.textContent = 'Farben geladen! Bitte pruefen und bei Bedarf anpassen.';
-                    status.style.color = '#16a34a';
-                } else {
-                    status.textContent = 'Keine Farben gefunden – bitte manuell einstellen.';
-                    status.style.color = '#dc2626';
-                }
-            } catch(e) {
-                status.textContent = 'Verbindungsfehler beim Laden der Farben.';
-                status.style.color = '#dc2626';
-            }
-        }
+// ── Teams ───────────────────────────────────────────────────
+function renderTeams() {
+    const list = document.getElementById('teamList');
+    if (!teams.length) { list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);margin-bottom:8px">Noch keine Team-Zugänge</p>'; return; }
+    list.innerHTML = teams.map((t,i) => `<div class="team-item"><div class="team-info"><span class="team-name">${t.name}</span><span class="team-role">${t.role}</span></div><button class="btn-remove" onclick="removeTeam(${i})">Entfernen</button></div>`).join('');
+}
+function addTeam() {
+    const name = document.getElementById('teamName').value.trim();
+    const role = document.getElementById('teamRole').value;
+    const pw   = document.getElementById('teamPw').value.trim();
+    if (!name || !pw) { alert('Bitte Name und Passwort eingeben.'); return; }
+    teams.push({ name, role, pw });
+    renderTeams();
+    document.getElementById('teamName').value = '';
+    document.getElementById('teamPw').value = '';
+}
+function removeTeam(i) { teams.splice(i,1); renderTeams(); }
 
-        function syncColor(cId, tId)     { document.getElementById(tId).value = document.getElementById(cId).value; }
-        function syncColorText(tId, cId) { const v = document.getElementById(tId).value; if (/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById(cId).value = v; }
+// ── Passwort ────────────────────────────────────────────────
+async function changePassword() {
+    const p1 = document.getElementById('newPw1').value;
+    const p2 = document.getElementById('newPw2').value;
+    const st = document.getElementById('pwStatus');
+    if (!p1 || p1 !== p2) { st.textContent = 'Passwörter stimmen nicht überein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
+    try {
+        const res  = await fetch(`${GAS_URL}?action=update_passwort&kundenId=${currentId}&passwort=${encodeURIComponent(p1)}`);
+        const data = await res.json();
+        st.textContent = data.success ? 'Passwort geändert!' : 'Fehler: ' + (data.error || 'Unbekannt');
+        st.className = 'status-msg ' + (data.success ? 'ok' : 'err');
+        st.style.display = 'block';
+        if (data.success) currentPw = p1;
+    } catch(e) { st.textContent = 'Verbindungsfehler'; st.style.display = 'block'; }
+}
 
-        function renderTags() {
-            const list = document.getElementById('tagList');
-            if (!categories.length) { list.innerHTML = '<span class="empty-tags">Keine Kategorien vorhanden</span>'; return; }
-            list.innerHTML = categories.map((c,i) => `<div class="tag-pill">${c}<button onclick="removeCategory(${i})">x</button></div>`).join('');
-        }
-        function addQuickTag(name) { if (!categories.includes(name)) { categories.push(name); renderTags(); } }
-        function addCategory() {
-            const v = document.getElementById('newCat').value.trim();
-            if (v && !categories.includes(v)) { categories.push(v); renderTags(); document.getElementById('newCat').value = ''; }
-        }
-        function removeCategory(i) { categories.splice(i,1); renderTags(); }
+// ── Speichern ───────────────────────────────────────────────
+async function saveAll() {
+    const hauptfarbe = document.getElementById('ct_main').value || '#111111';
+    const payload = {
+        action: 'update_branding', kundenId: currentId,
+        Verein_Name:       document.getElementById('f_vereinsname').value.trim(),
+        Logo_Verein:       document.getElementById('f_logo').value.trim(),
+        Logo_Sponsor:      document.getElementById('f_logoSponsor') ? document.getElementById('f_logoSponsor').value.trim() : '',
+        Headline_Text:     document.getElementById('f_headline') ? document.getElementById('f_headline').value.trim() : '',
+        Thema_Farbe:       hauptfarbe,
+        Akzent_Farbe:      document.getElementById('ct_accent').value,
+        Header_Text_Farbe: document.getElementById('ct_headerText').value,
+        Card_Hintergrund:  document.getElementById('ct_cardBg').value,
+        Card_Rahmen:       document.getElementById('ct_cardBorder').value,
+        Tag_Farbe:         hauptfarbe,
+        Kategorien:        categories.join(','),
+        WEB_URL:           document.getElementById('s_website').value.trim(),
+        Facebook_URL:      document.getElementById('s_facebook').value.trim(),
+        Instragram_URL:    document.getElementById('s_instagram').value.trim(),
+        Youtube_URL:       document.getElementById('s_youtube').value.trim(),
+        TikTok_URL:        document.getElementById('s_tiktok').value.trim(),
+        WhatsApp_URL:      document.getElementById('s_whatsapp').value.trim(),
+    };
+    const st = document.getElementById('saveStatus');
+    st.textContent = 'Wird gespeichert...'; st.className = 'status-msg'; st.style.display = 'block';
+    try {
+        const res  = await fetch(`${GAS_URL}?${new URLSearchParams(payload)}`);
+        const data = await res.json();
+        st.textContent = data.success ? '✓ Gespeichert!' : 'Fehler: ' + (data.error || 'Unbekannt');
+        st.className = 'status-msg ' + (data.success ? 'ok' : 'err');
+    } catch(e) { st.textContent = 'Verbindungsfehler'; st.className = 'status-msg err'; }
+}
 
-        function renderTeams() {
-            const list = document.getElementById('teamList');
-            list.innerHTML = teams.map((t,i) => `
-                <div class="team-item">
-                    <div class="team-info">
-                        <span class="team-name">${t.name}</span>
-                        <span class="team-role">${t.role}</span>
-                    </div>
-                    <button class="btn-remove" onclick="removeTeam(${i})">Entfernen</button>
-                </div>`).join('');
-        }
-        function addTeam() {
-            const name = document.getElementById('teamName').value.trim();
-            const role = document.getElementById('teamRole').value;
-            const pw   = document.getElementById('teamPw').value.trim();
-            if (!name || !pw) { alert('Bitte Name und Passwort eingeben.'); return; }
-            teams.push({ name, role, pw });
-            renderTeams();
-            document.getElementById('teamName').value = '';
-            document.getElementById('teamPw').value   = '';
-        }
-        function removeTeam(i) { teams.splice(i,1); renderTeams(); }
+function logout() {
+    currentId = ''; currentPw = '';
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('loginId').value = '';
+    document.getElementById('loginPw').value = '';
+}
 
-        async function changePassword() {
-            const p1 = document.getElementById('newPw1').value;
-            const p2 = document.getElementById('newPw2').value;
-            const st = document.getElementById('pwStatus');
-            if (!p1 || p1 !== p2) { st.textContent = 'Passwoerter stimmen nicht ueberein.'; st.className = 'status-msg err'; st.style.display = 'block'; return; }
-            try {
-                const res  = await fetch(`${GAS_URL}?action=update_passwort&kundenId=${currentId}&passwort=${encodeURIComponent(p1)}`);
-                const data = await res.json();
-                if (data.success) { currentPw = p1; st.textContent = 'Passwort geaendert!'; st.className = 'status-msg ok'; }
-                else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
-                st.style.display = 'block';
-            } catch(e) { st.textContent = 'Verbindungsfehler'; st.style.display = 'block'; }
-        }
+function toggleCollapse(contentId, caretId) {
+    document.getElementById(contentId).classList.toggle('open');
+    document.getElementById(caretId).classList.toggle('open');
+}
 
-        async function saveAll() {
-            const payload = {
-                action: 'update_branding', kundenId: currentId,
-                Verein_Name:        document.getElementById('f_vereinsname').value.trim(),
-                Website:            document.getElementById('f_website').value.trim(),
-                Logo_Verein:        document.getElementById('f_logo').value.trim(),
-                Logo_Sponsor:       document.getElementById('f_logoSponsor').value.trim(),
-                Headline_Text:      document.getElementById('f_headline').value.trim(),
-                Thema_Farbe:        document.getElementById('ct_header').value,
-                Akzent_Farbe:       document.getElementById('ct_accent').value,
-                Header_Text_Farbe:  document.getElementById('ct_headerText').value,
-                Card_Hintergrund:   document.getElementById('ct_cardBg').value,
-                Card_Rahmen:        document.getElementById('ct_cardBorder').value,
-                Tag_Farbe:          document.getElementById('ct_tag').value,
-                Kategorien:         categories.join(','),
-                Team_Zugaenge:      JSON.stringify(teams),
-                // NEU: Soziale Medien
-                WEB_URL:          document.getElementById('s_website').value.trim(),
-                Facebook_URL:     document.getElementById('s_facebook').value.trim(),
-                Instragram_URL:   document.getElementById('s_instagram').value.trim(),
-                Youtube_URL:      document.getElementById('s_youtube').value.trim(),
-                TikTok_URL:       document.getElementById('s_tiktok').value.trim(),
-                'X / Twitter':    document.getElementById('s_twitter').value.trim(),
-                WhatsApp_URL:     document.getElementById('s_whatsapp').value.trim(),
-            };
-            const st = document.getElementById('saveStatus');
-            st.textContent = 'Wird gespeichert...'; st.className = 'status-msg'; st.style.display = 'block';
-            try {
-                const res  = await fetch(`${GAS_URL}?${new URLSearchParams(payload)}`);
-                const data = await res.json();
-                if (data.success) { st.textContent = 'Gespeichert!'; st.className = 'status-msg ok'; }
-                else              { st.textContent = 'Fehler: ' + (data.error || 'Unbekannt'); st.className = 'status-msg err'; }
-            } catch(e) { st.textContent = 'Verbindungsfehler'; st.className = 'status-msg err'; }
-        }
+// ── Init ────────────────────────────────────────────────────
+initColorSwatches();
 
-        function logout() {
-            currentId = ''; currentPw = '';
-            document.getElementById('loginWrap').style.display = 'flex';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('loginId').value = '';
-            document.getElementById('loginPw').value = '';
-        }
-
-        function toggleCollapse(contentId, caretId) {
-            document.getElementById(contentId).classList.toggle('open');
-            document.getElementById(caretId).classList.toggle('open');
-        }
-    </script>
+// Vereinsname Änderung aktualisiert Vorschau
+document.getElementById('f_vereinsname').addEventListener('input', () => {
+    updatePreview(document.getElementById('ct_main').value || '#111111');
+});
+</script>
 </body>
 </html>
