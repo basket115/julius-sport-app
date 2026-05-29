@@ -323,7 +323,13 @@
         </div>
         <div class="field">
             <label>Logo Sponsor (optional)</label>
-            <input type="url" id="f_logoSponsor" placeholder="https://..." />
+            <img id="sponsorPreviewImg" src="" alt="Sponsor Logo" style="max-height:48px;max-width:160px;border-radius:8px;display:none;border:1px solid var(--border);padding:4px;margin-bottom:8px;" />
+            <label class="upload-label" style="margin-bottom:6px;">
+                📁 Sponsor-Logo hochladen (JPG / PNG / SVG)
+                <input type="file" id="sponsorFileInput" accept="image/*" style="display:none" onchange="handleSponsorUpload(this)" />
+            </label>
+            <div class="upload-status" id="sponsorUploadStatus"></div>
+            <input type="url" id="f_logoSponsor" placeholder="https://..." oninput="previewSponsor()" style="margin-top:8px;" />
         </div>
         <div class="field">
             <label>Headline Text (optional)</label>
@@ -663,7 +669,7 @@ function loadData(data) {
     const b = data.branding || data;
     if (b.Verein_Name)     document.getElementById('f_vereinsname').value  = b.Verein_Name;
     if (b.Logo_Verein)     { document.getElementById('f_logo').value = b.Logo_Verein; previewLogo(); }
-    if (b.Logo_Sponsor)    document.getElementById('f_logoSponsor') && (document.getElementById('f_logoSponsor').value = b.Logo_Sponsor);
+    if (b.Logo_Sponsor) { document.getElementById('f_logoSponsor').value = b.Logo_Sponsor; const sp = document.getElementById('sponsorPreviewImg'); if(sp){ sp.src = b.Logo_Sponsor; sp.style.display = 'block'; } }
     if (b.Headline_Text)   document.getElementById('f_headline') && (document.getElementById('f_headline').value = b.Headline_Text);
     if (b.WEB_URL)         document.getElementById('s_website').value   = b.WEB_URL;
     if (b.Facebook_URL)    document.getElementById('s_facebook').value  = b.Facebook_URL;
@@ -687,6 +693,30 @@ function loadData(data) {
     categories = Array.isArray(rawKat) ? rawKat : (rawKat ? rawKat.split(',').map(k => k.trim()).filter(k => k) : []);
     teams = [];
     renderTags(); renderTeams();
+}
+
+async function handleSponsorUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById("sponsorUploadStatus");
+    try {
+        const url = await uploadToCloudinary(file, statusEl);
+        document.getElementById("f_logoSponsor").value = url;
+        const prev = document.getElementById("sponsorPreviewImg");
+        prev.src = url; prev.style.display = "block";
+        statusEl.style.color = "#16a34a";
+        statusEl.textContent = "✓ Sponsor-Logo erfolgreich hochgeladen!";
+    } catch(e) {
+        statusEl.style.color = "#dc2626";
+        statusEl.textContent = "✗ Fehler – bitte nochmal versuchen";
+    }
+    input.value = "";
+}
+
+function previewSponsor() {
+    const url = document.getElementById('f_logoSponsor').value.trim();
+    const img = document.getElementById('sponsorPreviewImg');
+    if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
 }
 
 function previewLogo() {
