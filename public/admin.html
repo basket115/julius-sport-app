@@ -484,6 +484,45 @@
         <div class="status-msg" id="pwStatus"></div>
     </div>
 
+    <!-- SPIELERGEBNIS MANUELL -->
+    <div class="section-card" id="sec_spiel" style="display:none">
+        <h3>⚽ Spielergebnis eintragen</h3>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Kein Spielplan? Trag ein Ergebnis manuell ein – die KI schreibt dann automatisch den Bericht.</p>
+        <div class="color-grid">
+            <div class="field"><label>Mannschaft / Abteilung</label><input type="text" id="sp_abteilung" placeholder="z.B. 1. Herren, Damen, U16" /></div>
+            <div class="field"><label>Gegner</label><input type="text" id="sp_gegner" placeholder="z.B. BC Muster" /></div>
+            <div class="field"><label>Unsere Punkte</label><input type="number" id="sp_eigen" placeholder="68" min="0" /></div>
+            <div class="field"><label>Gegner Punkte</label><input type="number" id="sp_gegner_p" placeholder="54" min="0" /></div>
+            <div class="field"><label>Liga</label><input type="text" id="sp_liga" placeholder="z.B. Bezirksliga" /></div>
+            <div class="field"><label>Datum</label><input type="date" id="sp_datum" /></div>
+        </div>
+        <div class="field"><label>Heimspiel oder Auswärts?</label>
+            <select id="sp_ort">
+                <option value="heim">Heimspiel</option>
+                <option value="auswaerts">Auswärtsspiel</option>
+            </select>
+        </div>
+        <button class="btn-primary btn-full" onclick="spielErgebnisSpeichern()" id="btnSpiel">✨ Ergebnis speichern &amp; KI-Bericht starten</button>
+        <div class="status-msg" id="spielStatus"></div>
+
+        <!-- KI Bericht Ergebnis -->
+        <div id="spielBerichtBox" style="display:none;margin-top:20px">
+            <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:12px">
+                <strong style="font-size:0.9rem">📝 Kurzbericht (für die App)</strong>
+                <div id="bericht_kurz" style="background:var(--bg);border-radius:8px;padding:12px;margin-top:8px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;"></div>
+                <button class="btn-primary" style="margin-top:8px;padding:8px 16px;font-size:0.82rem" onclick="berichtVeroeffentlichen()">In App veröffentlichen</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:12px">
+                <strong style="font-size:0.9rem">📧 Newsletter</strong>
+                <div id="bericht_newsletter" style="background:var(--bg);border-radius:8px;padding:12px;margin-top:8px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;"></div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px">
+                <strong style="font-size:0.9rem">📰 Pressebericht</strong>
+                <div id="bericht_presse" style="background:var(--bg);border-radius:8px;padding:12px;margin-top:8px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- SPEICHERN -->
     <div id="sec_save" style="display:none">
         <button class="btn-primary btn-full" onclick="saveAll()">💾 Speichern</button>
@@ -496,7 +535,7 @@
 <script>
 const CLOUDINARY_CLOUD_NAME    = "dnw5rjysb";
 const CLOUDINARY_UPLOAD_PRESET = "julius_upload";
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm0nO0XRsJD2gqWTbfZvRHdKTN0ylbJrWkJt66TcCCiBkX8l7aaV2lF5saHEBwwqeUoA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzrvPIQsGaqHP28_9G-geahMB0QMYHlbylnGLUTeJagi1Sc_rgPVErasrhc0HGGthppYA/exec';
 
 let currentId = '', currentPw = '', categories = [], teams = [];
 
@@ -663,7 +702,7 @@ async function loadBranding() {
 
 function loadData(data) {
     document.getElementById('loadingMsg').style.display = 'none';
-    ['sec_verein','sec_farben','sec_social','sec_kat','sec_team','sec_pw','sec_save'].forEach(id => {
+    ['sec_verein','sec_farben','sec_social','sec_kat','sec_team','sec_spiel','sec_pw','sec_save'].forEach(id => {
         document.getElementById(id).style.display = 'block';
     });
     const b = data.branding || data;
@@ -774,6 +813,88 @@ async function changePassword() {
         st.style.display = 'block';
         if (data.success) currentPw = p1;
     } catch(e) { st.textContent = 'Verbindungsfehler'; st.style.display = 'block'; }
+}
+
+// ── Spielergebnis manuell ────────────────────────────────────
+let _letzterBericht = null;
+
+async function spielErgebnisSpeichern() {
+  const abteilung = document.getElementById('sp_abteilung').value.trim();
+  const gegner    = document.getElementById('sp_gegner').value.trim();
+  const eigen     = document.getElementById('sp_eigen').value.trim();
+  const gegnerP   = document.getElementById('sp_gegner_p').value.trim();
+  const liga      = document.getElementById('sp_liga').value.trim();
+  const datum     = document.getElementById('sp_datum').value;
+  const ort       = document.getElementById('sp_ort').value;
+  const statusEl  = document.getElementById('spielStatus');
+  const btn       = document.getElementById('btnSpiel');
+
+  if (!abteilung || !gegner || !eigen || !gegnerP) {
+    statusEl.style.color = '#dc2626';
+    statusEl.textContent = 'Bitte alle Pflichtfelder ausfüllen.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ KI schreibt Berichte…';
+  statusEl.textContent = '';
+  document.getElementById('spielBerichtBox').style.display = 'none';
+
+  try {
+    const datumFormatiert = datum ? new Date(datum).toLocaleDateString('de-DE') : new Date().toLocaleDateString('de-DE');
+    const heimName = ort === 'heim' ? (window._vereinName || KUNDE_ID) : gegner;
+    const auswaertsName = ort === 'heim' ? gegner : (window._vereinName || KUNDE_ID);
+    const heimP = ort === 'heim' ? eigen : gegnerP;
+    const auswaertsP = ort === 'heim' ? gegnerP : eigen;
+
+    const url = GAS_URL + '?action=generiere_spielbericht&kundenId=' + KUNDE_ID +
+      '&home_name=' + encodeURIComponent(heimName) +
+      '&away_name=' + encodeURIComponent(auswaertsName) +
+      '&home_points=' + encodeURIComponent(heimP) +
+      '&away_points=' + encodeURIComponent(auswaertsP) +
+      '&datum=' + encodeURIComponent(datumFormatiert) +
+      '&liga=' + encodeURIComponent(liga) +
+      '&round_name=Spielbericht' +
+      '&home_club_id=' + (ort === 'heim' ? KUNDE_ID : '') +
+      '&away_club_id=' + (ort === 'auswaerts' ? KUNDE_ID : '');
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error || 'Fehler');
+
+    _letzterBericht = data;
+    document.getElementById('bericht_kurz').textContent       = data.kurz || '';
+    document.getElementById('bericht_newsletter').textContent = data.newsletter || '';
+    document.getElementById('bericht_presse').textContent     = data.presse || '';
+    document.getElementById('spielBerichtBox').style.display  = 'block';
+
+    statusEl.style.color   = '#16a34a';
+    statusEl.textContent   = '✓ Berichte fertig!';
+  } catch(e) {
+    statusEl.style.color   = '#dc2626';
+    statusEl.textContent   = 'Fehler: ' + e.message;
+  }
+  btn.disabled    = false;
+  btn.textContent = '✨ Ergebnis speichern & KI-Bericht starten';
+}
+
+async function berichtVeroeffentlichen() {
+  if (!_letzterBericht) return;
+  try {
+    const url = GAS_URL + '?action=add_beitrag&kundenId=' + KUNDE_ID +
+      '&vereinName=' + encodeURIComponent(window._vereinName || KUNDE_ID) +
+      '&titel=' + encodeURIComponent((_letzterBericht.gewonnen ? '🏆 Sieg! ' : '💪 ') + _letzterBericht.unseresTeam + ' ' + _letzterBericht.ergebnis + ' ' + _letzterBericht.gegner) +
+      '&text=' + encodeURIComponent(_letzterBericht.kurz) +
+      '&type=news';
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ Bericht ist jetzt in der App!');
+    } else {
+      alert('Fehler: ' + data.error);
+    }
+  } catch(e) { alert('Fehler: ' + e.message); }
 }
 
 // ── Speichern ───────────────────────────────────────────────
