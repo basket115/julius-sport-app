@@ -706,7 +706,7 @@ function loadData(data) {
         document.getElementById(id).style.display = 'block';
     });
     const b = data.branding || data;
-    if (b.Verein_Name)     document.getElementById('f_vereinsname').value  = b.Verein_Name;
+    if (b.Verein_Name) { document.getElementById('f_vereinsname').value = b.Verein_Name; window._vereinName = b.Verein_Name; }
     if (b.Logo_Verein)     { document.getElementById('f_logo').value = b.Logo_Verein; previewLogo(); }
     if (b.Logo_Sponsor) { document.getElementById('f_logoSponsor').value = b.Logo_Sponsor; const sp = document.getElementById('sponsorPreviewImg'); if(sp){ sp.src = b.Logo_Sponsor; sp.style.display = 'block'; } }
     if (b.Headline_Text)   document.getElementById('f_headline') && (document.getElementById('f_headline').value = b.Headline_Text);
@@ -842,12 +842,12 @@ async function spielErgebnisSpeichern() {
 
   try {
     const datumFormatiert = datum ? new Date(datum).toLocaleDateString('de-DE') : new Date().toLocaleDateString('de-DE');
-    const heimName = ort === 'heim' ? (window._vereinName || KUNDE_ID) : gegner;
-    const auswaertsName = ort === 'heim' ? gegner : (window._vereinName || KUNDE_ID);
+    const heimName = ort === 'heim' ? (window._vereinName || currentId) : gegner;
+    const auswaertsName = ort === 'heim' ? gegner : (window._vereinName || currentId);
     const heimP = ort === 'heim' ? eigen : gegnerP;
     const auswaertsP = ort === 'heim' ? gegnerP : eigen;
 
-    const url = GAS_URL + '?action=generiere_spielbericht&kundenId=' + KUNDE_ID +
+    const url = GAS_URL + '?action=generiere_spielbericht&kundenId=' + currentId +
       '&home_name=' + encodeURIComponent(heimName) +
       '&away_name=' + encodeURIComponent(auswaertsName) +
       '&home_points=' + encodeURIComponent(heimP) +
@@ -855,8 +855,8 @@ async function spielErgebnisSpeichern() {
       '&datum=' + encodeURIComponent(datumFormatiert) +
       '&liga=' + encodeURIComponent(liga) +
       '&round_name=Spielbericht' +
-      '&home_club_id=' + (ort === 'heim' ? KUNDE_ID : '') +
-      '&away_club_id=' + (ort === 'auswaerts' ? KUNDE_ID : '');
+      '&home_club_id=' + (ort === 'heim' ? currentId : '') +
+      '&away_club_id=' + (ort === 'auswaerts' ? currentId : '');
 
     const res = await fetch(url);
     const data = await res.json();
@@ -882,8 +882,8 @@ async function spielErgebnisSpeichern() {
 async function berichtVeroeffentlichen() {
   if (!_letzterBericht) return;
   try {
-    const url = GAS_URL + '?action=add_beitrag&kundenId=' + KUNDE_ID +
-      '&vereinName=' + encodeURIComponent(window._vereinName || KUNDE_ID) +
+    const url = GAS_URL + '?action=add_beitrag&kundenId=' + currentId +
+      '&vereinName=' + encodeURIComponent(window._vereinName || currentId) +
       '&titel=' + encodeURIComponent((_letzterBericht.gewonnen ? '🏆 Sieg! ' : '💪 ') + _letzterBericht.unseresTeam + ' ' + _letzterBericht.ergebnis + ' ' + _letzterBericht.gegner) +
       '&text=' + encodeURIComponent(_letzterBericht.kurz) +
       '&type=news';
