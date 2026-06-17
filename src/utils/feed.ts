@@ -40,8 +40,10 @@ export type FeedRow = {
   whatsappUrl?: string; // ★ NEU
 };
 
-const FEED_URL =
+const ONLANG_API =
   "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+
+const FEED_URL = ONLANG_API;
 
 function cleanStr(v: any): string | undefined {
   if (v === null || v === undefined) return undefined;
@@ -182,7 +184,9 @@ function normalizeRow(row: any): FeedRow {
 
 export async function fetchFeed(): Promise<FeedRow[]> {
   try {
-    const res = await fetch(FEED_URL, {
+    const kundenId = new URLSearchParams(window.location.search).get("kunde") || "V006";
+    const url = `${FEED_URL}?action=get_beitraege&kundenId=${encodeURIComponent(kundenId)}`;
+    const res = await fetch(url, {
       method: "GET",
       redirect: "follow",
     });
