@@ -502,6 +502,18 @@
                 <option value="auswaerts">Auswärtsspiel</option>
             </select>
         </div>
+        <div class="color-grid" style="margin-top:12px">
+            <div class="field">
+                <label>📷 Bild-URL (optional)</label>
+                <input type="url" id="sp_bild" placeholder="https://i.imgur.com/..." />
+                <small style="color:var(--muted);font-size:0.75rem">Imgur-Link: Bild hochladen → rechtsklick → Bildadresse kopieren</small>
+            </div>
+            <div class="field">
+                <label>🎥 Video-URL (optional)</label>
+                <input type="url" id="sp_video" placeholder="https://youtube.com/watch?v=..." />
+                <small style="color:var(--muted);font-size:0.75rem">YouTube- oder Instagram-Link einfügen</small>
+            </div>
+        </div>
         <button class="btn-primary btn-full" onclick="spielErgebnisSpeichern()" id="btnSpiel">✨ Ergebnis speichern &amp; KI-Bericht starten</button>
         <div class="status-msg" id="spielStatus"></div>
 
