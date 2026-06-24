@@ -444,31 +444,23 @@
 
             <hr class="divider" />
 
-            <!-- NEU: Club-ID -->
-            <div class="section-label">Spielplan & Ergebnisse</div>
+            <!-- Automatische Spielberichte -->
+            <div class="section-label">🏀 Automatische Spielberichte</div>
 
-            <div class="field">
-                <label>
-                    Club-ID (Deutscher Basketball Bund)
-                    <span class="opt">— optional, kann später nachgereicht werden</span>
-                </label>
-                <input type="text" id="clubId" placeholder="z.B. 1415" />
-
-                <div class="club-id-info">
-                    <strong>🏀 Wozu brauchen wir die Club-ID?</strong>
-                    Mit deiner Club-ID erscheinen Spielergebnisse und Spielpläne automatisch in deiner App — ohne manuelle Eingabe!
-                    <br/><br/>
-                    <strong>So findest du sie (2 Minuten):</strong>
-                    <ol>
-                        <li>Einloggen auf <strong>basketball-bund.net</strong></li>
-                        <li>Menü: <strong>Verwaltung → Postfach</strong></li>
-                        <li>Die Zahl in der Adresszeile des Browsers:</li>
-                    </ol>
-                    <span class="url-example">basketball-bund.net/app.do?app=/postfach/verein/<strong>XXXX</strong>/edit</span>
-                    <a href="https://results2social.de/clubid.html" target="_blank" class="club-id-link">
-                        📖 Schritt-für-Schritt Anleitung →
-                    </a>
-                </div>
+            <div class="club-id-info" style="margin-bottom:0">
+                <strong>Einmal einrichten – die ganze Saison automatisch!</strong>
+                <br/><br/>
+                Nach deiner Anmeldung erhältst du deine persönliche ONLANG-Berichtsadresse, z.B.:
+                <br/><br/>
+                <span class="url-example">berichte+<strong>v001</strong>@onlang.de</span>
+                <br/><br/>
+                Trage diese Adresse einmalig in deinem <strong>DBB- oder INGAME-Verteiler</strong> ein — und ONLANG erledigt den Rest:
+                <br/><br/>
+                ✅ Spielbericht wird automatisch erkannt<br/>
+                ✅ KI erstellt einen fertigen Spielbericht-Entwurf<br/>
+                ✅ Ergebnis, Gegner, Liga und Spieldaten werden übernommen<br/>
+                ✅ Foto oder YouTube-Video ergänzen<br/>
+                ✅ Mit einem Klick auf Website, App und Social Media veröffentlichen
             </div>
 
             <button class="btn-submit" id="submitBtn" onclick="submitForm()">
@@ -504,7 +496,7 @@
             const email           = document.getElementById('email').value.trim();
             const telefon         = document.getElementById('telefon').value.trim();
             const website         = document.getElementById('website').value.trim();
-            const clubId          = document.getElementById('clubId').value.trim();
+            const clubId          = '';
 
             if (!vereinsname || !ansprechpartner || !email) {
                 alert('Bitte fülle alle Pflichtfelder aus.');
@@ -526,7 +518,7 @@
                     Email: email,
                     Telefon: telefon,
                     Website: website,
-                    club_id: clubId  // NEU: Club-ID mitschicken
+
                 });
                 const res  = await fetch(`${GAS_URL}?${params}`);
                 const data = await res.json();
