@@ -888,7 +888,9 @@ async function berichtVeroeffentlichen() {
       '&titel=' + encodeURIComponent((_letzterBericht.gewonnen ? '🏆 Sieg! ' : '💪 ') + _letzterBericht.unseresTeam + ' ' + _letzterBericht.ergebnis + ' ' + _letzterBericht.gegner) +
       '&text=' + encodeURIComponent(_letzterBericht.kurz) +
       '&type=news' +
-      '&kategorie=' + encodeURIComponent(document.getElementById('sp_abteilung').value.trim() || 'News');
+      '&kategorie=' + encodeURIComponent(document.getElementById('sp_abteilung').value.trim() || 'News') +
+      '&bildUrl=' + encodeURIComponent(document.getElementById('sp_bild').value.trim()) +
+      '&videoUrl=' + encodeURIComponent(document.getElementById('sp_video').value.trim());
     const res  = await fetch(url);
     const data = await res.json();
     if (data.success) {
