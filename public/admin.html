@@ -504,9 +504,13 @@
         </div>
         <div class="color-grid" style="margin-top:12px">
             <div class="field">
-                <label>📷 Bild-URL (optional)</label>
-                <input type="url" id="sp_bild" placeholder="https://i.imgur.com/..." />
-                <small style="color:var(--muted);font-size:0.75rem">Imgur-Link: Bild hochladen → rechtsklick → Bildadresse kopieren</small>
+                <label>📷 Spielfoto (optional)</label>
+                <div id="sp_bild_drop" onclick="document.getElementById('sp_bild_file').click()" style="border:2px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--muted);margin-bottom:6px" ondragover="event.preventDefault()" ondrop="handleSpBildDrop(event)">
+                  📁 Bild hier reinziehen oder klicken
+                </div>
+                <input type="file" id="sp_bild_file" accept="image/*" style="display:none" onchange="handleSpBildUpload(this.files[0])" />
+                <input type="url" id="sp_bild" placeholder="URL wird automatisch eingetragen..." style="font-size:0.78rem" readonly />
+                <div id="sp_bild_status" style="font-size:0.75rem;color:var(--muted)"></div>
             </div>
             <div class="field">
                 <label>🎥 Video-URL (optional)</label>
@@ -913,13 +917,37 @@ async function berichtVeroeffentlichen() {
   } catch(e) { alert('Fehler: ' + e.message); }
 }
 
-function naechstesSpiel() {
-  ['sp_abteilung','sp_gegner','sp_eigen','sp_gegner_p','sp_liga'].forEach(id => document.getElementById(id).value = '');
+async function handleSpBildUpload(file) {
+  if (!file) return;
+  const statusEl = document.getElementById('sp_bild_status');
+  const dropEl   = document.getElementById('sp_bild_drop');
+  statusEl.textContent = '⏳ Wird hochgeladen...';
+  dropEl.textContent   = '⏳ ' + file.name;
+  const url = await uploadToCloudinary(file, statusEl);
+  if (url) {
+    document.getElementById('sp_bild').value = url;
+    dropEl.innerHTML = '✅ <img src="'+url+'" style="max-height:60px;border-radius:6px;margin-top:4px">';
+    statusEl.textContent = '';
+  } else {
+    dropEl.textContent = '📁 Bild hier reinziehen oder klicken';
+  }
+}
+function handleSpBildDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleSpBildUpload(file);
+}
+
+function naechstesSpiel() {  ['sp_abteilung','sp_gegner','sp_eigen','sp_gegner_p','sp_liga'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('sp_datum').value = '';
   document.getElementById('sp_ort').value = 'heim';
   document.getElementById('spielBerichtBox').style.display = 'none';
   document.getElementById('spielStatus').textContent = '';
   _letzterBericht = null;
+  document.getElementById('sp_bild').value = '';
+  document.getElementById('sp_video').value = '';
+  document.getElementById('sp_bild_drop').textContent = '📁 Bild hier reinziehen oder klicken';
+  document.getElementById('sp_bild_status').textContent = '';
   document.getElementById('sp_abteilung').focus();
   window.scrollTo({ top: document.getElementById('sec_spiel').offsetTop - 20, behavior: 'smooth' });
 }
