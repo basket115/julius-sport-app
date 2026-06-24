@@ -881,6 +881,9 @@ async function spielErgebnisSpeichern() {
     if (!data.success) throw new Error(data.error || 'Fehler');
 
     _letzterBericht = data;
+    _letzterBericht.kurz = (data.kurz || '').replace(/^#\s*KURZBERICHT\s*/i, '').trim();
+    _letzterBericht._bildUrl  = document.getElementById('sp_bild').value.trim();
+    _letzterBericht._videoUrl = document.getElementById('sp_video').value.trim();
     document.getElementById('bericht_kurz').textContent       = data.kurz || '';
     document.getElementById('bericht_newsletter').textContent = data.newsletter || '';
     document.getElementById('bericht_presse').textContent     = data.presse || '';
@@ -905,8 +908,8 @@ async function berichtVeroeffentlichen() {
       '&text=' + encodeURIComponent(_letzterBericht.kurz) +
       '&type=news' +
       '&kategorie=' + encodeURIComponent(document.getElementById('sp_abteilung').value.trim() || 'News') +
-      '&bildUrl=' + encodeURIComponent(document.getElementById('sp_bild').value.trim()) +
-      '&videoUrl=' + encodeURIComponent(document.getElementById('sp_video').value.trim());
+      '&bildUrl=' + encodeURIComponent(_letzterBericht._bildUrl || document.getElementById('sp_bild').value.trim()) +
+      '&videoUrl=' + encodeURIComponent(_letzterBericht._videoUrl || document.getElementById('sp_video').value.trim());
     const res  = await fetch(url);
     const data = await res.json();
     if (data.success) {
