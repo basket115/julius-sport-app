@@ -887,7 +887,8 @@ async function berichtVeroeffentlichen() {
       '&vereinName=' + encodeURIComponent(window._vereinName || currentId) +
       '&titel=' + encodeURIComponent((_letzterBericht.gewonnen ? '🏆 Sieg! ' : '💪 ') + _letzterBericht.unseresTeam + ' ' + _letzterBericht.ergebnis + ' ' + _letzterBericht.gegner) +
       '&text=' + encodeURIComponent(_letzterBericht.kurz) +
-      '&type=news';
+      '&type=news' +
+      '&kategorie=' + encodeURIComponent(document.getElementById('sp_abteilung').value.trim() || 'News');
     const res  = await fetch(url);
     const data = await res.json();
     if (data.success) {
