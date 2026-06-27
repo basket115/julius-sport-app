@@ -110,11 +110,11 @@ function optimizeImageUrl(url: string, format: 'app' | 'website' | 'instagram' |
     // Bestehende Transformationen entfernen falls vorhanden
     const clean = url.replace(/\/upload\/[^\/]+\//, '/upload/');
     const transforms: Record<string, string> = {
-      app:       'c_fill,w_800,h_450,g_auto,q_auto,f_auto',   // 16:9 App-Card
-      website:   'c_fill,w_1200,h_675,g_auto,q_auto,f_auto',  // 16:9 Website Hero
-      instagram: 'c_fill,w_1080,h_1080,g_auto,q_auto,f_auto', // 1:1 Instagram
-      facebook:  'c_fill,w_1200,h_630,g_auto,q_auto,f_auto',  // 16:9 Facebook
-      thumb:     'c_fill,w_400,h_400,g_auto,q_auto,f_auto',   // Thumbnail
+      app:       'q_auto,f_auto',                                // Original-Format, nur Qualität optimiert
+      website:   'c_fill,w_1200,h_675,g_auto,q_auto,f_auto',   // 16:9 Website Hero
+      instagram: 'c_fill,w_1080,h_1080,g_auto,q_auto,f_auto',  // 1:1 Instagram
+      facebook:  'c_fill,w_1200,h_630,g_auto,q_auto,f_auto',   // 16:9 Facebook
+      thumb:     'c_fill,w_400,h_400,g_auto,q_auto,f_auto',    // Thumbnail
     };
     return clean.replace('/upload/', `/upload/${transforms[format]}/`);
   }
@@ -959,13 +959,13 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                 </div>
               )}
 
-              {/* V26: Cloudinary-optimiertes Bild – 16:9, g_auto schneidet intelligent zu */}
+              {/* V26: Vollständiges Bild – keine Beschneidung */}
               {beitrag.Bild_URL && (
                 <div style={{ width: '100%', marginBottom: 8, borderRadius: 8, overflow: 'hidden', background: '#f0f0f0' }}>
                   <img
                     src={optimizeImageUrl(beitrag.Bild_URL, 'app')}
                     alt=""
-                    style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }}
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
                   />
                 </div>
               )}
