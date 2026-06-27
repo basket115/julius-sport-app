@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v25 — Fix: Nächste Spiele nur zukünftige Termine anzeigen
+// src/pages/Tab1.tsx v26 — Fix: Cloudinary Bildformat pro Kanal
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -103,10 +103,20 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
 };
 
 // ─── Cloudinary URL Optimierung ──────────────────────────────
-function optimizeImageUrl(url: string): string {
+// V26: Format-Parameter pro Kanal – g_auto schneidet intelligent zu
+function optimizeImageUrl(url: string, format: 'app' | 'website' | 'instagram' | 'facebook' | 'thumb' = 'app'): string {
   if (!url) return url;
   if (url.includes('cloudinary.com')) {
-    return url.replace('/upload/', '/upload/c_fill,w_1200,h_675,g_auto,q_auto,f_auto/');
+    // Bestehende Transformationen entfernen falls vorhanden
+    const clean = url.replace(/\/upload\/[^\/]+\//, '/upload/');
+    const transforms: Record<string, string> = {
+      app:       'c_fill,w_800,h_450,g_auto,q_auto,f_auto',   // 16:9 App-Card
+      website:   'c_fill,w_1200,h_675,g_auto,q_auto,f_auto',  // 16:9 Website Hero
+      instagram: 'c_fill,w_1080,h_1080,g_auto,q_auto,f_auto', // 1:1 Instagram
+      facebook:  'c_fill,w_1200,h_630,g_auto,q_auto,f_auto',  // 16:9 Facebook
+      thumb:     'c_fill,w_400,h_400,g_auto,q_auto,f_auto',   // Thumbnail
+    };
+    return clean.replace('/upload/', `/upload/${transforms[format]}/`);
   }
   return fixGoogleDriveUrl(url);
 }
@@ -387,7 +397,6 @@ const ErgebnisseWidget: React.FC<{
     ]).then(([dG, dA]) => {
       if (dG.success)  setGespielt(dG.items || []);
       if (dA.success) {
-        // Nur echte zukünftige Spiele anzeigen (kickoff_at > jetzt)
         const echteZukunft = (dA.items || []).filter((m: Match) => {
           const kickoff = new Date(m.kickoff_at);
           return kickoff > jetzt;
@@ -539,7 +548,6 @@ const SpielplanVollansicht: React.FC<{
       const data = await res.json();
       if (data.success) {
         let items = data.items || [];
-        // Bei upcoming: nur echte zukünftige Spiele anzeigen
         if (scope === 'upcoming') {
           const jetzt = new Date();
           items = items.filter((m: Match) => new Date(m.kickoff_at) > jetzt);
@@ -559,7 +567,6 @@ const SpielplanVollansicht: React.FC<{
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999, display: 'flex', flexDirection: 'column', background: '#f0f0f0' }}>
-      {/* Header */}
       <div style={{ background: themaFarbe, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button onClick={onZurueck}
           style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, padding: '6px 12px', color: headerTextFarbe, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
@@ -568,9 +575,7 @@ const SpielplanVollansicht: React.FC<{
         <span style={{ color: headerTextFarbe, fontWeight: 800, fontSize: 16 }}>🏀 Spielplan & Ergebnisse</span>
       </div>
 
-      {/* Inhalt */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-        {/* Scope Filter */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
           {(['all', 'played', 'upcoming'] as Scope[]).map(s => (
             <button key={s} onClick={() => setScope(s)}
@@ -580,7 +585,6 @@ const SpielplanVollansicht: React.FC<{
           ))}
         </div>
 
-        {/* Mannschaftsfilter */}
         {teams.length > 0 && (
           <select value={gewaehltesTeam} onChange={(e: any) => setGewaehltesTeam(e.target.value)}
             style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${cardRahmen}`, fontSize: 14, color: '#111', background: 'white', fontFamily: 'inherit', marginBottom: 12 }}>
@@ -593,14 +597,12 @@ const SpielplanVollansicht: React.FC<{
           </select>
         )}
 
-        {/* Info */}
         {!loading && !fehler && gesamt > 0 && (
           <div style={{ fontSize: 12, color: '#999', marginBottom: 10, textAlign: 'right' as const }}>
             {gesamt} Spiele · Seite {seite} / {gesamtSeiten}
           </div>
         )}
 
-        {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
@@ -608,7 +610,6 @@ const SpielplanVollansicht: React.FC<{
           </div>
         )}
 
-        {/* Fehler */}
         {!loading && fehler && (
           <div style={{ background: '#fff5f5', borderRadius: 12, padding: 16, border: '1px solid #ffcccc', textAlign: 'center' as const }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
@@ -620,7 +621,6 @@ const SpielplanVollansicht: React.FC<{
           </div>
         )}
 
-        {/* Keine Daten */}
         {!loading && !fehler && matches.length === 0 && (
           <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
@@ -628,14 +628,12 @@ const SpielplanVollansicht: React.FC<{
           </div>
         )}
 
-        {/* Spielliste */}
         {!loading && !fehler && matches.map(m => (
           <MatchKarteGross key={m.match_uid} match={m} kundenId={clubId}
             themaFarbe={themaFarbe} akzentFarbe={akzentFarbe}
             cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} />
         ))}
 
-        {/* Pagination */}
         {!loading && gesamtSeiten > 1 && (
           <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'center' }}>
             <button onClick={() => ladeMatches(seite - 1)} disabled={seite <= 1}
@@ -743,8 +741,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   const [showBildInfo, setShowBildInfo]   = useState(false);
   const [activeKategorie, setActiveKategorie] = useState<string>('');
   const [editBeitrag, setEditBeitrag]     = useState<any | null>(null);
-
-  // NEU v21
   const [zeigeSpielplan, setZeigeSpielplan] = useState(false);
 
   const b = branding as any;
@@ -875,7 +871,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
         </div>
       )}
 
-      {/* ── NEU v21: Ergebnisse Widget ── */}
       {kundenId && (
         <ErgebnisseWidget
           kundenId={kundenId}
@@ -888,7 +883,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           onAlleAnzeigen={() => setZeigeSpielplan(true)}
         />
       )}
-      {/* ── Ende Ergebnisse Widget ── */}
 
       {sichtbareKategorien.length > 0 && (
         <CategoriesComponent categories={sichtbareKategorien} selectedCategory={activeKategorie} onSelect={setActiveKategorie} themaFarbe={themaFarbe} />
@@ -964,11 +958,18 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
                   </button>
                 </div>
               )}
+
+              {/* V26: Cloudinary-optimiertes Bild – 16:9, g_auto schneidet intelligent zu */}
               {beitrag.Bild_URL && (
-                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, marginBottom: 8, borderRadius: 8, overflow: 'hidden' }}>
-                  <img src={optimizeImageUrl(beitrag.Bild_URL)} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                <div style={{ width: '100%', marginBottom: 8, borderRadius: 8, overflow: 'hidden', background: '#f0f0f0' }}>
+                  <img
+                    src={optimizeImageUrl(beitrag.Bild_URL, 'app')}
+                    alt=""
+                    style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }}
+                  />
                 </div>
               )}
+
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                 <span style={{ background: tagFarbe, color: tagTextFarbe, borderRadius: 6, padding: '2px 10px', fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>{beitrag.Kategorie}</span>
                 <span style={{ fontSize: 12, color: '#999' }}>{beitrag.Datum}</span>
@@ -1007,7 +1008,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
 
       {newsContent}
 
-      {/* ── NEU v21: Spielplan Vollansicht ── */}
       {zeigeSpielplan && (
         <SpielplanVollansicht
           kundenId={kundenId}
@@ -1020,7 +1020,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           onZurueck={() => setZeigeSpielplan(false)}
         />
       )}
-      {/* ── Ende Spielplan Vollansicht ── */}
 
       <div style={{ background: themaFarbe, padding: '14px 16px', display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap' as const, flexShrink: 0 }}>
         <a href="https://app.onlang.de/nutzungsbedingungen" target="_blank" rel="noopener noreferrer"
