@@ -1,6 +1,6 @@
 import type { Context } from "https://edge.netlify.com";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrvPIQsGaqHP28_9G-geahMB0QMYHlbylnGLUTeJagi1Sc_rgPVErasrhc0HGGthppYA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
 
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
