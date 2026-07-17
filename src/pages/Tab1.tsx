@@ -830,21 +830,37 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   };
 
   const handleDelete = async (beitrag: any) => {
-    const istStudioBeitrag =
-      String(beitrag.Quelle || beitrag.quelle || '').trim().toLowerCase() === 'studio';
-
     const beitragId = String(
-      beitrag.Spiel_ID || beitrag.spielId || beitrag.SpielId || beitrag.id || beitrag.Id || ''
+      beitrag.Spiel_ID ||
+      beitrag.spielId ||
+      beitrag.SpielId ||
+      beitrag.id ||
+      beitrag.Id ||
+      ''
     ).trim();
 
+    const istStudioBeitrag =
+      String(beitrag.Quelle || beitrag.quelle || '')
+        .trim()
+        .toLowerCase() === 'studio' ||
+      !!beitrag.Spiel_ID ||
+      !!beitrag.spielId ||
+      beitragId.includes('-MANUELL-');
+
     const loeschKundenId = String(
-      beitrag.Kunden_ID || beitrag.kundenId || branding?.Kunden_ID || kundenId || ''
+      beitrag.Kunden_ID ||
+      beitrag.kundenId ||
+      branding?.Kunden_ID ||
+      kundenId ||
+      ''
     ).trim();
 
     if (!beitragId) {
-      alert(istStudioBeitrag
-        ? 'Keine Spiel_ID — der Studio-Beitrag kann nicht gelöscht werden.'
-        : 'Keine Beitrags-ID — der Beitrag kann nicht gelöscht werden.');
+      alert(
+        istStudioBeitrag
+          ? 'Keine Spiel_ID — der Studio-Beitrag kann nicht gelöscht werden.'
+          : 'Keine Beitrags-ID — der Beitrag kann nicht gelöscht werden.'
+      );
       return;
     }
 
@@ -863,7 +879,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       let res: any;
 
       if (istStudioBeitrag) {
-        // Neue gemeinsame Datenquelle: Spielberichte_Studio
         const body = new URLSearchParams({
           action: 'studioLoescheBeitrag',
           spielId: beitragId,
@@ -880,7 +895,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           cache: 'no-store',
         }).then(r => r.json());
       } else {
-        // Bestehende App-Datenquelle: Beitraege
         const params = new URLSearchParams({
           action: 'delete_beitrag',
           kundenId: loeschKundenId,
@@ -895,12 +909,20 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       }
 
       if (res.success) {
-        setBeitraege(prev => prev.filter(item => {
-          const itemId = String(
-            item.Spiel_ID || item.spielId || item.SpielId || item.id || item.Id || ''
-          ).trim();
-          return itemId !== beitragId;
-        }));
+        setBeitraege(prev =>
+          prev.filter(item => {
+            const itemId = String(
+              item.Spiel_ID ||
+              item.spielId ||
+              item.SpielId ||
+              item.id ||
+              item.Id ||
+              ''
+            ).trim();
+
+            return itemId !== beitragId;
+          })
+        );
       } else {
         alert('Fehler: ' + (res.error || 'Unbekannt'));
       }
