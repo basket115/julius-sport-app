@@ -875,28 +875,34 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       let result: any;
 
       if (istStudioBeitrag) {
-        const body = new URLSearchParams();
-        body.set('action', 'studioLoescheBeitrag');
-        body.set('spielId', beitragId);
-        body.set('kundenId', loeschKundenId);
+        // WICHTIG:
+        // Die Parameter stehen sowohl in der URL als auch im POST-Body.
+        // Dadurch bleiben sie auch bei Apps-Script-Weiterleitungen erhalten.
+        const params = new URLSearchParams({
+          action: 'studioLoescheBeitrag',
+          spielId: beitragId,
+          kundenId: loeschKundenId,
+          _: String(Date.now()),
+        });
 
-        const response = await fetch(`${API_EXEC_URL}?_=${Date.now()}`, {
+        const response = await fetch(`${API_EXEC_URL}?${params.toString()}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
           },
-          body: body.toString(),
+          body: params.toString(),
           redirect: 'follow',
           cache: 'no-store',
         });
 
         result = await response.json();
       } else {
-        const params = new URLSearchParams();
-        params.set('action', 'delete_beitrag');
-        params.set('kundenId', loeschKundenId);
-        params.set('id', beitragId);
-        params.set('_', String(Date.now()));
+        const params = new URLSearchParams({
+          action: 'delete_beitrag',
+          kundenId: loeschKundenId,
+          id: beitragId,
+          _: String(Date.now()),
+        });
 
         const response = await fetch(`${API_EXEC_URL}?${params.toString()}`, {
           method: 'GET',
@@ -908,7 +914,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       }
 
       if (!result.success) {
-        alert('Fehler: ' + (result.error || 'Unbekannt'));
+        alert('Fehler: ' + (result.error || result.nachricht || 'Unbekannt'));
         return;
       }
 
