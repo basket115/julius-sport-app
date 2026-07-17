@@ -11,40 +11,40 @@ export default async (request: Request, context: Context) => {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
-        "Cache-Control": "no-cache",
+        "Cache-Control": "no-store",
       },
     });
   }
 
-  const url = new URL(request.url);
-  const params = url.searchParams.toString();
-  const targetUrl = `${SCRIPT_URL}${params ? "?" + params : ""}`;
+  const incomingUrl = new URL(request.url);
+  const queryString = incomingUrl.searchParams.toString();
+  const targetUrl = `${SCRIPT_URL}${queryString ? `?${queryString}` : ""}`;
 
   try {
-    const headers: Record<string, string> = {
-      "User-Agent": "Netlify-Edge-Proxy/1.0",
+    const requestHeaders: Record<string, string> = {
+      "User-Agent": "Netlify-Edge-Proxy/2.0",
     };
 
     const contentType = request.headers.get("content-type");
     if (contentType) {
-      headers["Content-Type"] = contentType;
+      requestHeaders["Content-Type"] = contentType;
     }
 
-    const fetchOptions: RequestInit = {
+    const options: RequestInit = {
       method: request.method,
-      headers,
+      headers: requestHeaders,
       redirect: "follow",
       cache: "no-store",
     };
 
     if (request.method !== "GET" && request.method !== "HEAD") {
-      fetchOptions.body = await request.text();
+      options.body = await request.text();
     }
 
-    const response = await fetch(targetUrl, fetchOptions);
-    const data = await response.text();
+    const response = await fetch(targetUrl, options);
+    const responseText = await response.text();
 
-    return new Response(data, {
+    return new Response(responseText, {
       status: response.status,
       headers: {
         "Content-Type":
@@ -68,6 +68,7 @@ export default async (request: Request, context: Context) => {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
+          "Cache-Control": "no-store",
         },
       }
     );
