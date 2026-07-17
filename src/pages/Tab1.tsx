@@ -839,14 +839,6 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       ''
     ).trim();
 
-    const istStudioBeitrag =
-      String(beitrag.Quelle || beitrag.quelle || '')
-        .trim()
-        .toLowerCase() === 'studio' ||
-      !!beitrag.Spiel_ID ||
-      !!beitrag.spielId ||
-      beitragId.includes('-MANUELL-');
-
     const loeschKundenId = String(
       beitrag.Kunden_ID ||
       beitrag.kundenId ||
@@ -856,11 +848,7 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     ).trim();
 
     if (!beitragId) {
-      alert(
-        istStudioBeitrag
-          ? 'Keine Spiel_ID — der Studio-Beitrag kann nicht gelöscht werden.'
-          : 'Keine Beitrags-ID — der Beitrag kann nicht gelöscht werden.'
-      );
+      alert('Keine Beitrags-ID — der Beitrag kann nicht gelöscht werden.');
       return;
     }
 
@@ -869,6 +857,14 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
       return;
     }
 
+    const istStudioBeitrag =
+      beitragId.includes('-MANUELL-') ||
+      Boolean(beitrag.Spiel_ID) ||
+      Boolean(beitrag.spielId) ||
+      String(beitrag.Quelle || beitrag.quelle || '')
+        .trim()
+        .toLowerCase() === 'studio';
+
     if (!window.confirm(`"${beitrag.Titel || beitrag.Headline || 'Beitrag'}" wirklich löschen?`)) {
       return;
     }
@@ -876,16 +872,15 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
     setDeletingId(beitragId);
 
     try {
-      let res: any;
+      let result: any;
 
       if (istStudioBeitrag) {
-        const body = new URLSearchParams({
-          action: 'studioLoescheBeitrag',
-          spielId: beitragId,
-          kundenId: loeschKundenId,
-        });
+        const body = new URLSearchParams();
+        body.set('action', 'studioLoescheBeitrag');
+        body.set('spielId', beitragId);
+        body.set('kundenId', loeschKundenId);
 
-        res = await fetch(API_EXEC_URL, {
+        const response = await fetch(`${API_EXEC_URL}?_=${Date.now()}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -893,39 +888,44 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
           body: body.toString(),
           redirect: 'follow',
           cache: 'no-store',
-        }).then(r => r.json());
-      } else {
-        const params = new URLSearchParams({
-          action: 'delete_beitrag',
-          kundenId: loeschKundenId,
-          id: beitragId,
         });
 
-        res = await fetch(`${API_EXEC_URL}?${params.toString()}`, {
+        result = await response.json();
+      } else {
+        const params = new URLSearchParams();
+        params.set('action', 'delete_beitrag');
+        params.set('kundenId', loeschKundenId);
+        params.set('id', beitragId);
+        params.set('_', String(Date.now()));
+
+        const response = await fetch(`${API_EXEC_URL}?${params.toString()}`, {
           method: 'GET',
           redirect: 'follow',
           cache: 'no-store',
-        }).then(r => r.json());
+        });
+
+        result = await response.json();
       }
 
-      if (res.success) {
-        setBeitraege(prev =>
-          prev.filter(item => {
-            const itemId = String(
-              item.Spiel_ID ||
-              item.spielId ||
-              item.SpielId ||
-              item.id ||
-              item.Id ||
-              ''
-            ).trim();
-
-            return itemId !== beitragId;
-          })
-        );
-      } else {
-        alert('Fehler: ' + (res.error || 'Unbekannt'));
+      if (!result.success) {
+        alert('Fehler: ' + (result.error || 'Unbekannt'));
+        return;
       }
+
+      setBeitraege(prev =>
+        prev.filter(item => {
+          const itemId = String(
+            item.Spiel_ID ||
+            item.spielId ||
+            item.SpielId ||
+            item.id ||
+            item.Id ||
+            ''
+          ).trim();
+
+          return itemId !== beitragId;
+        })
+      );
     } catch (err) {
       console.error('Löschen fehlgeschlagen:', err);
       alert('Verbindungsfehler.');
