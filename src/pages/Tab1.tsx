@@ -830,16 +830,54 @@ const Tab1: React.FC<Props> = ({ onAdminClick }) => {
   };
 
   const handleDelete = async (beitrag: any) => {
-    const beitragId = String(beitrag.id || beitrag.Id || '').trim();
-    if (!beitragId) { alert('Keine ID — kann nicht gelöscht werden.'); return; }
-    if (!window.confirm(`"${beitrag.Titel}" wirklich löschen?`)) return;
-    setDeletingId(beitragId);
+    const spielId = String(
+      beitrag.Spiel_ID || beitrag.spielId || beitrag.SpielId || beitrag.id || beitrag.Id || ''
+    ).trim();
+    const loeschKundenId = String(
+      beitrag.Kunden_ID || beitrag.kundenId || branding?.Kunden_ID || kundenId || ''
+    ).trim();
+
+    if (!spielId) {
+      alert('Keine Spiel_ID — der Beitrag kann nicht gelöscht werden.');
+      return;
+    }
+    if (!loeschKundenId) {
+      alert('Keine Kunden_ID — der Beitrag kann nicht gelöscht werden.');
+      return;
+    }
+    if (!window.confirm(`"${beitrag.Titel || beitrag.Headline || 'Beitrag'}" wirklich löschen?`)) return;
+
+    setDeletingId(spielId);
     try {
-      const res = await fetch(`${API_EXEC_URL}?action=delete_beitrag&kundenId=${encodeURIComponent(branding?.Kunden_ID || '')}&id=${encodeURIComponent(beitragId)}`, { method: 'GET', redirect: 'follow' }).then(r => r.json());
-      if (res.success) { setBeitraege(prev => prev.filter(item => String(item.id || item.Id || '') !== beitragId)); }
-      else { alert('Fehler: ' + (res.error || 'Unbekannt')); }
-    } catch { alert('Verbindungsfehler.'); }
-    finally { setDeletingId(null); }
+      const body = new URLSearchParams({
+        action: 'studioLoescheBeitrag',
+        spielId,
+        kundenId: loeschKundenId,
+      });
+
+      const res = await fetch(API_EXEC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: body.toString(),
+        redirect: 'follow',
+        cache: 'no-store',
+      }).then(r => r.json());
+
+      if (res.success) {
+        setBeitraege(prev => prev.filter(item => {
+          const itemSpielId = String(
+            item.Spiel_ID || item.spielId || item.SpielId || item.id || item.Id || ''
+          ).trim();
+          return itemSpielId !== spielId;
+        }));
+      } else {
+        alert('Fehler: ' + (res.error || 'Unbekannt'));
+      }
+    } catch {
+      alert('Verbindungsfehler.');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleEditSaved = (updated: any) => {
