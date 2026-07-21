@@ -1,4 +1,4 @@
-// src/App.tsx — v4: Zahnrad bei ALLEN Versionen (ReadOnly + Admin)
+// src/App.tsx — v4.1: StudioAPI Integration & Web-Einbettung
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -28,8 +28,7 @@ import './theme/variables.css';
 
 export const BrandingContext = createContext<any>(null);
 
-const API_EXEC_URL =
-  "/api/proxy";
+const API_EXEC_URL = "/api/proxy";
 
 // ── Fetch-Hilfsfunktion mit CORS-Fix ─────────────────────────
 const apiFetch = (url: string) =>
@@ -188,29 +187,35 @@ const App: React.FC = () => {
   const [showOsterPalina, setShowOsterPalina] = useState(false);
 
   const kundenId = (() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('kunde');
+    const fromUrl = new URLSearchParams(window.location.search).get('kunde') || new URLSearchParams(window.location.search).get('tenant');
     if (fromUrl) { localStorage.setItem('kundenId', fromUrl); return fromUrl; }
-    return localStorage.getItem('kundenId') || 'V068';
+    return localStorage.getItem('kundenId') || 'V001';
   })();
 
   useEffect(() => {
     if (!kundenId) { setTeamLoginChecked(true); return; }
-    // FIX 1: redirect follow + cache no-store
     apiFetch(`${API_EXEC_URL}?action=checkTeamLogin&kundenId=${kundenId}`)
       .then(r => r.json())
       .then(d => { setHasTeamLogin(d.hasTeamLogin || false); setTeamLoginChecked(true); })
       .catch(() => setTeamLoginChecked(true));
-  }, [kundenId]); // eslint-disable-line
+  }, [kundenId]);
 
   const loadBranding = async () => {
     setLoading(true);
     try {
-      // FIX 2: redirect follow + cache no-store
-      const res = await apiFetch(`${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`);
+      // Zugriff auf den getKundenMaster Endpunkt aus StudioAPI.gs
+      const res = await apiFetch(`${API_EXEC_URL}?action=getKundenMaster&kundenId=${kundenId}`);
       const data = await res.json();
-      if (data.success) {
-        setBranding(data.branding);
-        const b = data.branding;
+      
+      let b = null;
+      if (data.success && data.branding) {
+        b = data.branding;
+      } else if (data.branding) {
+        b = data.branding;
+      }
+
+      if (b) {
+        setBranding(b);
         const vereinName      = b?.Verein_Name || 'Sport App';
         const logoUrl         = b?.Logo_Verein || b?.Logo_verein || '';
         const themaFarbe      = b?.Thema_Farbe       || '#111111';
@@ -251,11 +256,11 @@ const App: React.FC = () => {
         if (kundenId === 'V003') setShowOster(true);
         if (kundenId === 'V003P') setShowOsterPalina(true);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Fehler beim Laden des Brandings:", err); }
     setLoading(false);
   };
 
-  useEffect(() => { loadBranding(); }, []); // eslint-disable-line
+  useEffect(() => { loadBranding(); }, []);
 
   useEffect(() => {
     if (!teamLoginChecked || !hasTeamLogin) return;
@@ -264,7 +269,7 @@ const App: React.FC = () => {
     const savedTeamId = sessionStorage.getItem('teamId') || '';
     if (savedRolle) { setTeamRolle(savedRolle); setTeamMannschaft(savedMannschaft); setTeamId(savedTeamId); setTeamLoginDone(true); }
     else { setShowTeamLogin(true); }
-  }, [hasTeamLogin, teamLoginChecked]); // eslint-disable-line
+  }, [hasTeamLogin, teamLoginChecked]);
 
   const reload = () => loadBranding();
 
@@ -272,7 +277,6 @@ const App: React.FC = () => {
     if (!teamPassword.trim()) return;
     setTeamLoading(true); setTeamError('');
     try {
-      // FIX 3: redirect follow + cache no-store
       const res = await apiFetch(`${API_EXEC_URL}?action=getTeamRole&password=${encodeURIComponent(teamPassword)}&kundenId=${encodeURIComponent(kundenId)}`);
       const data = await res.json();
       if (data.success) {
@@ -294,7 +298,6 @@ const App: React.FC = () => {
   const handleLogin = async () => {
     try {
       setError('');
-      // FIX 4: redirect follow + cache no-store
       const res = await apiFetch(`${API_EXEC_URL}?kundenId=${encodeURIComponent(kundenId)}&password=${encodeURIComponent(password)}`);
       const data = await res.json();
       if (data.success) { setIsAuthenticated(true); setShowLogin(false); setPassword(''); }
@@ -365,7 +368,7 @@ const App: React.FC = () => {
       teamRolle, teamMannschaft, teamId, teamLoginDone, handleTeamLogout,
       themaFarbe, akzentFarbe, headerTextFarbe,
       cardHintergrund: branding?.Card_Hintergrund || '#F4F0E8',
-      cardRahmen:      branding?.Card_Rahmen      || branding?.Thema_Farbe || '#111111',
+      cardRahmen:      branding?.Card_Rahmen       || branding?.Thema_Farbe || '#111111',
       tagFarbe:        branding?.Tag_Farbe        || branding?.Akzent_Farbe || '#C8611A',
       tagTextFarbe:    branding?.Tag_Text_Farbe   || '#FFFFFF',
       iconBarAktiv:    branding?.IconBar_Aktiv    || branding?.Akzent_Farbe || '#C8611A',
