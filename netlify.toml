@@ -1,4 +1,10 @@
 [[redirects]]
+  from = "/api/proxy"
+  to = "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/julius-welt.html"
   to = "/julius-welt.html"
   status = 200
