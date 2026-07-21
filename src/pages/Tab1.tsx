@@ -1,11 +1,11 @@
-// src/pages/Tab1.tsx v27 — Mit ONLANG TV Integration
+// src/pages/Tab1.tsx v26 — Fix: Cloudinary Bildformat pro Kanal
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
-import { OnlangTV } from '../components/OnlangTV';
 import { BrandingContext, fixGoogleDriveUrl } from '../App';
 
-const API_EXEC_URL = "/api/proxy";
+const API_EXEC_URL =
+  "/api/proxy";
 
 // ─── YouTube Embed ────────────────────────────────────────────
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -316,7 +316,7 @@ const EditPopup: React.FC<{
 };
 
 // ============================================================
-// ERGEBNISSE & SPIELPLAN TYPEN & HELPER
+// NEU v21 – ERGEBNISSE & SPIELPLAN TYPEN
 // ============================================================
 interface Match {
   match_uid: string;
@@ -351,7 +351,7 @@ function formatUhrzeit(dateStr: string): string {
 }
 
 // ============================================================
-// ERGEBNISSE WIDGET (Startseite)
+// NEU v21 – ERGEBNISSE WIDGET (Startseite)
 // ============================================================
 const ErgebnisseWidget: React.FC<{
   kundenId: string;
@@ -564,13 +564,6 @@ export default function Tab1({ onOpenSpielplan }: { onOpenSpielplan?: () => void
           cardRahmen={cardRahmen}
           onAlleAnzeigen={() => onOpenSpielplan && onOpenSpielplan()}
         />
-
-        {/* ============================================================ */}
-        {/* ONLANG TV INTEGRATION                                        */}
-        {/* ============================================================ */}
-        <div style={{ marginBottom: 24 }}>
-          <OnlangTV kundenId={kundenId} branding={branding} />
-        </div>
 
         {/* Kategorien Filter */}
         <CategoriesComponent
