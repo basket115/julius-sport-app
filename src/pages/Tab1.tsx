@@ -1,4 +1,4 @@
-// src/pages/Tab1.tsx v27 — Sicherer BBK-TV-Fallback ohne API-Eingriff
+// src/pages/Tab1.tsx v28 — BBK-TV-Fallback direkt über ?kunde=V006
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -91,9 +91,13 @@ const SocialBar: React.FC<{ b: any }> = ({ b }) => {
   const yt     = b?.Youtube_URL || '';
   const tt     = b?.TikTok_URL || '';
   // TV: Sheet-Werte haben Vorrang.
-  // Sicherer V006-Fallback, damit BBK TV auch mit der stabilen älteren API-Version sichtbar bleibt.
-  const kundenId = String(b?.Kunden_ID || '').trim().toUpperCase();
-  const istBbkV006 = kundenId === 'V006';
+  // Der sichere V006-Fallback liest die Kunden-ID direkt aus der Browser-URL.
+  // Dadurch bleibt BBK TV auch mit einer älteren stabilen API-Version sichtbar.
+  const kundeAusUrl = new URLSearchParams(window.location.search).get('kunde')
+    || new URLSearchParams(window.location.search).get('tenant')
+    || '';
+  const aktuelleKundenId = String(kundeAusUrl || b?.Kunden_ID || '').trim().toUpperCase();
+  const istBbkV006 = aktuelleKundenId === 'V006';
   const tvName = b?.TV_Name || (istBbkV006 ? 'BBK TV' : 'TV');
   const tvUrl  = b?.TV_URL || (istBbkV006 ? 'https://onlang-tv.netlify.app/?kunde=bbk-duesseldorf' : '');
   const tvIcon = b?.TV_Icon || '';
