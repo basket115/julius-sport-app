@@ -84,19 +84,21 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
 };
 
 // ─── Social Bar ───────────────────────────────────────────────
-const SocialBar: React.FC<{ b: any }> = ({ b }) => {
+const SocialBar: React.FC<{ b: any; kundenId?: string }> = ({ b, kundenId }) => {
   const web    = b?.WEB_URL || '';
   const fb     = b?.Facebook_URL || '';
   const ig     = b?.Instragram_URL || b?.Instagram_URL || '';
   const yt     = b?.Youtube_URL || '';
   const tt     = b?.TikTok_URL || '';
   // TV: Sheet-Werte haben Vorrang.
-  // Der sichere V006-Fallback liest die Kunden-ID direkt aus der Browser-URL.
-  // Dadurch bleibt BBK TV auch mit einer älteren stabilen API-Version sichtbar.
+  // Primärquelle ist der bereits zuverlässig vorhandene kundenId-Wert aus dem
+  // BrandingContext (siehe Tab1). window.location.search und b?.Kunden_ID
+  // bleiben als zusätzliche Fallbacks bestehen, greifen aber in der Praxis
+  // kaum noch, da kundenId nach dem ersten Laden verlässlich gesetzt ist.
   const kundeAusUrl = new URLSearchParams(window.location.search).get('kunde')
     || new URLSearchParams(window.location.search).get('tenant')
     || '';
-  const aktuelleKundenId = String(kundeAusUrl || b?.Kunden_ID || '').trim().toUpperCase();
+  const aktuelleKundenId = String(kundenId || kundeAusUrl || b?.Kunden_ID || '').trim().toUpperCase();
   const istBbkV006 = aktuelleKundenId === 'V006';
   const tvName = b?.TV_Name || (istBbkV006 ? 'BBK TV' : 'TV');
   const tvUrl  = b?.TV_URL || (istBbkV006 ? 'https://onlang-tv.netlify.app/?kunde=bbk-duesseldorf' : '');
@@ -583,7 +585,7 @@ export default function Tab1({ onOpenSpielplan }: { onOpenSpielplan?: () => void
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px 12px' }}>
         
         {/* Social Links & Sponsoren Steuerung */}
-        <SocialBar b={branding} />
+        <SocialBar b={branding} kundenId={kundenId} />
 
         <div style={{ display: 'flex', gap: 8, marginTop: 12, marginBottom: 16 }}>
           <button onClick={() => setShowSponsorPopup(true)} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${cardRahmen}`, background: 'white', fontSize: 12, fontWeight: 600, color: '#444', cursor: 'pointer' }}>
