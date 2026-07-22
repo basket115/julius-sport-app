@@ -364,7 +364,7 @@ const App: React.FC = () => {
 
   return (
     <BrandingContext.Provider value={{
-      branding, loading, reload, isAuthenticated,
+      branding, kundenId, loading, reload, isAuthenticated,
       teamRolle, teamMannschaft, teamId, teamLoginDone, handleTeamLogout,
       themaFarbe, akzentFarbe, headerTextFarbe,
       cardHintergrund: branding?.Card_Hintergrund || '#F4F0E8',
