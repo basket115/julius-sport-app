@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ONLANG — Ingyenes demó igénylése</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f5f0;
+            --white: #ffffff;
+            --dark: #111111;
+            --accent: #ff6b00;
+            --accent2: #ff8c00;
+            --border: #e0ddd6;
+            --muted: #888880;
+            --success-bg: #f0fdf4;
+            --success-border: #86efac;
+            --success-text: #166534;
+            --info-bg: #fffbeb;
+            --info-border: #fcd34d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        nav {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 36px;
+            width: 36px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .nav-logo span {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--dark);
+            letter-spacing: -0.01em;
+        }
+
+        .nav-cta {
+            background: var(--dark);
+            color: var(--white);
+            text-decoration: none;
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover { background: #333; }
+
+        .hero {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 40px 48px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .highlight { color: var(--accent); }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--muted);
+            line-height: 1.65;
+            max-width: 600px;
+            margin: 0 auto 36px;
+        }
+
+        .feature-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .feature-chip {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 7px 16px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feature-chip .check { color: var(--accent); font-size: 0.75rem; }
+
+        .trust-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .trust-item { font-size: 0.82rem; color: var(--muted); }
+
+        .form-wrap {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        .form-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .form-card h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .form-card .form-sub {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .field { margin-bottom: 18px; }
+
+        .field label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-bottom: 7px;
+            color: var(--dark);
+        }
+
+        .field label .req { color: var(--accent); }
+
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--dark);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .field input:focus { border-color: var(--accent); }
+        .field input::placeholder { color: #bbb; }
+
+        .field .hint {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .club-id-info {
+            background: var(--info-bg);
+            border: 1.5px solid var(--info-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        .club-id-info strong {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+        }
+
+        .club-id-info .url-example {
+            background: rgba(0,0,0,0.06);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            display: block;
+            word-break: break-all;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--dark);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.15s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover { background: #222; transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { background: #999; cursor: not-allowed; transform: none; }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .form-note {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 12px;
+        }
+
+        .success-card {
+            display: none;
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .success-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--success-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 16px;
+        }
+
+        .success-card h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--success-text);
+            margin-bottom: 10px;
+        }
+
+        .success-card p {
+            font-size: 0.9rem;
+            color: var(--success-text);
+            line-height: 1.6;
+        }
+
+        .success-email { font-weight: 700; color: var(--dark); }
+
+        .next-step-box {
+            background: var(--white);
+            border: 1px solid var(--success-border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.875rem;
+            line-height: 1.65;
+            color: var(--dark);
+        }
+
+        footer {
+            text-align: center;
+            padding: 28px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a { color: var(--accent); text-decoration: none; }
+
+        @media (max-width: 520px) {
+            nav { padding: 14px 20px; }
+            .hero { padding: 48px 20px 32px; }
+            .form-wrap { padding: 0 16px 60px; }
+            .form-card { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="nav-logo">
+            <img src="https://i.imgur.com/dcz2Nwi.png" alt="ONLANG logó" />
+            <span>ONLANG</span>
+        </a>
+        <a href="#formCard" class="nav-cta">Demó igénylése</a>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-badge">
+            <div class="dot"></div>
+            Digitális sportegyesületi platform
+        </div>
+        <h1>Saját egyesületi alkalmazásod<br/><span class="highlight">24 órán belül elérhető.</span></h1>
+        <p>Az ONLANG a sportegyesületedet a digitális korszakba vezeti — saját alkalmazással, a klub színeivel és logójával. Nincs szükség informatikai ismeretekre.</p>
+
+        <div class="feature-grid">
+            <span class="feature-chip"><span class="check">✓</span> Saját arculat — logó, színek, név</span>
+            <span class="feature-chip"><span class="check">✓</span> Hírek, események és eredmények automatikusan</span>
+            <span class="feature-chip"><span class="check">✓</span> Kategóriák utánpótlásnak, felnőtteknek és vezetőségnek</span>
+            <span class="feature-chip"><span class="check">✓</span> Push értesítések</span>
+            <span class="feature-chip"><span class="check">✓</span> Ingyenes demó — azonnal használatra kész</span>
+        </div>
+
+        <div class="trust-row">
+            <span class="trust-item">🏀 Sportegyesületek számára</span>
+            <span class="trust-item">🔒 GDPR-kompatibilis</span>
+            <span class="trust-item">⚡ Gyors indulás</span>
+        </div>
+    </div>
+
+    <div class="form-wrap">
+        <div class="form-card" id="formCard">
+            <h2>Ingyenes demó igénylése</h2>
+            <p class="form-sub">Töltsd ki az űrlapot — néhány percen belül e-mailben elküldjük a hozzáférési adatokat.</p>
+
+            <div class="section-label">Egyesületi adatok</div>
+
+            <div class="field">
+                <label>Egyesület neve <span class="req">*</span></label>
+                <input type="text" id="vereinsname" placeholder="pl. Minta Kosárlabda Klub" />
+            </div>
+
+            <div class="field">
+                <label>Kapcsolattartó neve <span class="req">*</span></label>
+                <input type="text" id="ansprechpartner" placeholder="Vezeték- és keresztnév" />
+            </div>
+
+            <div class="field">
+                <label>E-mail-cím <span class="req">*</span></label>
+                <input type="email" id="email" placeholder="nev@egyesulet.hu" />
+                <div class="hint">Erre a címre küldjük el a hozzáférési adatokat.</div>
+            </div>
+
+            <div class="field">
+                <label>Telefonszám</label>
+                <input type="tel" id="telefon" placeholder="+36 ..." />
+            </div>
+
+            <div class="field">
+                <label>Az egyesület weboldala</label>
+                <input type="url" id="website" placeholder="https://egyesulet.hu" />
+                <div class="hint">Az oldalról automatikusan átvesszük az egyesület színeit, így gyorsabb a beállítás.</div>
+            </div>
+
+            <hr class="divider" />
+
+            <div class="section-label">🏀 Automatikus mérkőzésbeszámolók</div>
+
+            <div class="club-id-info" style="margin-bottom:0">
+                <strong>Egyszer kell beállítani — utána az egész szezon automatikusan működik!</strong>
+                <br/><br/>
+                A regisztráció után megkapod a személyes ONLANG beszámoló-címedet, például:
+                <br/><br/>
+                <span class="url-example">berichte+<strong>v001</strong>@onlang.de</span>
+                <br/><br/>
+                Ezt a címet egyszer kell hozzáadnod a mérkőzésjelentéseket küldő levelezési listához — az ONLANG pedig elvégzi a többit:
+                <br/><br/>
+                ✅ A mérkőzésjelentést automatikusan felismeri<br/>
+                ✅ A mesterséges intelligencia elkészíti a beszámoló tervezetét<br/>
+                ✅ Az eredményt, az ellenfelet, a bajnokságot és a mérkőzés adatait átveszi<br/>
+                ✅ Fotó vagy YouTube-videó is hozzáadható<br/>
+                ✅ Egyetlen kattintással közzétehető a weboldalon, az alkalmazásban és a közösségi médiában
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+                <span id="btnText">Demó igénylése most</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+
+            <p class="form-note">Ingyenes és kötelezettségmentes · Bankkártya nem szükséges</p>
+        </div>
+
+        <div class="success-card" id="successCard">
+            <div class="success-icon">✓</div>
+            <h2>Megkaptuk az igénylésedet!</h2>
+            <p>A demóigénylésed megérkezett. A hozzáférési adatokat erre a címre küldjük:<br/>
+                <span class="success-email" id="successEmail"></span>
+            </p>
+            <p style="margin-top:8px;">Nézd meg hamarosan a beérkező leveleidet — az e-mail néhány percen belül megérkezik.</p>
+
+            <div class="next-step-box">
+                📱 <strong>Következő lépés:</strong> Az e-mailben megtalálod az adminisztrációs oldal linkjét, az azonosítódat és a jelszavadat. Ott beállíthatod a logót, a színeket és a kategóriákat — az alkalmazás ezután azonnal használható!
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <strong>ONLANG</strong> — Digitális sportegyesületi platform ·
+        <a href="mailto:info@onlang.de">info@onlang.de</a> · Minden jog fenntartva
+    </footer>
+
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzrvPIQsGaqHP28_9G-geahMB0QMYHlbylnGLUTeJagi1Sc_rgPVErasrhc0HGGthppYA/exec';
+
+        async function submitForm() {
+            const vereinsname     = document.getElementById('vereinsname').value.trim();
+            const ansprechpartner = document.getElementById('ansprechpartner').value.trim();
+            const email           = document.getElementById('email').value.trim();
+            const telefon         = document.getElementById('telefon').value.trim();
+            const website         = document.getElementById('website').value.trim();
+            const clubId          = '';
+
+            if (!vereinsname || !ansprechpartner || !email) {
+                alert('Kérjük, töltsd ki az összes kötelező mezőt.');
+                return;
+            }
+
+            const btn     = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                const params = new URLSearchParams({
+                    action: 'registriereKunde',
+                    Verein_Name: vereinsname,
+                    Ansprechpartner: ansprechpartner,
+                    Email: email,
+                    Telefon: telefon,
+                    Website: website
+                });
+
+                const res  = await fetch(`${GAS_URL}?${params}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('formCard').style.display = 'none';
+                    document.getElementById('successEmail').textContent = email;
+                    document.getElementById('successCard').style.display = 'block';
+                } else {
+                    alert('Hiba: ' + (data.error || 'Ismeretlen hiba'));
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    spinner.style.display = 'none';
+                }
+            } catch (e) {
+                alert('Kapcsolódási hiba. Kérjük, próbáld újra.');
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
