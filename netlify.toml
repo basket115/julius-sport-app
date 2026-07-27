@@ -9,6 +9,12 @@
   to = "/julius-welt.html"
   status = 200
   force = true
+  
+ [[redirects]]
+  from = "https://anmeldung.onlang.de/anmeldung-hu.html"
+  to = "/anmeldung-hu.html"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "https://anmeldung.onlang.de/*"
