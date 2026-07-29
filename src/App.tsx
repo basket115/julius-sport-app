@@ -166,6 +166,7 @@ const OsterScreen: React.FC<{ onDone: () => void }> = ({ onDone }) => {
 // ── Haupt-App ─────────────────────────────────────────────────
 const App: React.FC = () => {
   const [branding, setBranding] = useState<any>(null);
+  const [uebersetzungen, setUebersetzungen] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -216,6 +217,16 @@ const App: React.FC = () => {
 
       if (b) {
         setBranding(b);
+        const sprache = String(b?.Sprache || 'de').toLowerCase();
+        if (sprache && sprache !== 'de') {
+          try {
+            const tr = await apiFetch(`${API_EXEC_URL}?action=getTranslations&lang=${sprache}`);
+            const td = await tr.json();
+            if (td && td.translations) setUebersetzungen(td.translations);
+          } catch (e) { /* Fallback: Deutsch */ }
+        } else {
+          setUebersetzungen({});
+        }
         const vereinName      = b?.Verein_Name || 'Sport App';
         const logoUrl         = b?.Logo_Verein || b?.Logo_verein || '';
         const themaFarbe      = b?.Thema_Farbe       || '#111111';
@@ -362,8 +373,11 @@ const App: React.FC = () => {
     );
   }
 
+  const t = (key: string, fallback: string) => (uebersetzungen[key] != null && uebersetzungen[key] !== '') ? uebersetzungen[key] : fallback;
+
   return (
     <BrandingContext.Provider value={{
+      t, sprache: String(branding?.Sprache || 'de').toLowerCase(),
       branding, kundenId, loading, reload, isAuthenticated,
       teamRolle, teamMannschaft, teamId, teamLoginDone, handleTeamLogout,
       themaFarbe, akzentFarbe, headerTextFarbe,

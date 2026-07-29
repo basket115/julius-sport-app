@@ -9,6 +9,7 @@ export type Branding = {
   Status?: string;
  Demo_Ende?: string;
   Kategorien?: string[];
+  Sprache?: string;
 };
 
 const API_EXEC_URL =
