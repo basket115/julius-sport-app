@@ -29,7 +29,22 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-  "eslint-plugin-react-hooks": "^4.6.0",
-  "typescript": "3.9.10"
-}
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "typescript": "3.9.10"
+  },
+  "overrides": {
+    "@types/babel__traverse": "7.11.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
