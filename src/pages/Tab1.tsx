@@ -50,6 +50,7 @@ const DEFAULT_SPONSOR: SponsorData = {
 
 // ─── SponsorBanner ────────────────────────────────────────────
 const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
+  const _sb = useContext(BrandingContext); const t = (_sb && _sb.t) ? _sb.t : (_k: string, d: string) => d;
   const [sponsor, setSponsor] = useState<SponsorData | null>(null);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
@@ -67,7 +68,7 @@ const SponsorBanner: React.FC<{ kundenId: string }> = ({ kundenId }) => {
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         {activeSponsor.bannerText && <div style={{ fontSize: 13, lineHeight: 1.45, color: '#444', whiteSpace: 'pre-wrap' as const, fontWeight: 500 }}>{activeSponsor.bannerText}</div>}
-        {activeSponsor.linkUrl && <div style={{ marginTop: 6, fontSize: 12, color: '#0057B7', fontWeight: 600 }}>Mehr erfahren →</div>}
+        {activeSponsor.linkUrl && <div style={{ marginTop: 6, fontSize: 12, color: '#0057B7', fontWeight: 600 }}>{t('app_read_more','Mehr erfahren →')}</div>}
       </div>
     </>
   );
@@ -406,6 +407,7 @@ const ErgebnisseWidget: React.FC<{
   cardRahmen: string;
   onAlleAnzeigen: () => void;
 }> = ({ kundenId, clubId, themaFarbe, akzentFarbe, cardHintergrund, cardRahmen, onAlleAnzeigen }) => {
+  const _ew = useContext(BrandingContext); const t = (_ew && _ew.t) ? _ew.t : (_k: string, d: string) => d;
   const [gespielt, setGespielt]   = useState<Match[]>([]);
   const [anstehend, setAnstehend] = useState<Match[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -439,7 +441,7 @@ const ErgebnisseWidget: React.FC<{
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 18 }}>🏀</span>
-          <span style={{ fontWeight: 800, fontSize: 15, color: themaFarbe }}>Ergebnisse & Spielplan</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: themaFarbe }}>{t('app_results_schedule','Ergebnisse & Spielplan')}</span>
         </div>
         <button onClick={onAlleAnzeigen}
           style={{ background: 'none', border: 'none', color: akzentFarbe, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
@@ -461,14 +463,14 @@ const ErgebnisseWidget: React.FC<{
 
       {!loading && gespielt.length > 0 && (
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Letzte Ergebnisse</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>{t('app_last_results','Letzte Ergebnisse')}</div>
           {gespielt.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={clubId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={true} />)}
         </div>
       )}
 
       {!loading && anstehend.length > 0 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>Nächste Spiele</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#aaa', textTransform: 'uppercase' as const, marginBottom: 6 }}>{t('app_next_games','Nächste Spiele')}</div>
           {anstehend.map(m => <MatchKarteKlein key={m.match_uid} match={m} kundenId={clubId} themaFarbe={themaFarbe} akzentFarbe={akzentFarbe} cardHintergrund={cardHintergrund} cardRahmen={cardRahmen} gespielt={false} />)}
         </div>
       )}
@@ -531,8 +533,10 @@ const MatchKarteKlein: React.FC<{
 // ============================================================
 // HAUPTKOMPONENTE TAB1
 // ============================================================
-export default function Tab1({ onOpenSpielplan }: { onOpenSpielplan?: () => void }) {
-  const { branding, kundenId } = useContext(BrandingContext);
+export default function Tab1({ onOpenSpielplan, onAdminClick }: { onOpenSpielplan?: () => void; onAdminClick?: () => void }) {
+  const ctx = useContext(BrandingContext);
+  const { branding, kundenId } = ctx;
+  const t = (ctx && ctx.t) ? ctx.t : (_k: string, d: string) => d;
 
   const [beitraege, setBeitraege] = useState<any[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -580,7 +584,15 @@ export default function Tab1({ onOpenSpielplan }: { onOpenSpielplan?: () => void
   return (
     <div style={{ backgroundColor: '#f4f6f9', minHeight: '100vh', paddingBottom: 60 }}>
       {/* Header */}
-      <AppHeader />
+      <AppHeader
+        title={branding?.Verein_Name || 'Sport App'}
+        logoUrl={branding?.Logo_Verein || branding?.Logo_verein || ''}
+        sponsorLogoUrl={branding?.Logo_Sponsor || ''}
+        themaFarbe={themaFarbe}
+        onRefresh={fetchBeitraege}
+        loading={loading}
+        onAdminClick={onAdminClick}
+      />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px 12px' }}>
         
@@ -610,18 +622,20 @@ export default function Tab1({ onOpenSpielplan }: { onOpenSpielplan?: () => void
 
         {/* Kategorien Filter */}
         <CategoriesComponent
+          categories={branding?.Kategorien || []}
           selectedCategory={selectedKategorie}
-          onSelectCategory={(cat) => setSelectedKategorie(cat)}
+          onSelect={(cat: string) => setSelectedKategorie(cat)}
+          themaFarbe={themaFarbe}
         />
 
         {/* Beiträge Feed */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>
-            ⏳ Beiträge werden geladen...
+            ⏳ {t('app_loading','Beiträge werden geladen...')}
           </div>
         ) : gefilterteBeitraege.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#888', background: cardHintergrund, borderRadius: 12, border: `1px solid ${cardRahmen}` }}>
-            Noch keine Beiträge.
+            {t('app_no_posts_yet','Noch keine Beiträge.')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 12 }}>
