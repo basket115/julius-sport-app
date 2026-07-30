@@ -622,7 +622,11 @@ export default function Tab1({ onOpenSpielplan, onAdminClick }: { onOpenSpielpla
 
         {/* Kategorien Filter */}
         <CategoriesComponent
-          categories={branding?.Kategorien || []}
+          categories={
+            Array.isArray(branding?.Kategorien)
+              ? branding.Kategorien
+              : (branding?.Kategorien ? String(branding.Kategorien).split(',').map((x: string) => x.trim()).filter(Boolean) : [])
+          }
           selectedCategory={selectedKategorie}
           onSelect={(cat: string) => setSelectedKategorie(cat)}
           themaFarbe={themaFarbe}
