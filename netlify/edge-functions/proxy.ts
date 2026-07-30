@@ -1,7 +1,7 @@
 import type { Context } from "https://edge.netlify.com";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbyUP8wHkErf7a20HJemThwY4Vq0xjQiCskpXDWwqysG2y3BCKMulLTRZ7-Fs0LbFoBacg/exec";
+  "https://script.google.com/macros/s/AKfycbx7gnTorNAQz21x3vwZOFQl2bkP2t1QKLppcUSQ_-CQywRS-36AZOeqDDMJg3uXVa2ntA/exec";
 
 export default async (request: Request, context: Context) => {
   if (request.method === "OPTIONS") {
