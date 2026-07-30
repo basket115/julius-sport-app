@@ -559,8 +559,14 @@ export default function Tab1({ onOpenSpielplan, onAdminClick }: { onOpenSpielpla
     try {
       const res = await fetch(`${API_EXEC_URL}?action=get_beitraege&kundenId=${encodeURIComponent(kundenId)}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.beitraege)) {
-        setBeitraege(data.beitraege);
+      const rows = Array.isArray(data.rows)
+        ? data.rows
+        : Array.isArray(data.beitraege)
+          ? data.beitraege
+          : [];
+
+      if (data.success) {
+        setBeitraege(rows);
       } else {
         setBeitraege([]);
       }
