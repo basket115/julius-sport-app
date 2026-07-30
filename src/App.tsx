@@ -220,7 +220,7 @@ const App: React.FC = () => {
         const sprache = String(b?.Sprache || 'de').toLowerCase();
         if (sprache && sprache !== 'de') {
           try {
-            const tr = await apiFetch(`${API_EXEC_URL}?action=getTranslations&lang=${sprache}`);
+            const tr = await apiFetch(`${API_EXEC_URL}?action=getTranslations&kundenId=${encodeURIComponent(kundenId)}&lang=${encodeURIComponent(sprache)}`);
             const td = await tr.json();
             if (td && td.translations) setUebersetzungen(td.translations);
           } catch (e) { /* Fallback: Deutsch */ }
