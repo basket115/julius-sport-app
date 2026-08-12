@@ -520,19 +520,15 @@
                     Website: website,
 
                 });
-                const res  = await fetch(`${GAS_URL}?${params}`);
-                const data = await res.json();
+                // Anfrage abschicken. Apps Script fuehrt die Registrierung aus
+                // und verschickt die Zugangsdaten per E-Mail. Die Server-Antwort
+                // laesst sich wegen der CORS-Umleitung nicht zuverlaessig auslesen,
+                // deshalb 'no-cors' und danach die Erfolgsseite anzeigen.
+                await fetch(`${GAS_URL}?${params}`, { method: 'GET', mode: 'no-cors' });
 
-                if (data.success) {
-                    document.getElementById('formCard').style.display = 'none';
-                    document.getElementById('successEmail').textContent = email;
-                    document.getElementById('successCard').style.display = 'block';
-                } else {
-                    alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
-                    btn.disabled = false;
-                    btnText.style.display = 'inline';
-                    spinner.style.display = 'none';
-                }
+                document.getElementById('formCard').style.display = 'none';
+                document.getElementById('successEmail').textContent = email;
+                document.getElementById('successCard').style.display = 'block';
             } catch (e) {
                 alert('Verbindungsfehler. Bitte versuche es erneut.');
                 btn.disabled = false;
