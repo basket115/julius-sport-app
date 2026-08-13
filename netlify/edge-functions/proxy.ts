@@ -22,7 +22,7 @@ export default async (request: Request, context: Context) => {
 
   try {
     const requestHeaders: Record<string, string> = {
-      "User-Agent": "Netlify-Edge-Proxy/2.0",
+      "User-Agent": "Netlify-Edge-Proxy/2.1",
     };
 
     const contentType = request.headers.get("content-type");
@@ -30,14 +30,16 @@ export default async (request: Request, context: Context) => {
       requestHeaders["Content-Type"] = contentType;
     }
 
+    const isGet = request.method === "GET";
+
     const options: RequestInit = {
       method: request.method,
       headers: requestHeaders,
       redirect: "follow",
-      cache: "no-store",
+      cache: isGet ? "default" : "no-store",
     };
 
-    if (request.method !== "GET" && request.method !== "HEAD") {
+    if (!isGet && request.method !== "HEAD") {
       options.body = await request.text();
     }
 
@@ -52,7 +54,11 @@ export default async (request: Request, context: Context) => {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
-        "Cache-Control": "no-store, no-cache, must-revalidate",
+
+        // Öffentliche GET-Daten 60 Sekunden cachen
+        "Cache-Control": isGet
+          ? "public, max-age=60, s-maxage=60"
+          : "no-store, no-cache, must-revalidate",
       },
     });
   } catch (error) {
