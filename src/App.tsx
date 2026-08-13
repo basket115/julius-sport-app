@@ -1,4 +1,8 @@
-// src/App.tsx — v4.1: StudioAPI Integration & Web-Einbettung
+// src/App.tsx — v4.2: StudioAPI Integration & Web-Einbettung
+// ÄNDERUNG ggü. v4.1: apiFetch hat jetzt einen automatischen Retry-Mechanismus,
+// der Google-Apps-Script-Kaltstarts (404 / Netzwerkfehler beim ersten Aufruf)
+// abfängt. Der Nutzer sieht dadurch keinen "Verbindungsfehler" mehr, sondern
+// nur eine etwas längere Ladezeit beim allerersten Aufruf. Sonst nichts geändert.
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -30,9 +34,55 @@ export const BrandingContext = createContext<any>(null);
 
 const API_EXEC_URL = "/api/proxy";
 
-// ── Fetch-Hilfsfunktion mit CORS-Fix ─────────────────────────
-const apiFetch = (url: string) =>
-  fetch(url, { redirect: 'follow', cache: 'no-store' });
+// ── Fetch-Hilfsfunktion mit CORS-Fix + Kaltstart-Retry ───────
+// Google Apps Script liefert beim Kaltstart (erste Instanz fährt hoch)
+// manchmal kurzzeitig einen 404, bevor es warm ist und sauber 200 gibt.
+// Damit der Nutzer nie einen "Verbindungsfehler" sieht, versuchen wir den
+// Aufruf bei 404 oder Netzwerkfehler automatisch mehrmals mit kurzer Pause.
+// Sobald eine warme Antwort (200) kommt, wird sie sofort zurückgegeben.
+const RETRY_STATUS = [404, 500, 502, 503, 504];   // typische Kaltstart-/Aufwärm-Antworten
+const RETRY_MAX_VERSUCHE = 4;                       // 1 normaler + 3 Wiederholungen
+const RETRY_PAUSEN_MS = [1500, 2500, 4000];         // wachsende Pause zwischen den Versuchen
+
+const warte = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+const apiFetch = async (url: string): Promise<Response> => {
+  let letzterFehler: any = null;
+
+  for (let versuch = 0; versuch < RETRY_MAX_VERSUCHE; versuch++) {
+    try {
+      const response = await fetch(url, { redirect: 'follow', cache: 'no-store' });
+
+      // Erfolgreich (oder ein Status, den wir nicht als Kaltstart werten) → sofort zurück
+      if (!RETRY_STATUS.includes(response.status)) {
+        return response;
+      }
+
+      // Kaltstart-verdächtiger Status: nur erneut versuchen, wenn noch Versuche übrig sind
+      if (versuch < RETRY_MAX_VERSUCHE - 1) {
+        await warte(RETRY_PAUSEN_MS[versuch] ?? 4000);
+        continue;
+      }
+
+      // Keine Versuche mehr übrig → letzte Antwort trotzdem zurückgeben,
+      // damit der aufrufende Code seine normale Fehlerbehandlung machen kann.
+      return response;
+
+    } catch (err) {
+      // Netzwerkfehler (Abbruch, DNS, etc.) → ebenfalls erneut versuchen
+      letzterFehler = err;
+      if (versuch < RETRY_MAX_VERSUCHE - 1) {
+        await warte(RETRY_PAUSEN_MS[versuch] ?? 4000);
+        continue;
+      }
+      throw letzterFehler;
+    }
+  }
+
+  // Sollte praktisch nie erreicht werden – Sicherheitsnetz.
+  if (letzterFehler) throw letzterFehler;
+  return fetch(url, { redirect: 'follow', cache: 'no-store' });
+};
 
 // ── Google Drive URL Auto-Konvertierung ───────────────────────
 export function fixGoogleDriveUrl(url: string): string {
