@@ -1,4 +1,15 @@
-// src/pages/Tab1.tsx v28 — BBK-TV-Fallback direkt über ?kunde=V006
+// src/pages/Tab1.tsx v29 — Retry-Mechanismus + freundliche Ergebnisse-Leermeldung
+// ÄNDERUNGEN ggü. v28:
+//  1) Lokale apiFetchRetry-Hilfsfunktion (gleiche Logik wie apiFetch in App.tsx):
+//     fängt Google-Apps-Script-Kaltstarts (404 / Netzwerkfehler) automatisch ab,
+//     indem der Aufruf bei verdächtigem Status kurz wartet und erneut versucht.
+//     Die Daten-Aufrufe (Matches, Beiträge, Sponsoren) nutzen diese Funktion.
+//  2) ErgebnisseWidget zeigt keinen roten "Verbindungsfehler" mehr. Bei leeren
+//     Daten bleibt das Widget unsichtbar (return null). Nur wenn nach allen
+//     Retries wirklich kein Ergebnis kommt, erscheint die freundliche, neutrale
+//     Meldung "Aktuell sind keine Spieltermine verfügbar." Sobald echte Daten
+//     im Sheet stehen, werden sie ganz normal angezeigt.
+// Sonst ist nichts geändert.
 import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import AppHeader from '../components/AppHeader';
 import CategoriesComponent from '../components/CategoriesComponent';
@@ -6,6 +17,44 @@ import { BrandingContext, fixGoogleDriveUrl } from '../App';
 
 const API_EXEC_URL =
   "/api/proxy";
+
+// ─── Kaltstart-Retry (lokal, gleiche Logik wie apiFetch in App.tsx) ──
+// Google Apps Script liefert beim Kaltstart manchmal kurz einen 404 (oder
+// 5xx), bevor es warm ist und sauber 200 gibt. Damit der Nutzer keinen
+// "Verbindungsfehler" sieht, versuchen wir den Aufruf bei solchen Status
+// automatisch mehrmals mit kurzer, wachsender Pause. Sobald eine warme
+// Antwort kommt, wird sie sofort zurückgegeben.
+const RETRY_STATUS = [404, 500, 502, 503, 504];
+const RETRY_MAX_VERSUCHE = 4;                 // 1 normaler + 3 Wiederholungen
+const RETRY_PAUSEN_MS = [1500, 2500, 4000];   // wachsende Pause zwischen den Versuchen
+
+const warte = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+async function apiFetchRetry(url: string): Promise<Response> {
+  let letzterFehler: any = null;
+  for (let versuch = 0; versuch < RETRY_MAX_VERSUCHE; versuch++) {
+    try {
+      const response = await fetch(url, { redirect: 'follow', cache: 'no-store' });
+      if (!RETRY_STATUS.includes(response.status)) {
+        return response;
+      }
+      if (versuch < RETRY_MAX_VERSUCHE - 1) {
+        await warte(RETRY_PAUSEN_MS[versuch] ?? 4000);
+        continue;
+      }
+      return response;
+    } catch (err) {
+      letzterFehler = err;
+      if (versuch < RETRY_MAX_VERSUCHE - 1) {
+        await warte(RETRY_PAUSEN_MS[versuch] ?? 4000);
+        continue;
+      }
+      throw letzterFehler;
+    }
+  }
+  if (letzterFehler) throw letzterFehler;
+  return fetch(url, { redirect: 'follow', cache: 'no-store' });
+}
 
 // ─── YouTube Embed ────────────────────────────────────────────
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -20,7 +69,7 @@ const sponsorCache: Record<string, SponsorData | null> = {};
 
 async function loadSponsorsForKunde(kundenId: string): Promise<any[]> {
   try {
-    const res = await fetch(`/api/proxy?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`, { redirect: 'follow' });
+    const res = await apiFetchRetry(`/api/proxy?action=get_sponsors&kundenId=${encodeURIComponent(kundenId)}`);
     const d = await res.json();
     return d?.sponsors || [];
   } catch { return []; }
@@ -264,7 +313,7 @@ const SponsorPopup: React.FC<{ kundenId: string; themaFarbe: string; akzentFarbe
     setSaving(true); setError(''); setSuccess('');
     try {
       const params = new URLSearchParams({ action: 'update_sponsor', kundenId, logoUrl, bannerText, linkUrl });
-      const res = await fetch(`${API_EXEC_URL}?${params}`);
+      const res = await apiFetchRetry(`${API_EXEC_URL}?${params}`);
       const data = await res.json();
       if (data.success) {
         delete sponsorCache[kundenId];
@@ -321,7 +370,7 @@ const EditPopup: React.FC<{
         action: 'update_beitrag', kundenId, id: bId, titel, text,
         bildUrl: fixGoogleDriveUrl(bildUrl), videoUrl: fixGoogleDriveUrl(videoUrl),
       });
-      const res = await fetch(`${API_EXEC_URL}?${params}`);
+      const res = await apiFetchRetry(`${API_EXEC_URL}?${params}`);
       const data = await res.json();
       if (data.success) { onSaved({ ...beitrag, Titel: titel, Text: text, Bild_URL: bildUrl, Video_URL: videoUrl }); onClose(); }
       else { setError('Fehler: ' + (data.error || 'Unbekannt')); }
@@ -418,8 +467,8 @@ const ErgebnisseWidget: React.FC<{
     setLoading(true);
     const jetzt = new Date();
     Promise.all([
-      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=played&limit=3`, { redirect: 'follow' }).then(r => r.json()),
-      fetch(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=upcoming&limit=10`, { redirect: 'follow' }).then(r => r.json()),
+      apiFetchRetry(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=played&limit=3`).then(r => r.json()),
+      apiFetchRetry(`${API_EXEC_URL}?action=get_matches&kundenId=${kundenId}&scope=upcoming&limit=10`).then(r => r.json()),
     ]).then(([dG, dA]) => {
       if (dG.success)  setGespielt(dG.items || []);
       if (dA.success) {
@@ -429,11 +478,19 @@ const ErgebnisseWidget: React.FC<{
         }).slice(0, 2);
         setAnstehend(echteZukunft);
       }
-      if (!dG.success && !dA.success) setFehler('Spielplandaten nicht verfügbar');
-    }).catch(() => setFehler('Verbindungsfehler'))
+      // Nur wenn BEIDE Aufrufe kein Erfolg liefern (nach allen Retries),
+      // wird ein Zustand gesetzt. Es ist bewusst KEIN roter Fehler mehr,
+      // sondern eine neutrale, freundliche Meldung.
+      if (!dG.success && !dA.success) setFehler('Aktuell sind keine Spieltermine verfügbar.');
+    }).catch(() => setFehler('Aktuell sind keine Spieltermine verfügbar.'))
       .finally(() => setLoading(false));
   }, [kundenId]);
 
+  // MÖGLICHKEIT B:
+  // Bei leeren Daten OHNE Fehler bleibt das Widget komplett unsichtbar.
+  // Sobald echte Daten (gespielt/anstehend) da sind, werden sie angezeigt.
+  // Nur wenn nach allen Retries wirklich nichts geladen werden konnte,
+  // erscheint die freundliche, neutrale Meldung (siehe unten).
   if (!loading && !fehler && gespielt.length === 0 && anstehend.length === 0) return null;
 
   return (
@@ -456,7 +513,7 @@ const ErgebnisseWidget: React.FC<{
       )}
 
       {!loading && fehler && (
-        <div style={{ background: '#fff5f5', borderRadius: 12, padding: 14, border: '1px solid #ffcccc', color: '#cc0000', fontSize: 13, textAlign: 'center' }}>
+        <div style={{ background: cardHintergrund, borderRadius: 12, padding: 16, border: `1px solid ${cardRahmen}`, color: '#888', fontSize: 14, textAlign: 'center' }}>
           {fehler}
         </div>
       )}
@@ -557,7 +614,7 @@ export default function Tab1({ onOpenSpielplan, onAdminClick }: { onOpenSpielpla
     if (!kundenId) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_EXEC_URL}?action=get_beitraege&kundenId=${encodeURIComponent(kundenId)}`);
+      const res = await apiFetchRetry(`${API_EXEC_URL}?action=get_beitraege&kundenId=${encodeURIComponent(kundenId)}`);
       const data = await res.json();
       const rows = Array.isArray(data.rows)
         ? data.rows
