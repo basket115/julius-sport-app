@@ -1,8 +1,14 @@
-// src/App.tsx — v4.2: StudioAPI Integration & Web-Einbettung
-// ÄNDERUNG ggü. v4.1: apiFetch hat jetzt einen automatischen Retry-Mechanismus,
-// der Google-Apps-Script-Kaltstarts (404 / Netzwerkfehler beim ersten Aufruf)
-// abfängt. Der Nutzer sieht dadurch keinen "Verbindungsfehler" mehr, sondern
-// nur eine etwas längere Ladezeit beim allerersten Aufruf. Sonst nichts geändert.
+// src/App.tsx — v4.3: StudioAPI Integration & Web-Einbettung
+// ÄNDERUNGEN ggü. v4.1:
+//  1) apiFetch hat einen automatischen Retry-Mechanismus, der
+//     Google-Apps-Script-Kaltstarts (404 / Netzwerkfehler beim ersten Aufruf)
+//     abfängt. Der Nutzer sieht keinen "Verbindungsfehler" mehr, sondern nur
+//     eine etwas längere Ladezeit beim allerersten Aufruf.
+//  2) loadBranding ruft jetzt die korrekte Backend-Action get_branding auf
+//     (vorher getKundenMaster – diese Action existiert im Backend nicht und
+//     lieferte "Kein Passwort", weshalb Vereinsname/Logo/Farben fehlten und
+//     die App auf "Sport App" + Default-Farben zurückfiel).
+// Sonst ist nichts geändert.
 import React, { useState, useEffect, createContext } from 'react';
 import { IonApp } from '@ionic/react';
 import Tab1 from './pages/Tab1';
@@ -254,8 +260,10 @@ const App: React.FC = () => {
   const loadBranding = async () => {
     setLoading(true);
     try {
-      // Zugriff auf den getKundenMaster Endpunkt aus StudioAPI.gs
-      const res = await apiFetch(`${API_EXEC_URL}?action=getKundenMaster&kundenId=${kundenId}`);
+      // Branding über die korrekte Backend-Action get_branding laden.
+      // Diese Funktion liest Verein_Name, Logo_Verein, Farben etc. aus
+      // Kunden_Master und liefert sie unter data.branding zurück.
+      const res = await apiFetch(`${API_EXEC_URL}?action=get_branding&kundenId=${kundenId}`);
       const data = await res.json();
       
       let b = null;
